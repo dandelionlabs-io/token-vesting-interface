@@ -1,19 +1,27 @@
-import "./App.css";
+import React from "react";
+
+import Navbar from "./components/navbar/Navbar";
+
+import { Route } from "react-router-dom";
+import { useAuth } from "./providers/AuthProvider";
 import InvestorPage from "./pages/investor";
 import ManagerPage from "./pages/manager";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MainLayout from "./components/utils/layout/MainLayout";
 
-function App() {
+import "./App.scss";
+
+const Frontend = () => {
+  const { showModalInfo, setShowModalInfo } = useAuth();
+
   return (
-    <div>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<InvestorPage />} />
-          <Route path="manager" element={<ManagerPage />} />{" "}
-        </Routes>
-      </BrowserRouter>
+    <div className="App">
+      <Navbar></Navbar>
+      <MainLayout id="app_body">
+        <Route path="/" element={<InvestorPage />} />
+        <Route path="manager" element={<ManagerPage />} />
+      </MainLayout>
     </div>
   );
-}
+};
 
-export default App;
+export default Frontend;
