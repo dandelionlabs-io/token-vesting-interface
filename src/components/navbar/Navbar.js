@@ -2,24 +2,23 @@ import React, { useState } from "react";
 import { MenuItems } from "./MenuItems";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AiOutlineClose } from "react-icons/ai";
-import MainLayout from "../utils/layout/MainLayout";
-
 import "./Navbar.scss";
-
 import logo from "../../assets/logo/dandelion-logo.png";
 import ProviderModal from "../modals/provider/ProviderModal";
 import NormalButton from "../utils/buttons/NormalButton";
+import { useAuth } from "../../providers/AuthProvider";
 
 const Navbar = () => {
+  const { address, disconnectWallet } = useAuth();
   const [toggleMenu, setToggleMenu] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [toggleConnect, setToggleConnect] = useState(false);
   window.addEventListener("resize", () => {
     setWindowWidth(window.innerWidth);
   });
+
   return (
     <>
-      {/* <MainLayout id="navbar" className="navbarDiv"> */}
       <nav className="navbar bg-dark">
         <div className="logo">
           <a
@@ -48,10 +47,10 @@ const Navbar = () => {
           <NormalButton
             className="secondary"
             onClick={() => {
-              setToggleConnect(true);
+              !address ? setToggleConnect(true) : disconnectWallet();
             }}
           >
-            CONNECT
+            {!address ? "CONNECT" : "DISCONNECT"}
           </NormalButton>
           {toggleConnect && (
             <ProviderModal closeModal={setToggleConnect}></ProviderModal>

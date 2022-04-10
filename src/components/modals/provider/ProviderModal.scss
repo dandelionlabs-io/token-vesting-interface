@@ -30,7 +30,7 @@
     flex-direction: column;
 
     button {
-      color: var(--dark-bg);
+      color: black;
       padding: 10px 30px !important;
       border: transparent;
       margin-bottom: 5px !important;
@@ -47,7 +47,7 @@
       }
       &:hover,
       &:focus {
-        color: var(--yellow);
+        color: gold;
       }
     }
   }

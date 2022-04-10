@@ -141,12 +141,11 @@ export default function AuthProvider({ children }) {
     }
   };
 
-  const shortenAddress = (addr) => {
-    if (addr !== undefined && addr.startsWith("0x")) {
-      const length = addr.length;
-      return addr.slice(0, 6) + "..." + addr.slice(length - 4);
-    }
-    return addr;
+  const disconnectWallet = () => {
+    setAddress(undefined);
+    setBalance(undefined);
+    setETHProvider(undefined);
+    setWrongNetwork(false);
   };
 
   return (
@@ -157,7 +156,7 @@ export default function AuthProvider({ children }) {
         setShowModalInfo,
         connectWallet,
         connectMetaMask,
-        shortenAddress,
+        disconnectWallet,
         ethProvider,
         balance,
         updateBalance,

@@ -40,12 +40,12 @@ const ProviderModal = (props) => {
 
           <div className="wallet-provider-list">
             {windowWidth > 700 && (
-              <button className="grow" onClick={connectMetaMask}>
+              <button onClick={connectMetaMask}>
                 <img src={MetaMaskLogo} alt="metamask icon" /> Metamask
               </button>
             )}
 
-            <button className="grow" onClick={connectWallet}>
+            <button onClick={connectWallet}>
               <img src={WalletConnectLogo} alt="walletconnect icon" />
               WalletConnect
             </button>

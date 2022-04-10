@@ -1,12 +1,12 @@
 export const MenuItems = [
   {
-    title: "InvestorPage",
-    url: "/investorPage",
+    title: "Investor Page",
+    url: "/",
     cName: "nav-links",
   },
   {
-    title: "ManagerPage",
-    url: "/managerPage",
+    title: "Manager Page",
+    url: "/manager",
     cName: "nav-links",
   },
 ];
