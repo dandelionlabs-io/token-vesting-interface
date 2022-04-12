@@ -10,6 +10,9 @@ import Vesting from "../abi-js/Vesting";
 import { ethers, utils } from "ethers";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { shortenAddress } from "../utils";
+import { useLoading } from "../providers/LoadingProvider";
+import { useError } from "../providers/ErrorProvider";
+
 import "react-tabs/style/react-tabs.css";
 
 export default function ManagerPage() {
@@ -22,6 +25,8 @@ export default function ManagerPage() {
   const [newOwner, setNewOwner] = useState("");
   const [newInvestorAddr, setNewInvestorAddr] = useState("");
   const [oldInvestorAddr, setOldInvestorAddr] = useState("");
+  const { setIsLoading } = useLoading();
+  const { showErrorModal } = useError();
 
   const poolItems = linearVestingConfig.map((x, i) => {
     return (
@@ -78,32 +83,63 @@ export default function ManagerPage() {
       ethProvider.getSigner()
     );
 
+    setIsLoading(true);
+
     const tx = await contract
       .approve(
         currentPool.address,
         utils.parseEther(totalVestingAmount.toString())
       )
-      .catch((e) => console.log("approve error: ", e));
+      .catch((e) => {
+        setIsLoading(false);
+        if (e.code != 4001) showErrorModal(e.message);
+      });
 
-    tx.wait().then(() => setIsApproved(true));
+    tx?.wait().then(() => setIsLoading(false));
   };
 
-  const addInvestors = () => {
-    currentPool
+  const addInvestors = async () => {
+    setIsLoading(true);
+    const tx = await currentPool
       .addTokenGrants(
         csvData.map((x) => x[0]),
         csvData.map((x) => utils.parseEther(x[1].toString()))
       )
-      .catch((e) => console.log("addInvetors error: ", e));
+      .catch((e) => {
+        setIsLoading(false);
+        if (e.code != 4001) showErrorModal(e.message);
+      });
+
+    tx?.wait().then(() => setIsLoading(false));
   };
 
-  const changeInvestor = () => {
-    if (utils.isAddress(newInvestorAddr) && utils.isAddress(oldInvestorAddr))
-      currentPool.changeInvestor(oldInvestorAddr, newInvestorAddr);
+  const changeInvestor = async () => {
+    if (!utils.isAddress(newInvestorAddr))
+      return showErrorModal("New investor address is incorrect");
+    if (!utils.isAddress(oldInvestorAddr))
+      return showErrorModal("Old investor address is incorrect");
+
+    setIsLoading(true);
+    const tx = await currentPool
+      .changeInvestor(oldInvestorAddr, newInvestorAddr)
+      .catch((e) => {
+        setIsLoading(false);
+        if (e.code != 4001) showErrorModal(e.message);
+      });
+
+    tx?.wait().then(() => setIsLoading(false));
   };
 
-  const transferOwnership = () => {
-    if (utils.isAddress(newOwner)) currentPool.transferOwnership(newOwner);
+  const transferOwnership = async () => {
+    if (!utils.isAddress(newOwner))
+      return showErrorModal("The address is incorrect");
+
+    const tx = await currentPool.transferOwnership(newOwner).catch((e) => {
+      setIsLoading(false);
+      if (e.code != 4001) showErrorModal(e.message);
+    });
+
+    tx?.wait().then(() => setIsLoading(false));
   };
 
   const totalPoolsize =

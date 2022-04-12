@@ -1,17 +1,18 @@
 import React from "react";
-
 import Navbar from "./components/navbar/Navbar";
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth } from "./providers/AuthProvider";
+import { Routes, Route } from "react-router-dom";
 import InvestorPage from "./pages/investor";
 import ManagerPage from "./pages/manager";
 import MainLayout from "./components/utils/layout/MainLayout";
-
+import LoadingModal from "./components/modals/loading/LoadingModal";
+import ErrorModal from "./components/modals/error/ErrorModal";
+import { useError } from "./providers/ErrorProvider";
+import { useLoading } from "./providers/LoadingProvider";
 import "./App.scss";
 
 const App = () => {
-  const { showModalInfo, setShowModalInfo } = useAuth();
+  const { isLoading, setIsLoading } = useLoading();
+  const { isError, setIsError, errorMessage } = useError();
 
   return (
     <div className="App">
@@ -21,6 +22,12 @@ const App = () => {
           <Route path="/" element={<InvestorPage />} />
           <Route path="manager" element={<ManagerPage />} />
         </Routes>
+        <LoadingModal isLoading={isLoading} setIsLoading={setIsLoading} />
+        <ErrorModal
+          isError={isError}
+          setIsError={setIsError}
+          errorMessage={errorMessage}
+        />
       </MainLayout>
     </div>
   );

@@ -14,7 +14,7 @@ const PoolSelector = (props) => {
     if (contract) {
       contract
         .calculateGrantClaim(address)
-        .then((res) => setClaimable(ethBalance(res).toFixed(4)));
+        .then((res) => setClaimable(ethBalance(res)));
     }
   };
 

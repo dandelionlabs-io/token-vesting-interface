@@ -6,12 +6,24 @@ import { ethers } from "ethers";
 import Vesting from "../abi-js/Vesting";
 import { ethBalance, shortenAddress } from "../utils";
 import PoolSelector from "../components/poolSelector";
+import { useLoading } from "../providers/LoadingProvider";
+import { useError } from "../providers/ErrorProvider";
 
 const InvestorPage = () => {
   const { address, ethProvider } = useAuth();
   const [pools, setPools] = useState(null);
   const [currentPool, setCurrentPool] = useState(null);
   const [claimable, setClaimable] = useState(0);
+  const { setIsLoading } = useLoading();
+  const { showErrorModal } = useError();
+
+  const locked =
+    currentPool &&
+    ethBalance(currentPool.grant.amount.sub(currentPool.grant.totalClaimed));
+
+  const totalClaimed =
+    currentPool && ethBalance(currentPool.grant.totalClaimed);
+  const totalAmount = currentPool && ethBalance(currentPool.grant.amount);
 
   useEffect(async () => {
     if (address) {
@@ -57,8 +69,20 @@ const InvestorPage = () => {
     return availablePools;
   };
 
-  const claim = () => {
-    currentPool.vesting.claimVestedTokens(address);
+  const claim = async () => {
+    setIsLoading(true);
+    const tx = await currentPool.vesting
+      .claimVestedTokens(address)
+      .catch((e) => {
+        setIsLoading(false);
+        if (e.code != 4001) showErrorModal(e.message);
+      });
+
+    tx?.wait().then(() => setIsLoading(false));
+  };
+
+  const getPercent = (amount, total) => {
+    return (amount * 100) / total;
   };
 
   return (
@@ -134,7 +158,9 @@ const InvestorPage = () => {
                     <div
                       className="progress-bar"
                       role="progressbar"
-                      style={{ width: "15%" }}
+                      style={{
+                        width: `${getPercent(totalClaimed, totalAmount)}%`,
+                      }}
                       aria-valuenow="15"
                       aria-valuemin="0"
                       aria-valuemax="100"
@@ -145,7 +171,9 @@ const InvestorPage = () => {
                     <div
                       className="progress-bar bg-success"
                       role="progressbar"
-                      style={{ width: "30%" }}
+                      style={{
+                        width: `${getPercent(claimable, totalAmount)}%`,
+                      }}
                       aria-valuenow="30"
                       aria-valuemin="0"
                       aria-valuemax="100"
@@ -156,7 +184,12 @@ const InvestorPage = () => {
                     <div
                       className="progress-bar bg-info"
                       role="progressbar"
-                      style={{ width: "20%" }}
+                      style={{
+                        width: `${getPercent(
+                          totalAmount - totalClaimed,
+                          totalAmount
+                        )}%`,
+                      }}
                       aria-valuenow="20"
                       aria-valuemin="0"
                       aria-valuemax="100"
@@ -194,10 +227,10 @@ const InvestorPage = () => {
               <div className="row mt-5 mb-5">
                 <div className="col-md-12 text-center">
                   <strong>
-                    Available Claimable/Locked ({tokenConfig.name}):
+                    Available Claimable/Locked ({tokenConfig.name}):{" "}
                   </strong>
-                  <span id="label-claimable">0.0</span> /
-                  <span id="label-locked">0.0</span>
+                  <span id="label-claimable">{claimable.toFixed(2)}</span> /
+                  <span id="label-locked">{locked.toFixed(2)}</span>
                 </div>
                 <div className="col-md-12 text-center mt-2">
                   <button
