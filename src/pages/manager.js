@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import UserData from "../components/userData";
 import { linearVestingConfig, tokenConfig } from "../linearVestingConfig";
@@ -22,11 +22,19 @@ export default function ManagerPage() {
   const [totalVestingAmount, setTotalVestingAmount] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
   const [currentPool, setCurrentPool] = useState(null);
+  const [currentPoolName, setCurrentPoolName] = useState("");
   const [newOwner, setNewOwner] = useState("");
   const [newInvestorAddr, setNewInvestorAddr] = useState("");
   const [oldInvestorAddr, setOldInvestorAddr] = useState("");
+  const [poolsTimeConfig, setPoolsTimeConfig] = useState(null);
   const { setIsLoading } = useLoading();
   const { showErrorModal } = useError();
+
+  useEffect(() => {
+    axios
+      .get(process.env.REACT_APP_SYNC_URL + "config/pools")
+      .then((res) => setPoolsTimeConfig(res.data));
+  }, []);
 
   const poolItems = linearVestingConfig.map((x, i) => {
     return (
@@ -38,6 +46,7 @@ export default function ManagerPage() {
             setCurrentPool(
               new ethers.Contract(x.address, Vesting, ethProvider.getSigner())
             );
+            setCurrentPoolName(x.name);
             setInvestorList(res.data);
           });
         }}
@@ -95,7 +104,10 @@ export default function ManagerPage() {
         if (e.code != 4001) showErrorModal(e.message);
       });
 
-    tx?.wait().then(() => setIsLoading(false));
+    tx?.wait().then(() => {
+      setIsLoading(false);
+      setIsApproved(true);
+    });
   };
 
   const addInvestors = async () => {
@@ -242,7 +254,9 @@ export default function ManagerPage() {
                     <p>
                       Lock start time:{" "}
                       <span id="pool-info-start-time">
-                        <span className="text-muted">???</span>
+                        <span className="text-muted">
+                          {poolsTimeConfig[currentPoolName]?.start}
+                        </span>
                       </span>
                     </p>
                   </div>
@@ -250,7 +264,9 @@ export default function ManagerPage() {
                     <p>
                       Lock end time:{" "}
                       <span id="pool-info-end-time">
-                        <span className="text-muted">???</span>
+                        <span className="text-muted">
+                          {poolsTimeConfig[currentPoolName]?.end}
+                        </span>
                       </span>
                     </p>
                   </div>
