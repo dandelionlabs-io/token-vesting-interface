@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { shortenAddress, ethBalance } from "../utils";
 import { useAuth } from "../providers/AuthProvider";
-import { tokenConfig } from "../linearVestingConfig";
 import ERC20 from "../abi-js/ERC20";
 import { ethers } from "ethers";
 
@@ -12,7 +11,7 @@ const UserData = () => {
   useEffect(async () => {
     if (address) {
       const contract = new ethers.Contract(
-        tokenConfig.address,
+        process.env.REACT_APP_TOKEN_ADDRESS,
         ERC20,
         ethProvider
       );
