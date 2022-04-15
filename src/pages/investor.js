@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import UserData from "../components/userData";
-import { linearVestingConfig, tokenConfig } from "../linearVestingConfig";
 import { ethers } from "ethers";
 import Vesting from "../abi-js/Vesting";
+import Factory from "../abi-js/Factory";
 import { ethBalance, shortenAddress } from "../utils";
 import PoolSelector from "../components/poolSelector";
 import { useLoading } from "../providers/LoadingProvider";
@@ -32,12 +32,8 @@ const InvestorPage = () => {
     }
   }, [address]);
 
-  const checkAndGetPool = async (pool, key) => {
-    const contract = new ethers.Contract(
-      pool.address,
-      Vesting,
-      ethProvider.getSigner()
-    );
+  const checkAndGetPool = async (pool) => {
+    const contract = new ethers.Contract(pool, Vesting, ethProvider);
 
     let grant = await contract.getTokenGrant(address);
     let amount = ethBalance(grant.amount) + ethBalance(grant.totalClaimed);
@@ -45,25 +41,36 @@ const InvestorPage = () => {
     if (amount) {
       let blacklist = await contract.blacklist(address).catch((e) => {
         console.error(e);
-        throw "RPC Error while validating Blacklisted Accounts in " + key;
+        throw (
+          "RPC Error while validating Blacklisted Accounts in " + pool.address
+        );
       });
 
       if (blacklist !== "0x0000000000000000000000000000000000000000") {
         throw `Address ${address} was blacklisted and replaced by ${blacklist}. Use the new address please!`;
       }
 
-      return { grant: grant, vesting: contract, name: pool.name };
+      return {
+        grant: grant,
+        vesting: contract,
+        name: (await contract.pool()).name,
+      };
     }
     return null;
   };
 
   const getAvailablePools = async () => {
     const availablePools = [];
-    for (let i = 0; i < linearVestingConfig.length; i++) {
-      const poolResult = await checkAndGetPool(
-        linearVestingConfig[i],
-        linearVestingConfig[i].name
-      );
+    const factoryInstance = new ethers.Contract(
+      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS,
+      Factory,
+      ethProvider
+    );
+
+    const poolsAddresses = await factoryInstance.getPools();
+
+    for (let i = 0; i < poolsAddresses.length; i++) {
+      const poolResult = await checkAndGetPool(poolsAddresses[i]);
       if (poolResult) availablePools.push(poolResult);
     }
     return availablePools;
@@ -227,7 +234,8 @@ const InvestorPage = () => {
               <div className="row mt-5 mb-5">
                 <div className="col-md-12 text-center">
                   <strong>
-                    Available Claimable/Locked ({tokenConfig.name}):{" "}
+                    Available Claimable/Locked (
+                    {process.env.REACT_APP_TOKEN_SYMBOL}):{" "}
                   </strong>
                   <span id="label-claimable">{claimable.toFixed(2)}</span> /
                   <span id="label-locked">{locked.toFixed(2)}</span>

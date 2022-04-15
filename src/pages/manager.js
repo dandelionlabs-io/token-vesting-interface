@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import UserData from "../components/userData";
-import { linearVestingConfig, tokenConfig } from "../linearVestingConfig";
 import axios from "axios";
 import DataGrid from "react-data-grid";
 import CSVReader from "react-csv-reader";
@@ -12,6 +11,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { shortenAddress } from "../utils";
 import { useLoading } from "../providers/LoadingProvider";
 import { useError } from "../providers/ErrorProvider";
+import moment from "moment";
 
 import "react-tabs/style/react-tabs.css";
 
@@ -26,17 +26,26 @@ export default function ManagerPage() {
   const [newOwner, setNewOwner] = useState("");
   const [newInvestorAddr, setNewInvestorAddr] = useState("");
   const [oldInvestorAddr, setOldInvestorAddr] = useState("");
-  const [poolsTimeConfig, setPoolsTimeConfig] = useState(null);
+  const [poolsConfig, setPoolsConfig] = useState(null);
   const { setIsLoading } = useLoading();
   const { showErrorModal } = useError();
+
+  const startTime =
+    poolsConfig &&
+    currentPoolName &&
+    parseInt(poolsConfig.find((x) => x.name == currentPoolName)?.start) * 1000;
+  const endTime =
+    poolsConfig &&
+    currentPoolName &&
+    parseInt(poolsConfig.find((x) => x.name == currentPoolName)?.end) * 1000;
 
   useEffect(() => {
     axios
       .get(process.env.REACT_APP_SYNC_URL + "config/pools")
-      .then((res) => setPoolsTimeConfig(res.data));
+      .then((res) => setPoolsConfig(res.data));
   }, []);
 
-  const poolItems = linearVestingConfig.map((x, i) => {
+  const poolItems = poolsConfig?.map((x, i) => {
     return (
       <button
         key={i}
@@ -87,7 +96,7 @@ export default function ManagerPage() {
 
   const approve = async () => {
     const contract = new ethers.Contract(
-      tokenConfig.address,
+      process.env.REACT_APP_TOKEN_ADDRESS,
       ERC20,
       ethProvider.getSigner()
     );
@@ -255,7 +264,7 @@ export default function ManagerPage() {
                       Lock start time:{" "}
                       <span id="pool-info-start-time">
                         <span className="text-muted">
-                          {poolsTimeConfig[currentPoolName]?.start}
+                          {moment(startTime).format("MMMM Do YYYY, h:mm:ss a")}
                         </span>
                       </span>
                     </p>
@@ -265,7 +274,7 @@ export default function ManagerPage() {
                       Lock end time:{" "}
                       <span id="pool-info-end-time">
                         <span className="text-muted">
-                          {poolsTimeConfig[currentPoolName]?.end}
+                          {moment(endTime).format("MMMM Do YYYY, h:mm:ss a")}
                         </span>
                       </span>
                     </p>
@@ -324,7 +333,7 @@ export default function ManagerPage() {
                                 {totalVestingAmount}
                               </span>
                             </strong>{" "}
-                            {tokenConfig.name}
+                            {process.env.REACT_APP_TOKEN_SYMBOL}
                           </p>
                         </div>
                       </div>
