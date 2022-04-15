@@ -82,7 +82,7 @@ export default function ManagerPage() {
       : [],
   };
 
-  const newInvetorsTable = {
+  const newInvestorsTable = {
     columns: [
       { key: "investor", name: "Investor" },
       { key: "amount", name: "Amount" },
@@ -91,7 +91,7 @@ export default function ManagerPage() {
       ? csvData.map((x) => {
           return { investor: x[0], amount: x[1] };
         })
-      : [{ investor: "Invetor address", amount: "Amount to vest" }],
+      : [{ investor: "Investor address", amount: "Amount to vest" }],
   };
 
   const approve = async () => {
@@ -264,7 +264,7 @@ export default function ManagerPage() {
                       Lock start time:{" "}
                       <span id="pool-info-start-time">
                         <span className="text-muted">
-                          {moment(startTime).format("MMMM Do YYYY, h:mm:ss a")}
+                          {moment(startTime).format("MMMM Do YYYY, h:mm a")}
                         </span>
                       </span>
                     </p>
@@ -274,7 +274,7 @@ export default function ManagerPage() {
                       Lock end time:{" "}
                       <span id="pool-info-end-time">
                         <span className="text-muted">
-                          {moment(endTime).format("MMMM Do YYYY, h:mm:ss a")}
+                          {moment(endTime).format("MMMM Do YYYY, h:mm a")}
                         </span>
                       </span>
                     </p>
@@ -315,8 +315,8 @@ export default function ManagerPage() {
                       <div className="row mb-5">
                         <div className="col-md-12">
                           <DataGrid
-                            columns={newInvetorsTable.columns}
-                            rows={newInvetorsTable.rows}
+                            columns={newInvestorsTable.columns}
+                            rows={newInvestorsTable.rows}
                             onRowDoubleClick={(e) => {
                               navigator.clipboard.writeText(e.investor);
                             }}

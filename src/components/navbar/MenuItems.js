@@ -1,6 +1,6 @@
 export const MenuItems = [
   {
-    title: "Investor Page",
+    title: "Stakeholder Page",
     url: "/",
     cName: "nav-links",
   },

@@ -2,11 +2,17 @@ import React, { useEffect, useState } from "react";
 import { shortenAddress, ethBalance } from "../utils";
 import { useAuth } from "../providers/AuthProvider";
 import ERC20 from "../abi-js/ERC20";
+import Factory from "../abi-js/Factory";
 import { ethers } from "ethers";
+import { useError } from "../providers/ErrorProvider";
+import CreatePoolModal from "./modals/CreatePoolModal";
 
 const UserData = () => {
   const { address, balance, ethProvider } = useAuth();
   const [erc20Balance, setErc20Balance] = useState(null);
+  const [factoryInstance, setFactoryInstance] = useState(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { showErrorModal } = useError();
 
   useEffect(async () => {
     if (address) {
@@ -17,8 +23,24 @@ const UserData = () => {
       );
 
       setErc20Balance(await contract.balanceOf(address));
+
+      const factoryInstance = new ethers.Contract(
+        process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS,
+        Factory,
+        ethProvider.getSigner()
+      );
+      factoryInstance
+        .owner()
+        .then((owner) => {
+          if (owner.toLowerCase() == address.toLowerCase()) {
+            setFactoryInstance(factoryInstance);
+          }
+        })
+        .catch((e) => showErrorModal(e.message));
     }
   }, [address]);
+
+  const openCreatePoolModal = () => setIsCreateModalOpen(true);
 
   return (
     <>
@@ -60,7 +82,7 @@ const UserData = () => {
                 </span>
               </li>
               <li className="list-group-item d-flex justify-content-between align-items-center">
-                <strong>DCRED Balance:</strong>
+                <strong>{process.env.REACT_APP_TOKEN_SYMBOL} Balance:</strong>
                 <span
                   className="badge bg-primary rounded-pill"
                   id="erc20-balance"
@@ -68,8 +90,18 @@ const UserData = () => {
                   {ethBalance(erc20Balance)}
                 </span>
               </li>
+              {factoryInstance && (
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  <button onClick={openCreatePoolModal}>Create new pool</button>
+                </li>
+              )}
             </ul>
           </div>
+          <CreatePoolModal
+            isOpen={isCreateModalOpen}
+            setIsCreateModalOpen={setIsCreateModalOpen}
+            ethProvider={ethProvider}
+          />
         </div>
       )}
     </>
