@@ -46,23 +46,24 @@ export default function ManagerPage() {
   }, []);
 
   const poolItems = poolsConfig?.map((x, i) => {
-    return (
-      <button
-        key={i}
-        id={x.name}
-        onClick={() => {
-          axios.get(process.env.REACT_APP_SYNC_URL + x.name).then((res) => {
-            setCurrentPool(
-              new ethers.Contract(x.address, Vesting, ethProvider.getSigner())
-            );
-            setCurrentPoolName(x.name);
-            setInvestorList(res.data);
-          });
-        }}
-      >
-        {x.name}
-      </button>
-    );
+    if (x.owner.toLowerCase() == address)
+      return (
+        <button
+          key={i}
+          id={x.name}
+          onClick={() => {
+            axios.get(process.env.REACT_APP_SYNC_URL + x.name).then((res) => {
+              setCurrentPool(
+                new ethers.Contract(x.address, Vesting, ethProvider.getSigner())
+              );
+              setCurrentPoolName(x.name);
+              setInvestorList(res.data);
+            });
+          }}
+        >
+          {x.name}
+        </button>
+      );
   });
 
   const addedInvestorsTable = {
@@ -131,7 +132,7 @@ export default function ManagerPage() {
         if (e.code != 4001) showErrorModal(e.message);
       });
 
-    tx?.wait().then(() => setIsLoading(false));
+    tx?.wait().then(() => window.location.reload());
   };
 
   const changeInvestor = async () => {
@@ -155,12 +156,13 @@ export default function ManagerPage() {
     if (!utils.isAddress(newOwner))
       return showErrorModal("The address is incorrect");
 
+    setIsLoading(true);
     const tx = await currentPool.transferOwnership(newOwner).catch((e) => {
       setIsLoading(false);
       if (e.code != 4001) showErrorModal(e.message);
     });
 
-    tx?.wait().then(() => setIsLoading(false));
+    tx?.wait().then(() => window.location.reload());
   };
 
   const totalPoolsize =
@@ -345,7 +347,7 @@ export default function ManagerPage() {
                             className="btn btn-primary"
                             id="btn-approve"
                             onClick={approve}
-                            disabled={!csvData}
+                            disabled={!csvData && isApproved}
                           >
                             Approve
                           </button>

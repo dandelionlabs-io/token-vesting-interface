@@ -8,14 +8,18 @@ import { ethBalance, shortenAddress } from "../utils";
 import PoolSelector from "../components/poolSelector";
 import { useLoading } from "../providers/LoadingProvider";
 import { useError } from "../providers/ErrorProvider";
+import DataGrid from "react-data-grid";
+import axios from "axios";
+import moment from "moment";
 
 const InvestorPage = () => {
   const { address, ethProvider } = useAuth();
+  const { setIsLoading } = useLoading();
+  const { showErrorModal } = useError();
   const [pools, setPools] = useState(null);
   const [currentPool, setCurrentPool] = useState(null);
   const [claimable, setClaimable] = useState(0);
-  const { setIsLoading } = useLoading();
-  const { showErrorModal } = useError();
+  const [claimHistory, setClaimHistory] = useState(null);
 
   const locked =
     currentPool &&
@@ -33,7 +37,11 @@ const InvestorPage = () => {
   }, [address]);
 
   const checkAndGetPool = async (pool) => {
-    const contract = new ethers.Contract(pool, Vesting, ethProvider);
+    const contract = new ethers.Contract(
+      pool,
+      Vesting,
+      ethProvider.getSigner()
+    );
 
     let grant = await contract.getTokenGrant(address);
     let amount = ethBalance(grant.amount) + ethBalance(grant.totalClaimed);
@@ -85,11 +93,33 @@ const InvestorPage = () => {
         if (e.code != 4001) showErrorModal(e.message);
       });
 
-    tx?.wait().then(() => setIsLoading(false));
+    tx?.wait().then(() => window.location.reload());
   };
 
   const getPercent = (amount, total) => {
     return (amount * 100) / total;
+  };
+
+  const claimHistoryTable = {
+    columns: [
+      { key: "date", name: "Date" },
+      { key: "claimed", name: "Claimed" },
+    ],
+    rows: claimHistory
+      ? claimHistory.map((x) => {
+          return {
+            date: moment(x.date * 1000).format("MMMM Do YYYY, h:mm a"),
+            claimed: parseFloat(x.amount).toFixed(4),
+          };
+        })
+      : [],
+  };
+
+  const loadHistory = () => {
+    axios
+      .get(process.env.REACT_APP_SYNC_URL + currentPool.name)
+      .then((res) => setClaimHistory(res.data[address].claimHistory))
+      .catch((e) => showErrorModal(e.message));
   };
 
   return (
@@ -148,7 +178,7 @@ const InvestorPage = () => {
                   <p>
                     <strong>Available Claimable:</strong>{" "}
                     <span id="pool-info-accessible">
-                      <span className="text-muted">{claimable}</span>
+                      <span className="text-muted">{claimable.toFixed(4)}</span>
                     </span>
                   </p>
                 </div>
@@ -251,6 +281,28 @@ const InvestorPage = () => {
                   </button>
                 </div>
               </div>
+
+              {(claimHistory && (
+                <div className="row mt-5">
+                  <div className="col-md-12">
+                    <h3>Claim history:</h3>
+                  </div>
+                  <div className="col-md-12">
+                    <DataGrid
+                      columns={claimHistoryTable.columns}
+                      rows={claimHistoryTable.rows}
+                    />
+                  </div>
+                </div>
+              )) || (
+                <>
+                  <button onClick={loadHistory}>Load claim history</button>
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                </>
+              )}
             </div>
           )}
         </>

@@ -32,9 +32,9 @@ const UserData = () => {
       factoryInstance
         .owner()
         .then((owner) => {
-          if (owner.toLowerCase() == address.toLowerCase()) {
+          if (owner.toLowerCase() == address.toLowerCase())
             setFactoryInstance(factoryInstance);
-          }
+          else setFactoryInstance(null);
         })
         .catch((e) => showErrorModal(e.message));
     }
