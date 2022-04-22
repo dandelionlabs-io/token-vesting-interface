@@ -36,7 +36,7 @@ const UserData = () => {
             setFactoryInstance(factoryInstance);
           else setFactoryInstance(null);
         })
-        .catch((e) => showErrorModal(e.message));
+        .catch((e) => showErrorModal(e.error.message));
     }
   }, [address]);
 

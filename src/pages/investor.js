@@ -90,7 +90,7 @@ const InvestorPage = () => {
       .claimVestedTokens(address)
       .catch((e) => {
         setIsLoading(false);
-        if (e.code != 4001) showErrorModal(e.message);
+        if (e.code != 4001) showErrorModal(e.error.message);
       });
 
     tx?.wait().then(() => window.location.reload());
@@ -119,7 +119,7 @@ const InvestorPage = () => {
     axios
       .get(process.env.REACT_APP_SYNC_URL + currentPool.name)
       .then((res) => setClaimHistory(res.data[address].claimHistory))
-      .catch((e) => showErrorModal(e.message));
+      .catch((e) => showErrorModal(e.error.message));
   };
 
   return (

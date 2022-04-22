@@ -111,7 +111,7 @@ export default function ManagerPage() {
       )
       .catch((e) => {
         setIsLoading(false);
-        if (e.code != 4001) showErrorModal(e.message);
+        if (e.code != 4001) showErrorModal(e.error.message);
       });
 
     tx?.wait().then(() => {
@@ -129,7 +129,7 @@ export default function ManagerPage() {
       )
       .catch((e) => {
         setIsLoading(false);
-        if (e.code != 4001) showErrorModal(e.message);
+        if (e.code != 4001) showErrorModal(e.error.message);
       });
 
     tx?.wait().then(() => window.location.reload());
@@ -146,7 +146,7 @@ export default function ManagerPage() {
       .changeInvestor(oldInvestorAddr, newInvestorAddr)
       .catch((e) => {
         setIsLoading(false);
-        if (e.code != 4001) showErrorModal(e.message);
+        if (e.code != 4001) showErrorModal(e.error.message);
       });
 
     tx?.wait().then(() => setIsLoading(false));
@@ -159,7 +159,7 @@ export default function ManagerPage() {
     setIsLoading(true);
     const tx = await currentPool.transferOwnership(newOwner).catch((e) => {
       setIsLoading(false);
-      if (e.code != 4001) showErrorModal(e.message);
+      if (e.code != 4001) showErrorModal(e.error.message);
     });
 
     tx?.wait().then(() => window.location.reload());
