@@ -59,6 +59,7 @@ const InvestorPage = () => {
       }
 
       return {
+        address: pool,
         grant: grant,
         vesting: contract,
         name: (await contract.pool()).name,
@@ -108,17 +109,19 @@ const InvestorPage = () => {
     rows: claimHistory
       ? claimHistory.map((x) => {
           return {
-            date: moment(x.date * 1000).format("MMMM Do YYYY, h:mm a"),
-            claimed: parseFloat(x.amount).toFixed(4),
+            date: moment(x.timestamp).format("MMMM Do YYYY, h:mm a"),
+            claimed: (parseInt(x.amountClaimed) / 1e18).toFixed(4),
           };
         })
       : [],
   };
 
   const loadHistory = () => {
+    const url = `${process.env.REACT_APP_SYNC_URL}${process.env.REACT_APP_NETWORK}/${currentPool.address}/claims/${address}`;
+
     axios
-      .get(process.env.REACT_APP_SYNC_URL + currentPool.name)
-      .then((res) => setClaimHistory(res.data[address].claimHistory))
+      .get(url)
+      .then((res) => setClaimHistory(res.data))
       .catch((e) => showErrorModal(e.error.message));
   };
 

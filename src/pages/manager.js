@@ -26,44 +26,67 @@ export default function ManagerPage() {
   const [newOwner, setNewOwner] = useState("");
   const [newInvestorAddr, setNewInvestorAddr] = useState("");
   const [oldInvestorAddr, setOldInvestorAddr] = useState("");
-  const [poolsConfig, setPoolsConfig] = useState(null);
+  const [pools, setPools] = useState(null);
   const { setIsLoading } = useLoading();
   const { showErrorModal } = useError();
 
   const startTime =
-    poolsConfig &&
+    pools &&
     currentPoolName &&
-    parseInt(poolsConfig.find((x) => x.name == currentPoolName)?.start) * 1000;
+    parseInt(pools.find((x) => x.name == currentPoolName)?.start) * 1000;
   const endTime =
-    poolsConfig &&
+    pools &&
     currentPoolName &&
-    parseInt(poolsConfig.find((x) => x.name == currentPoolName)?.end) * 1000;
+    parseInt(pools.find((x) => x.name == currentPoolName)?.end) * 1000;
 
   useEffect(() => {
-    axios
-      .get(process.env.REACT_APP_SYNC_URL + "config/pools")
-      .then((res) => setPoolsConfig(res.data));
-  }, []);
+    if (address)
+      axios
+        .get(
+          process.env.REACT_APP_SYNC_URL +
+            process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS +
+            "/pools"
+        )
+        .then((res) => {
+          const pools = [];
 
-  const poolItems = poolsConfig?.map((x, i) => {
-    if (x.owner.toLowerCase() == address)
-      return (
-        <button
-          key={i}
-          id={x.name}
-          onClick={() => {
-            axios.get(process.env.REACT_APP_SYNC_URL + x.name).then((res) => {
+          for (let i = 0; i < res.data.length; i++) {
+            const pool = res.data[i];
+            if (
+              pool.managers.some(
+                (manager) => manager[0].toLowerCase() == address
+              )
+            ) {
+              pools.push(pool);
+            }
+          }
+
+          setPools(res.data);
+        });
+  }, [address]);
+
+  const poolItems = pools?.map((x, i) => {
+    return (
+      <button
+        key={i}
+        id={x.name}
+        onClick={() => {
+          axios
+            .get(
+              `${process.env.REACT_APP_SYNC_URL}${process.env.REACT_APP_NETWORK}/${x.address}/stakeholders`
+            )
+            .then((res) => {
               setCurrentPool(
                 new ethers.Contract(x.address, Vesting, ethProvider.getSigner())
               );
               setCurrentPoolName(x.name);
               setInvestorList(res.data);
             });
-          }}
-        >
-          {x.name}
-        </button>
-      );
+        }}
+      >
+        {x.name}
+      </button>
+    );
   });
 
   const addedInvestorsTable = {
@@ -73,11 +96,13 @@ export default function ManagerPage() {
       { key: "claimed", name: "Claimed" },
     ],
     rows: investorList
-      ? Object.keys(investorList).map((x) => {
+      ? investorList.map((x) => {
           return {
-            investor: x,
-            amount: investorList[x].amount,
-            claimed: investorList[x].claimed,
+            investor: x["address"],
+            amount: parseInt(x["amountlocked"]) / 1e18,
+            claimed: x["amountClaimed"]
+              ? (parseInt(x["amountClaimed"]) / 1e18).toFixed(4)
+              : 0,
           };
         })
       : [],

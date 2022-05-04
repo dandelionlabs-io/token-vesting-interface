@@ -22,7 +22,7 @@ const CreatePoolModal = (props) => {
     setIsPending(true);
 
     const tx = await contract
-      .createPool(
+      .createFullPool(
         name,
         process.env.REACT_APP_TOKEN_ADDRESS,
         startTime,
