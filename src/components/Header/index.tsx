@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components/macro'
 
 import { ReactComponent as Logo } from '../../assets/svg/logo.svg'
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import Web3Status from '../Web3Status'
 
 const HeaderFrame = styled.div<{ showBackground: boolean }>`
   display: flex;
@@ -152,8 +154,50 @@ const LinkItemMenu = styled.a`
      width: 100%;
   `};
 `
+
+const HeaderControls = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-self: flex-end;
+  padding-left: 12px;
+  flex: 0 0 212px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex: 0 0 140px;
+  `};
+`
+const AccountElement = styled.div<{ active: boolean }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: transparent;
+  white-space: nowrap;
+  width: 100%;
+  height: 40px;
+  padding-left: ${({ active }) => (!active ? 0 : '14px')};
+`
+
+const HeaderElement = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  &:not(:first-child) {
+    margin-left: 0.5em;
+  }
+
+  /* addresses safari's lack of support for "gap" */
+  & > *:not(:first-child) {
+    margin-left: 8px;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    align-items: center;
+  `};
+`
+
 export default function Header() {
-  // const { account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   // const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const scrollY = useScrollPosition()
   const [toggleMenu, setToggleMenu] = useState(false)
@@ -191,6 +235,13 @@ export default function Header() {
           </LiItemMenu>
         </ListMenu>
       </DivNavbarLanding>
+      <HeaderControls>
+        <HeaderElement>
+          <AccountElement active={!!account}>
+            <Web3Status />
+          </AccountElement>
+        </HeaderElement>
+      </HeaderControls>
     </HeaderFrame>
   )
 }
