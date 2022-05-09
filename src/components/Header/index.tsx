@@ -108,7 +108,7 @@ const DivNavbarLanding = styled.div`
     position: fixed;
     top:84px;
     left: 0;
-    bottom: 0;
+     bottom: 0;
     width: 200px;
     margin: 0;
     border-radius: 0;
@@ -144,8 +144,8 @@ const LinkItemMenu = styled.a`
   font-family: 'Poppins', sans-serif;
   padding: 8px 32px;
   &:hover {
-    background-color: ${({ theme }) => theme.bg6};
-    border-radius: 12px;
+    color: ${({ theme }) => theme.primary1};
+    // border-radius: 12px;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
      display: block;
@@ -157,6 +157,7 @@ export default function Header() {
   // const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const scrollY = useScrollPosition()
   const [toggleMenu, setToggleMenu] = useState(false)
+
   const handleToggleMenu = () => {
     setToggleMenu(!toggleMenu)
   }
@@ -174,6 +175,8 @@ export default function Header() {
 
   return (
     <HeaderFrame showBackground={scrollY > 45}>
+      {/* <PageWrapper>
+        <PageContainer> */}
       <HeaderHamburger className={toggleMenu ? 'active' : ''} onClick={handleToggleMenu}>
         <DivEmptyStyle></DivEmptyStyle>
       </HeaderHamburger>
@@ -186,11 +189,22 @@ export default function Header() {
         <ListMenu>
           <LiItemMenu>
             <LinkItemMenu href={'/'} rel={'noreferrer'}>
-              Landing
+              About
+            </LinkItemMenu>
+            <LinkItemMenu href={'/career'} rel={'noreferrer'}>
+              Careers
+            </LinkItemMenu>
+            <LinkItemMenu href={'/blog'} rel={'noreferrer'}>
+              Blog
+            </LinkItemMenu>
+            <LinkItemMenu href={'/contact'} rel={'noreferrer'}>
+              Contact
             </LinkItemMenu>
           </LiItemMenu>
         </ListMenu>
       </DivNavbarLanding>
+      {/* </PageContainer>
+      </PageWrapper> */}
     </HeaderFrame>
   )
 }

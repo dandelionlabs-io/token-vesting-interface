@@ -1,11 +1,11 @@
 import { Route, Switch } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
-import BgWeb from '../assets/images/bg_page_wallet.jpg'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
+import Landing from '../pages/LandingPage'
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -15,6 +15,7 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+  background: #00142d;
   background-image: ${(props) =>
     props.bgImage
       ? `linear-gradient(
@@ -53,14 +54,15 @@ export default function App() {
     <ErrorBoundary>
       <Route />
       <Web3ReactManager>
-        <AppWrapper bgImage={BgWeb}>
+        <AppWrapper>
           <HeaderWrapper>
             <Header />
           </HeaderWrapper>
           <BodyWrapper>
             <Popups />
+
             <Switch>
-              <Route path="/" />
+              <Route path="/" component={Landing} />
             </Switch>
           </BodyWrapper>
         </AppWrapper>

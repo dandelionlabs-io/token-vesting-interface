@@ -65,7 +65,7 @@ function colors(): Colors {
     advancedBG: 'rgba(255,255,255,0.6)',
     borderCard: '#979797',
     //primary colors
-    primary1: '#FFAB40',
+    primary1: '#CC3366',
     primary2: '#f6b664',
     primary3: '#facc92',
     primary4: '#fceddd',
