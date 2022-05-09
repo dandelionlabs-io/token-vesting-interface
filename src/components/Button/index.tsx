@@ -14,11 +14,12 @@ export const BaseButton = styled(RebassButton)<
 >`
   padding: ${({ padding }) => padding ?? '16px'};
   width: ${({ width }) => width ?? '100%'};
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 16px;
   text-align: center;
   outline: none;
   border: 1px solid transparent;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text4};
   text-decoration: none;
   display: flex;
   justify-content: center;
@@ -26,6 +27,7 @@ export const BaseButton = styled(RebassButton)<
   align-items: center;
   cursor: pointer;
   position: relative;
+  background: ${({ theme }) => theme.red3};
   z-index: 1;
   &:disabled {
     opacity: 50%;

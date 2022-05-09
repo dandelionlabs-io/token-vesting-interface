@@ -1,7 +1,7 @@
 import { Connector } from '@web3-react/types'
 import { darken } from 'polished'
 import { Activity } from 'react-feather'
-import styled, { css } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { AbstractConnector } from 'web3-react-abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from 'web3-react-core'
 
@@ -45,42 +45,6 @@ const Web3StatusError = styled(Web3StatusGeneric)`
   }
 `
 
-const Web3StatusConnect = styled(Web3StatusGeneric)<{ faded?: boolean }>`
-  background-color: ${({ theme }) => theme.white};
-  border: none;
-  border-radius: 10px;
-  color: ${({ theme }) => theme.white};
-  font-weight: 500;
-
-  :hover,
-  :focus {
-    border: none;
-    color: ${({ theme }) => theme.white};
-  }
-
-  ${({ faded }) =>
-    faded &&
-    css`
-      background-color: ${({ theme }) => theme.bg0};
-      color: ${({ theme }) => theme.text6};
-      & > p {
-        color: ${({ theme }) => theme.text6};
-      }
-      :hover,
-      :focus {
-        background-color: ${({ theme }) => theme.white};
-        border: none;
-        color: ${({ theme }) => darken(0.05, theme.white)};
-      }
-    `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     padding: 8px;
-     & > p {
-        margin: 0;
-     }
-  `};
-`
-
 const Web3StatusConnected = styled(Web3StatusGeneric)<{ pending?: boolean }>`
   background-color: transparent;
   color: ${({ pending, theme }) => (pending ? theme.white : theme.text1)};
@@ -105,7 +69,6 @@ const Text = styled.p`
   white-space: nowrap;
   margin: 0 0.5rem 0 0.25rem;
   font-size: 15px;
-  font-family: 'Poppins', sans-serif;
   width: fit-content;
   background-color: transparent;
   color: ${({ theme }) => theme.white};
@@ -147,11 +110,7 @@ function Web3StatusInner() {
       </Web3StatusError>
     )
   } else {
-    return (
-      <Web3StatusConnect id="connect-wallet" onClick={toggleWalletModal} faded={!account}>
-        <Text>Connect Wallet</Text>
-      </Web3StatusConnect>
-    )
+    return <span />
   }
 }
 

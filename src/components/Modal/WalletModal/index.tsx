@@ -82,7 +82,6 @@ const HoverText = styled.div`
   color: ${({ theme }) => theme.white};
   display: flex;
   align-items: center;
-  font-family: 'Neue Machina', sans-serif;
   font-weight: 400;
   font-size: 33px;
   line-height: 40px;

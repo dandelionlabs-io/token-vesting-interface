@@ -1,7 +1,7 @@
 {
-  "name": "oxychain",
+  "name": "Dandelionlabs",
   "version": "0.0.31-beta",
-  "description": "Oxychain project",
+  "description": "Dandelionlabs project",
   "homepage": ".",
   "files": [
     "dist"
