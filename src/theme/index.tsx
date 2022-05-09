@@ -198,6 +198,7 @@ a {
 *,
 *::after,
 *::before {
+  font-family: 'Montserrat', sans-serif;
   box-sizing: border-box;
   padding: 0;
   margin: 0;

@@ -105,7 +105,6 @@ const Text = styled.p`
   white-space: nowrap;
   margin: 0 0.5rem 0 0.25rem;
   font-size: 15px;
-  font-family: 'Poppins', sans-serif;
   width: fit-content;
   background-color: transparent;
   color: ${({ theme }) => theme.white};

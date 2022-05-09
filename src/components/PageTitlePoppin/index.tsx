@@ -5,7 +5,6 @@ interface Props {
 }
 const H3 = styled.h3`
   font-size: 28px;
-  font-family: 'Poppins', sans-serif;
   line-height: 44px;
   font-weight: 500;
   color: #f6f6f6;

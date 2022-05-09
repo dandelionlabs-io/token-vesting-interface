@@ -141,8 +141,8 @@ const LinkItemMenu = styled.a`
   color: ${({ theme }) => theme.white};
   font-size: 15px;
   font-weight: 400;
-  font-family: 'Poppins', sans-serif;
   padding: 8px 32px;
+  font-family: 'Montserrat', sans-serif;
   &:hover {
     background-color: ${({ theme }) => theme.bg6};
     border-radius: 12px;
