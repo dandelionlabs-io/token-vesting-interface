@@ -56,7 +56,7 @@ function colors(): Colors {
     bg2: '#d6e0ec',
     bg3: '#f6f6f6',
     bg4: '#888D9B',
-    bg5: 'rgba(0,0,0,0.8)',
+    bg5: '#00142D',
     bg6: '#01FF45',
     bg7: '#efefef',
     //specialty colors
@@ -80,7 +80,7 @@ function colors(): Colors {
     // other
     red1: '#DA2D2B',
     red2: '#DF1F38',
-    red3: '#D60000',
+    red3: '#CC3366',
     green1: '#007D35',
     yellow1: '#E3A507',
     yellow2: '#FF8F00',
