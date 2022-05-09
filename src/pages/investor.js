@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useInsertionEffect, useState } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import UserData from "../components/userData";
 import { ethers } from "ethers";
@@ -18,8 +18,8 @@ const InvestorPage = () => {
   const { showErrorModal } = useError();
   const [pools, setPools] = useState(null);
   const [currentPool, setCurrentPool] = useState(null);
-  const [claimable, setClaimable] = useState(0);
   const [claimHistory, setClaimHistory] = useState(null);
+  const [claimable, setClaimable] = useState(null);
 
   const locked =
     currentPool &&
@@ -28,6 +28,13 @@ const InvestorPage = () => {
   const totalClaimed =
     currentPool && ethBalance(currentPool.grant.totalClaimed);
   const totalAmount = currentPool && ethBalance(currentPool.grant.amount);
+
+  useEffect(() => {
+    if (currentPool)
+      currentPool.vesting
+        .calculateGrantClaim(address)
+        .then((res) => setClaimable(ethBalance(res)));
+  }, [currentPool]);
 
   useEffect(async () => {
     if (address) {
@@ -62,14 +69,13 @@ const InvestorPage = () => {
         address: pool,
         grant: grant,
         vesting: contract,
-        name: (await contract.pool()).name,
       };
     }
     return null;
   };
 
   const getAvailablePools = async () => {
-    const availablePools = [];
+    let availablePools = [];
     const factoryInstance = new ethers.Contract(
       process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS,
       Factory,
@@ -82,6 +88,17 @@ const InvestorPage = () => {
       const poolResult = await checkAndGetPool(poolsAddresses[i]);
       if (poolResult) availablePools.push(poolResult);
     }
+
+    const url = `${process.env.REACT_APP_SYNC_URL}${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/pools`;
+    const poolsData = (await axios.get(url)).data;
+
+    availablePools.forEach((pool) => {
+      const data = poolsData.find((x) => x.address == pool.address);
+      pool.name = data.name;
+      pool.start = data.start;
+      pool.end = data.end;
+    });
+
     return availablePools;
   };
 
@@ -116,81 +133,82 @@ const InvestorPage = () => {
       : [],
   };
 
-  const loadHistory = () => {
-    const url = `${process.env.REACT_APP_SYNC_URL}${process.env.REACT_APP_NETWORK}/${currentPool.address}/claims/${address}`;
-
-    axios
-      .get(url)
-      .then((res) => setClaimHistory(res.data))
-      .catch((e) => showErrorModal(e.error.message));
+  const poolData = {
+    columns: [
+      { key: "name", name: "" },
+      { key: "value", name: "" },
+    ],
+    rows: currentPool
+      ? [
+          {
+            name: "Contract Address",
+            value: shortenAddress(currentPool.address),
+          },
+          {
+            name: "Lock Start Time",
+            value: moment(currentPool.start).format("MMMM Do YYYY, h:mm a"),
+          },
+          {
+            name: "Lock End Time",
+            value: moment(currentPool.end).format("MMMM Do YYYY, h:mm a"),
+          },
+          { name: "Total Locked Amount", value: totalAmount },
+        ]
+      : [],
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ height: "100vh" }}>
       {/* HTTPS required */}
-      <div
-        className="row mt-4"
-        id="alert-error-https"
-        style={{ display: "none" }}
-      >
-        <div className="col-md-12">
-          <div className="alert alert-danger">
-            To secure wallet connection, please run website on HTTPS connection.
-          </div>
-        </div>
-      </div>
-      <UserData />
+
+      <UserData
+        className="pools-grid"
+        columns={poolData.columns}
+        rows={poolData.rows}
+      />
 
       {/* Pools */}
-      {address && pools && (
+      {(address && pools && (
         <>
-          <PoolSelector
-            address={address}
-            pools={pools}
-            setClaimable={setClaimable}
-            setCurrentPool={setCurrentPool}
-            currentPool={currentPool}
-          />
-          {/* Investment info */}
-          {currentPool && (
-            <div id="pool-information-panel">
+          {(!currentPool && (
+            <PoolSelector
+              address={address}
+              pools={pools}
+              setClaimable={setClaimable}
+              setCurrentPool={setCurrentPool}
+              currentPool={currentPool}
+              setClaimHistory={setClaimHistory}
+            />
+          )) || (
+            <>
               <div className="row mt-5">
-                <div className="col-md-12">
-                  <h1 className="h2">
-                    <span id="pool-info-name"></span> Pool Info:
-                  </h1>
-                </div>
-                <div className="col-md-6">
-                  <p>
-                    <strong>Contract Address:</strong>{" "}
-                    <span id="pool-info-contract">
-                      <a
-                        href={
-                          process.env.REACT_APP_ETHERSCAN_URL +
-                          "address/" +
-                          currentPool.address
-                        }
-                        target="_blank"
-                      >
-                        {shortenAddress(currentPool.vesting.address)}
-                      </a>
-                    </span>
-                  </p>
-                </div>
-                <div className="col-md-6">
-                  <p>
-                    <strong>Available Claimable:</strong>{" "}
-                    <span id="pool-info-accessible">
-                      <span className="text-muted">{claimable.toFixed(4)}</span>
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className="row mt-5">
-                <div className="col-md-12">
-                  <h3>Vesting Progress:</h3>
-                </div>
-                <div className="col-md-12">
+                <div className="col-md-6 current-pool-panel">
+                  <strong style={{ color: "gold", fontSize: "30px" }}>
+                    Details:
+                  </strong>
+                  <div className="row mt-3">
+                    <div className="col-sm-6">
+                      <p>Contract Address</p>
+                      <p>Lock Start Time</p>
+                      <p>Lock End Time</p>
+                      <p>Total Locked Amount</p>
+                    </div>
+                    <div className="col-sm-6">
+                      <p className="grey">
+                        {shortenAddress(currentPool.address)}
+                      </p>
+                      <p className="grey">
+                        {moment(currentPool.start).format(
+                          "MMMM Do YYYY, h:mm a"
+                        )}
+                      </p>
+                      <p className="grey">
+                        {moment(currentPool.end).format("MMMM Do YYYY, h:mm a")}
+                      </p>
+                      <p className="grey">{totalAmount}</p>
+                    </div>
+                  </div>
+                  <p>Progress detail</p>
                   <div
                     className="progress"
                     style={{ height: "40px", padding: "3px" }}
@@ -238,78 +256,50 @@ const InvestorPage = () => {
                       Remaining
                     </div>
                   </div>
+                  {claimable > 0 && (
+                    <button
+                      className="claim-btn mt-3"
+                      onClick={claim}
+                      style={{ padding: "5px 20px 5px 20px" }}
+                    >
+                      Claim
+                    </button>
+                  )}
+                  <div className="row mt-3">
+                    <div className="col-sm-6">
+                      <p className="gold">Claimed amt.</p>
+                      <p className="green">Claimable amt.</p>
+                      <p className="grey">Remaining balance</p>
+                    </div>
+                    <div className="col-sm-6">
+                      <p className="gold">{totalClaimed?.toFixed(2)}</p>
+                      <p className="green">{claimable?.toFixed(2)}</p>
+                      <p className="grey">{locked?.toFixed(2)}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="row">
-                <div className="col text-start">
-                  <strong className="text-muted">Start:</strong>
-                  <br />
-                  <span id="pool-info-start-time">
-                    <span className="text-muted">Connect wallet</span>
-                  </span>
-                </div>
-                <div className="col text-center">
-                  <strong className="text-muted">Remained:</strong>
-                  <br />
-                  <span id="pool-info-remained-time">
-                    <span className="text-muted">Connect wallet</span>
-                  </span>
-                </div>
-                <div className="col text-end">
-                  <strong className="text-muted">End:</strong>
-                  <br />
-                  <span id="pool-info-end-time">
-                    <span className="text-muted">Connect wallet</span>
-                  </span>
-                </div>
-              </div>
-
-              <div className="row mt-5 mb-5">
-                <div className="col-md-12 text-center">
-                  <strong>
-                    Available Claimable/Locked (
-                    {process.env.REACT_APP_TOKEN_SYMBOL}):{" "}
+                <div className="col-md-6 current-pool-panel">
+                  <strong style={{ color: "gold", fontSize: "30px" }}>
+                    History of Claims:
                   </strong>
-                  <span id="label-claimable">{claimable.toFixed(2)}</span> /
-                  <span id="label-locked">{locked.toFixed(2)}</span>
-                </div>
-                <div className="col-md-12 text-center mt-2">
-                  <button
-                    type="button"
-                    className="btn btn-success"
-                    id="btn-claim"
-                    onClick={claim}
-                  >
-                    Claim
-                  </button>
+                  {claimHistory && (
+                    <div className="row mt-5">
+                      <div className="col-md-12">
+                        <DataGrid
+                          className="pools-grid"
+                          columns={claimHistoryTable.columns}
+                          rows={claimHistoryTable.rows}
+                          style={{ background: "transparent" }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {(claimHistory && (
-                <div className="row mt-5">
-                  <div className="col-md-12">
-                    <h3>Claim history:</h3>
-                  </div>
-                  <div className="col-md-12">
-                    <DataGrid
-                      columns={claimHistoryTable.columns}
-                      rows={claimHistoryTable.rows}
-                    />
-                  </div>
-                </div>
-              )) || (
-                <>
-                  <button onClick={loadHistory}>Load claim history</button>
-                  <br />
-                  <br />
-                  <br />
-                  <br />
-                </>
-              )}
-            </div>
+            </>
           )}
         </>
-      )}
+      )) || <div style={{ height: "100vh" }}></div>}
     </div>
   );
 };

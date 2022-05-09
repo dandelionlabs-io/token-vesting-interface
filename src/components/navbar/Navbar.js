@@ -7,19 +7,19 @@ import logo from "../../assets/logo/dandelion-logo.png";
 import ProviderModal from "../modals/provider/ProviderModal";
 import NormalButton from "../utils/buttons/NormalButton";
 import { useAuth } from "../../providers/AuthProvider";
+import { shortenAddress } from "../../utils";
 
 const Navbar = () => {
   const { address, disconnectWallet } = useAuth();
   const [toggleMenu, setToggleMenu] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [toggleConnect, setToggleConnect] = useState(false);
   window.addEventListener("resize", () => {
     setWindowWidth(window.innerWidth);
   });
 
   return (
     <>
-      <nav className="navbar bg-dark">
+      <nav className="navbar" style={{ backgroundColor: "#00142D" }}>
         <div className="logo">
           <a
             href="https://dandelionlabs.io/"
@@ -43,19 +43,7 @@ const Navbar = () => {
             })}
           </ul>
         </div>
-        <div className="connectWallet">
-          <NormalButton
-            className="secondary"
-            onClick={() => {
-              !address ? setToggleConnect(true) : disconnectWallet();
-            }}
-          >
-            {!address ? "CONNECT" : "DISCONNECT"}
-          </NormalButton>
-          {toggleConnect && (
-            <ProviderModal closeModal={setToggleConnect}></ProviderModal>
-          )}
-        </div>
+        {address && <div>{shortenAddress(address)}</div>}
         <div className="smallscreen">
           <GiHamburgerMenu
             color="#fff"

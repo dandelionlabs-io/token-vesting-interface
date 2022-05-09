@@ -1,46 +1,66 @@
 import React, { useEffect } from "react";
-import { ethBalance } from "../utils";
+import { ethBalance, shortenAddress } from "../utils";
+import DataGrid from "react-data-grid";
+import moment from "moment";
+import axios from "axios";
+import { useError } from "../providers/ErrorProvider";
 
 const PoolSelector = (props) => {
-  const { address, pools, setClaimable, setCurrentPool, currentPool } = props;
+  const { address, pools, setCurrentPool, currentPool, setClaimHistory } =
+    props;
+  const { showErrorModal } = useError();
 
-  useEffect(async () => {
-    if (address && currentPool) {
-      updateErc20Balance(currentPool.vesting);
-    }
-  }, [address]);
+  const loadHistory = (poolAddress) => {
+    const url = `${process.env.REACT_APP_SYNC_URL}${process.env.REACT_APP_NETWORK}/${poolAddress}/claims/${address}`;
 
-  const updateErc20Balance = (contract) => {
-    if (contract) {
-      contract
-        .calculateGrantClaim(address)
-        .then((res) => setClaimable(ethBalance(res)));
-    }
+    axios
+      .get(url)
+      .then((res) => setClaimHistory(res.data))
+      .catch((e) => showErrorModal(e.error.message));
   };
 
-  const poolItems = pools?.map((x, i) => {
-    return (
-      <button
-        key={i}
-        id={x.name}
-        onClick={() => {
-          updateErc20Balance(x.vesting);
-
-          setCurrentPool(x);
-        }}
-      >
-        {x.name}
-      </button>
-    );
-  });
-
+  const poolItems = {
+    columns: [
+      { key: "name", name: "Name" },
+      { key: "claimed", name: "Claimed amt." },
+      { key: "remain", name: "Remain amt." },
+      { key: "start", name: "Lock start" },
+      { key: "end", name: "Lock end" },
+      { key: "claim", name: "" },
+    ],
+    rows: pools
+      ? pools.map((x) => {
+          return {
+            name: `${x.name} (${shortenAddress(x.address)})`,
+            claimed: ethBalance(x.grant.totalClaimed).toFixed(4),
+            remain: (
+              ethBalance(x.grant.amount) - ethBalance(x.grant.totalClaimed)
+            ).toFixed(4),
+            start: moment(x.start).format("MMMM Do YYYY, h:mm a"),
+            end: moment(x.end).format("MMMM Do YYYY, h:mm a"),
+            claim: (
+              <button
+                className="claim-btn"
+                style={{ zIndex: "999" }}
+                onClick={() => {
+                  setCurrentPool(x);
+                  loadHistory(x.address);
+                }}
+              >
+                Claim
+              </button>
+            ),
+          };
+        })
+      : [],
+  };
   return (
     <div className="col-md-12 ">
-      <h1 className="h2">Select the pool</h1>
-      <p className="text-muted">
-        Working with pool requires wallet connection.
-      </p>
-      {poolItems}
+      <DataGrid
+        className="pools-grid"
+        columns={poolItems.columns}
+        rows={poolItems.rows}
+      />
     </div>
   );
 };

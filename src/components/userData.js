@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { shortenAddress, ethBalance } from "../utils";
+import { ethBalance } from "../utils";
 import { useAuth } from "../providers/AuthProvider";
 import ERC20 from "../abi-js/ERC20";
 import Factory from "../abi-js/Factory";
 import { ethers } from "ethers";
 import { useError } from "../providers/ErrorProvider";
 import CreatePoolModal from "./modals/CreatePoolModal";
+import logo from "../assets/logo/landingLogo.png";
+import ProviderModal from "./modals/provider/ProviderModal";
 
 const UserData = () => {
-  const { address, balance, ethProvider } = useAuth();
+  const { address, balance, ethProvider, disconnectWallet } = useAuth();
   const [erc20Balance, setErc20Balance] = useState(null);
   const [factoryInstance, setFactoryInstance] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [toggleConnect, setToggleConnect] = useState(false);
   const { showErrorModal } = useError();
 
   useEffect(async () => {
@@ -46,22 +49,59 @@ const UserData = () => {
     <>
       {(!address && (
         /* No wallet */
-        <div className="row mt-4" id="disconnected">
-          <div className="col-md-12">
-            <div className="alert alert-warning" role="alert">
-              No wallet connected. Connect wallet to show accounts and their ETH
-              balances!
+        <div className="row mt-4">
+          <div className="col-md-7" style={{ textAlign: "left" }}>
+            <p style={{ color: "#CC3366" }}>A new way of</p>
+            <p style={{ fontSize: "44px" }}>Token Linear Vesting</p>
+            <p>
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry. Lorem Ipsum has been the industry's standard dummy text
+              ever since the 1500s, when an unknown printer took a galley of
+              type and scrambled it to make a type specimen book.
+            </p>
+            <div className="connectWallet">
+              <button
+                className="connect-btn"
+                onClick={() => {
+                  !address ? setToggleConnect(true) : disconnectWallet();
+                }}
+              >
+                {!address ? "CONNECT" : "DISCONNECT"}
+              </button>
+
+              <ProviderModal
+                toggleConnect={toggleConnect}
+                setToggleConnect={setToggleConnect}
+              ></ProviderModal>
             </div>
+          </div>
+          <div className="col-md-5">
+            <img src={logo} alt="..." />
+          </div>
+          <div className="mt-5">
+            <p>Get In Touch With Us</p>
+            <p>4 Ngo 82 Dich Vong Hau, Cau Giay, Hanoi</p>
+            <p>hello@dandelionlabs.io</p>
+            <p>+84 0343 788923</p>
+            <p>Copyright ©2021 Dandelion Labs Ltd.</p>
           </div>
         </div>
       )) || (
         /* Wallet connected: show balance */
-        <div className="row mt-4 mb-4" id="connected">
-          <div className="col-7">
-            <strong>Blockchain:</strong>{" "}
-            <span id="network-name">Ethereum Testnet Rinkeby</span>
+        <div
+          className="row mt-4 mb-4 d-flex justify-content-between"
+          id="connected"
+        >
+          <div className="col-6 balance-div">
+            <strong>ETH Balance</strong>
+            <p id="network-name">{ethBalance(balance)?.toFixed(4)}</p>
           </div>
-          <div className="col-5 text-end">
+          <div className="col-6 balance-div">
+            <strong>{process.env.REACT_APP_TOKEN_SYMBOL} Balance</strong>
+            <p id="network-name">{ethBalance(erc20Balance)}</p>
+          </div>
+
+          {/* <div className="col-6 text-end">
             <ul className="list-group">
               <li className="list-group-item d-flex justify-content-between align-items-center list-group-item-primary">
                 <strong>Account:</strong>
@@ -78,7 +118,6 @@ const UserData = () => {
                   className="badge bg-primary rounded-pill"
                   id="eth-balance"
                 >
-                  {ethBalance(balance)?.toFixed(4)}
                 </span>
               </li>
               <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -87,7 +126,6 @@ const UserData = () => {
                   className="badge bg-primary rounded-pill"
                   id="erc20-balance"
                 >
-                  {ethBalance(erc20Balance)}
                 </span>
               </li>
               {factoryInstance && (
@@ -96,7 +134,7 @@ const UserData = () => {
                 </li>
               )}
             </ul>
-          </div>
+          </div>*/}
           <CreatePoolModal
             isOpen={isCreateModalOpen}
             setIsCreateModalOpen={setIsCreateModalOpen}

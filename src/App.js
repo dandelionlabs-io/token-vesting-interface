@@ -15,7 +15,7 @@ const App = () => {
   const { isError, setIsError, errorMessage } = useError();
 
   return (
-    <div className="App">
+    <div className="App" style={{ backgroundColor: "#00142D" }}>
       <Navbar></Navbar>
       <MainLayout id="app_body">
         <Routes>
