@@ -1,25 +1,21 @@
-# MvsR Minting site
+This repo is home to the Uniswap Widgets package and the web app interface [app.uniswap.org](https://app.uniswap.org).
 
-The source code in this repo allows users to mint tokens from the MvsR smart contract.
+# Uniswap Labs Interface
 
-- [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Usage](#usage)
-- [Troubleshooting](#troubleshooting)
+[![Unit Tests](https://github.com/Uniswap/interface/actions/workflows/unit-tests.yaml/badge.svg)](https://github.com/Uniswap/interface/actions/workflows/unit-tests.yaml)
+[![Integration Tests](https://github.com/Uniswap/interface/actions/workflows/integration-tests.yaml/badge.svg)](https://github.com/Uniswap/interface/actions/workflows/integration-tests.yaml)
+[![Lint](https://github.com/Uniswap/interface/actions/workflows/lint.yml/badge.svg)](https://github.com/Uniswap/interface/actions/workflows/lint.yml)
+[![Release](https://github.com/Uniswap/interface/actions/workflows/release.yaml/badge.svg)](https://github.com/Uniswap/interface/actions/workflows/release.yaml)
+[![Crowdin](https://badges.crowdin.net/uniswap-interface/localized.svg)](https://crowdin.com/project/uniswap-interface)
 
-## Getting Started
+The web application hosted at https://app.uniswap.org is a convenient way to access the core functionality of the Uniswap Protocol. 
 
-### Requirements
-You need node.js (14) and npm installed to run it locally.
+For documentation of the interface including how to contribute or access prior builds, please view the README here: [INTERFACE_README.md](./INTERFACE_README.md)
 
-1. Run `yarn install` or `npm install` to install dependencies.
-2. Run `yarn start`or `npm start` to start the web application.
+# Uniswap Labs Widgets
 
-### Usage
+The `@uniswap/widgets` package is an npm package of React components used to provide subsets of the Uniswap Protocol functionality in a small and configurable user interface element.
 
-1. Press `Connect` button to connect with a wallet provider.
-6. Press `Mint` to Mint new tokens.
+The npm package can be found here. [@uniswap/widgets](https://www.npmjs.com/package/@uniswap/widgets)
 
-## Troubleshooting
-
-If you have any questions, send them along with a hi to hello@dandelionlabs.io.
+For documentation of the widgets package, please view the README here: [WIDGETS_README.md](./WIDGETS_README.md).
