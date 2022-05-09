@@ -1,7 +1,6 @@
 import { Route, Switch } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
-import BgWeb from '../assets/images/bg_page_wallet.jpg'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
 import Popups from '../components/Popups'
@@ -17,14 +16,7 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-image: ${(props) =>
-    props.bgImage
-      ? `linear-gradient(
-                    0deg,
-                    rgba(10, 37, 27, 0.6),
-                    rgba(10, 37, 27, 0.6)
-            ),url(${props.bgImage})`
-      : 'none'};
+  background-color: ${({ theme }) => theme.bg5};
 `
 
 const BodyWrapper = styled.div`
@@ -54,7 +46,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Web3ReactManager>
-        <AppWrapper bgImage={BgWeb}>
+        <AppWrapper>
           <HeaderWrapper>
             <Header />
           </HeaderWrapper>
