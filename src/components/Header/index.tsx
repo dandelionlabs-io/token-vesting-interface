@@ -63,6 +63,48 @@ const DandelionIcon = styled.div`
     }
   `};
 `
+
+const HeaderHamburger = styled.div<{ className: string }>`
+  position: absolute;
+  width: 24px;
+  display: none;
+  cursor: pointer;
+  &:before,
+  &:after {
+    background: #fff;
+    content: '';
+    display: block;
+    height: 3px;
+    border-radius: 3px;
+    margin: 5px 0;
+    transition: 0.5s;
+  }
+  ${({ className }) =>
+    className &&
+    css`
+      &:before {
+        transform: translateY(8px) rotate(135deg);
+      }
+      &:after {
+        transform: translateY(-8px) rotate(-135deg);
+      }
+      & div {
+        transform: scale(0);
+      }
+    `}
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    display: block;
+  `};
+`
+const DivEmptyStyle = styled.div`
+  background: #fff;
+  content: '';
+  display: block;
+  height: 3px;
+  border-radius: 3px;
+  margin: 5px 0;
+  transition: 0.5s;
+`
 const DivNavbarLanding = styled.div`
   color: ${({ theme }) => theme.white};
   margin-left: auto;
@@ -106,8 +148,8 @@ const LinkItemMenu = styled.a`
   padding: 8px 32px;
   font-family: 'Montserrat', sans-serif;
   &:hover {
-    background-color: ${({ theme }) => theme.bg6};
-    border-radius: 12px;
+    color: ${({ theme }) => theme.primary1};
+    // border-radius: 12px;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
      display: block;
