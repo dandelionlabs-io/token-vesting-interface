@@ -1,0 +1,39 @@
+{
+  "preamble": {
+    "title": "My wallet",
+    "desc":"When you buy oxygen tokens you are supporting the projects developers who day to day take care of natural reserves and other sustainable causes.\n\nEvery time you release oxygen tokens they will be taken out of circulation. This moment is the most meaningful moment on the oxygen tokens’ lifecycle, where they are effectively invested into the future of our planet."
+  },
+  "availabelToken": "Available token",
+  "listToken": [
+    {
+      "project": "Fortaleza Ituxi",
+      "amount": 200
+    },
+    {
+      "project": "Fortaleza Ituxi",
+      "amount": 200
+    },
+    {
+      "project": "Fortaleza Ituxi",
+      "amount": 200
+    },
+    {
+      "project": "Fortaleza Ituxi",
+      "amount": 100
+    }
+  ],
+  "infoWallet": [
+    {
+      "number": 860,
+      "text": "Purchased"
+    },
+    {
+      "number": 400,
+      "text": "Offset"
+    },
+    {
+      "number": 100,
+      "text": "Sent"
+    }
+  ]
+}
