@@ -1,4 +1,4 @@
-# Oxychain project use TypeScript & ReactJS web3
+# Dandelionlabs project use TypeScript & ReactJS web3
 
 This repo is a template for web3 web applications in TypeScript and ReactJS, contains the basic functionality to manage wallet connection, account change, network change, and shows balances, including error control.
 
