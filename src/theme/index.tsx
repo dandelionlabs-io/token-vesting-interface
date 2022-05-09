@@ -80,7 +80,7 @@ function colors(): Colors {
     // other
     red1: '#DA2D2B',
     red2: '#DF1F38',
-    red3: '#D60000',
+    red3: '#CC3366',
     green1: '#007D35',
     yellow1: '#E3A507',
     yellow2: '#FF8F00',
