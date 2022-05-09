@@ -48,8 +48,8 @@ function colors(): Colors {
     text5: '#EDEEF2',
     text6: '#01FF45',
     text7: 'rgba(255, 255, 255, 0.56)',
-    text8: '#f6f6f6',
-    text9: '#f5f5f5',
+    text8: '#afafaf',
+    textGray: '#878787',
     // backgrounds / greys
     bg0: '#ffffff',
     bg1: '#f2f8ff',
@@ -59,6 +59,8 @@ function colors(): Colors {
     bg5: 'rgba(0,0,0,0.8)',
     bg6: '#01FF45',
     bg7: '#efefef',
+    bgPrimary: '#010E1E',
+    bgPrimaryLight: '#01152D',
     //specialty colors
     modalBG: 'rgba(246, 246, 246, 0.1)',
     modalLay: 'rgba(0, 20, 45, 0.425)',

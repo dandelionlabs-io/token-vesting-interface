@@ -1,11 +1,13 @@
-import { Route, Switch } from 'react-router-dom'
-import styled from 'styled-components/macro'
+import { Route, Switch, useLocation } from 'react-router-dom'
+import styled, { css } from 'styled-components/macro'
 
 import BgWeb from '../assets/images/bg_page_wallet.jpg'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
 import Popups from '../components/Popups'
+import SidebarMenu from '../components/SidebarMenu'
 import Web3ReactManager from '../components/Web3ReactManager'
+import Dashboard from './Dashboard'
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -25,7 +27,7 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
       : 'none'};
 `
 
-const BodyWrapper = styled.div`
+const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -37,30 +39,55 @@ const BodyWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 56px 16px 8px 16px;
   `};
+  ${({ bodyDashBoard }) =>
+    bodyDashBoard &&
+    css`
+      margin-left: 320px;
+      margin-top: 85px;
+      padding: 32px 60px 0 30px;
+      width: calc(100% - 320px);
+      display: block;
+      flex-direction: unset;
+      align-items: unset;
+      background-image: linear-gradient(180deg, #01152d 31.72%, #000d1e 100%);
+    `}
 `
 
-const HeaderWrapper = styled.div`
+const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
   width: 100%;
   justify-content: space-between;
   position: fixed;
   top: 0;
   z-index: 2;
+  ${({ headerDashBoard }) =>
+    headerDashBoard &&
+    css`
+      left: 320px;
+      display: flex;
+      justify-content: flex-end;
+      background-color: ${({ theme }) => theme.bgPrimary};
+      width: calc(100% - 320px);
+      padding: 25px 60px;
+    `}
 `
 
 export default function App() {
+  const location = useLocation()
   return (
     <ErrorBoundary>
       <Route />
       <Web3ReactManager>
         <AppWrapper bgImage={BgWeb}>
-          <HeaderWrapper>
+          <HeaderWrapper headerDashBoard={location.pathname !== '/' ? true : false}>
             <Header />
           </HeaderWrapper>
-          <BodyWrapper>
+
+          {location.pathname !== '/' && <SidebarMenu />}
+          <BodyWrapper bodyDashBoard={location.pathname !== '/' ? true : false}>
             <Popups />
             <Switch>
-              <Route path="/" />
+              <Route path="/dashboard" component={Dashboard} />
             </Switch>
           </BodyWrapper>
         </AppWrapper>

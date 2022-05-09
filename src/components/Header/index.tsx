@@ -1,9 +1,11 @@
 import useScrollPosition from '@react-hook/window-scroll'
 // import useTheme from 'hooks/useTheme'
-import React, { useEffect, useState } from 'react'
-import styled, { css } from 'styled-components/macro'
+import React from 'react'
+import { useLocation } from 'react-router-dom'
+import styled from 'styled-components/macro'
 
-import { ReactComponent as Logo } from '../../assets/svg/logo.svg'
+import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
+import Logo_account from '../../assets/svg/logo_account.svg'
 
 const HeaderFrame = styled.div<{ showBackground: boolean }>`
   display: flex;
@@ -59,48 +61,6 @@ const DandelionIcon = styled.div`
     }
   `};
 `
-
-const HeaderHamburger = styled.div<{ className: string }>`
-  position: absolute;
-  width: 24px;
-  display: none;
-  cursor: pointer;
-  &:before,
-  &:after {
-    background: #fff;
-    content: '';
-    display: block;
-    height: 3px;
-    border-radius: 3px;
-    margin: 5px 0;
-    transition: 0.5s;
-  }
-  ${({ className }) =>
-    className &&
-    css`
-      &:before {
-        transform: translateY(8px) rotate(135deg);
-      }
-      &:after {
-        transform: translateY(-8px) rotate(-135deg);
-      }
-      & div {
-        transform: scale(0);
-      }
-    `}
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: block;
-  `};
-`
-const DivEmptyStyle = styled.div`
-  background: #fff;
-  content: '';
-  display: block;
-  height: 3px;
-  border-radius: 3px;
-  margin: 5px 0;
-  transition: 0.5s;
-`
 const DivNavbarLanding = styled.div`
   color: ${({ theme }) => theme.white};
   margin-left: auto;
@@ -152,45 +112,54 @@ const LinkItemMenu = styled.a`
      width: 100%;
   `};
 `
+const InfoAccount = styled.div`
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+`
+const AddressWallet = styled.p`
+  margin-bottom: 0;
+  color: ${({ theme }) => theme.white};
+  font-size: 14px;
+  line-height: 1.215;
+  margin-right: 12px;
+`
+const LogoAccount = styled.img`
+  display: block;
+  width: 35px;
+  height: 35px;
+  vertical-align: middle;
+`
 export default function Header() {
   // const { account } = useActiveWeb3React()
   // const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const scrollY = useScrollPosition()
-  const [toggleMenu, setToggleMenu] = useState(false)
-  const handleToggleMenu = () => {
-    setToggleMenu(!toggleMenu)
-  }
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth)
-
-  useEffect(() => {
-    const updateScreenWidthResize = () => {
-      setScreenWidth(window.innerWidth)
-    }
-    window.addEventListener('resize', updateScreenWidthResize)
-    return () => {
-      window.removeEventListener('resize', updateScreenWidthResize)
-    }
-  }, [screenWidth])
-
+  const location = useLocation()
   return (
-    <HeaderFrame showBackground={scrollY > 45}>
-      <HeaderHamburger className={toggleMenu ? 'active' : ''} onClick={handleToggleMenu}>
-        <DivEmptyStyle></DivEmptyStyle>
-      </HeaderHamburger>
-      <Title href=".">
-        <DandelionIcon>
-          <Logo width="200px" height="100%" title="logo" />
-        </DandelionIcon>
-      </Title>
-      <DivNavbarLanding>
-        <ListMenu>
-          <LiItemMenu>
-            <LinkItemMenu href={'/'} rel={'noreferrer'}>
-              Landing
-            </LinkItemMenu>
-          </LiItemMenu>
-        </ListMenu>
-      </DivNavbarLanding>
-    </HeaderFrame>
+    <>
+      {location.pathname !== './' ? (
+        <InfoAccount>
+          <AddressWallet>943s...Vs4CC</AddressWallet>
+          <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount>
+        </InfoAccount>
+      ) : (
+        <HeaderFrame showBackground={scrollY > 45}>
+          <Title href=".">
+            <DandelionIcon>
+              <Logo width="200px" height="100%" title="logo" />
+            </DandelionIcon>
+          </Title>
+          <DivNavbarLanding>
+            <ListMenu>
+              <LiItemMenu>
+                <LinkItemMenu href={'/'} rel={'noreferrer'}>
+                  Landing
+                </LinkItemMenu>
+              </LiItemMenu>
+            </ListMenu>
+          </DivNavbarLanding>
+        </HeaderFrame>
+      )}
+    </>
   )
 }
