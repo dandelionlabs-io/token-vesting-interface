@@ -6,47 +6,6 @@ import { BaseButton } from '../../components/Button'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { PageContainer, PageWrapper } from '../../theme'
 
-const LandingFrame = styled.div<{ showBackground: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: row;
-  width: 100%;
-  top: 0;
-  padding: 1rem;
-  z-index: 21;
-  position: relative;
-  /* Background slide effect on scroll. */
-  background-image: ${({ theme }) => `linear-gradient(to bottom, transparent 50%, ${theme.bg5} 50% )}}`};
-  background-position: ${({ showBackground }) => (showBackground ? '0 -100%' : '0 0')};
-  background-size: 100% 200%;
-  transition: background-position 0.1s, box-shadow 0.1s;
-  background-blend-mode: hard-light;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      padding: 8px 16px;
-  `};
-`
-
-const Title = styled.a`
-  display: flex;
-  align-items: center;
-  pointer-events: auto;
-  justify-self: flex-start;
-  padding-right: 12px;
-  flex: 0 0 212px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin-left: 30px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-self: center;
-    flex: 0 0 140px;
-  `};
-  :hover {
-    cursor: pointer;
-  }
-`
-
 const LandingBanner = styled.div`
   transition: transform 0.3s ease;
   flex: 1;
@@ -98,12 +57,12 @@ const LandingPage = () => {
             <HeadSpan color="white" fontsize="16px">
               +84 0343 788923
             </HeadSpan>
-            <p>
+            <div>
               <Circle></Circle>
               <Circle></Circle>
               <Circle></Circle>
               <Circle></Circle>
-            </p>
+            </div>
             <HeadSpan color="white" fontsize="13px">
               Copyright ©2021 Dandelion Labs Ltd.
             </HeadSpan>

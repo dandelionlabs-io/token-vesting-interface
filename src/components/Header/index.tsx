@@ -1,7 +1,7 @@
 import useScrollPosition from '@react-hook/window-scroll'
 // import useTheme from 'hooks/useTheme'
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
@@ -63,48 +63,6 @@ const DandelionIcon = styled.div`
     }
   `};
 `
-
-const HeaderHamburger = styled.div<{ className: string }>`
-  position: absolute;
-  width: 24px;
-  display: none;
-  cursor: pointer;
-  &:before,
-  &:after {
-    background: #fff;
-    content: '';
-    display: block;
-    height: 3px;
-    border-radius: 3px;
-    margin: 5px 0;
-    transition: 0.5s;
-  }
-  ${({ className }) =>
-    className &&
-    css`
-      &:before {
-        transform: translateY(8px) rotate(135deg);
-      }
-      &:after {
-        transform: translateY(-8px) rotate(-135deg);
-      }
-      & div {
-        transform: scale(0);
-      }
-    `}
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: block;
-  `};
-`
-const DivEmptyStyle = styled.div`
-  background: #fff;
-  content: '';
-  display: block;
-  height: 3px;
-  border-radius: 3px;
-  margin: 5px 0;
-  transition: 0.5s;
-`
 const DivNavbarLanding = styled.div`
   color: ${({ theme }) => theme.white};
   margin-left: auto;
@@ -140,7 +98,7 @@ const LiItemMenu = styled.li`
       margin-bottom: 0;
   `};
 `
-const LinkItemMenu = styled.a`
+const LinkItemMenu = styled(NavLink)`
   text-decoration: none;
   color: ${({ theme }) => theme.white};
   font-size: 15px;
@@ -238,8 +196,17 @@ export default function Header() {
           <DivNavbarLanding>
             <ListMenu>
               <LiItemMenu>
-                <LinkItemMenu href={'/'} rel={'noreferrer'}>
-                  Landing
+                <LinkItemMenu to={'/'} rel={'noreferrer'}>
+                  About
+                </LinkItemMenu>
+                <LinkItemMenu to={'/career'} rel={'noreferrer'}>
+                  Careers
+                </LinkItemMenu>
+                <LinkItemMenu to={'/blog'} rel={'noreferrer'}>
+                  Blog
+                </LinkItemMenu>
+                <LinkItemMenu to={'/contact'} rel={'noreferrer'}>
+                  Contact
                 </LinkItemMenu>
               </LiItemMenu>
             </ListMenu>
