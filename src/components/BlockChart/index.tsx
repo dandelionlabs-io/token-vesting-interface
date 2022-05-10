@@ -1,8 +1,8 @@
 import React from 'react'
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import styled from 'styled-components/macro'
 
 import IconOxy from '../Icons/IconOxy'
-
 interface Props {
   itemInfo: {
     heading?: string
@@ -13,13 +13,60 @@ interface Props {
   }
   dataChart?: any
 }
-
+interface DataChart {
+  name: string
+  amount: number
+}
+const data: DataChart[] = [
+  {
+    name: 'Value A',
+    amount: 1500,
+  },
+  {
+    name: 'Value B',
+    amount: 550,
+  },
+  {
+    name: 'Value C',
+    amount: 3000,
+  },
+  {
+    name: 'Value D',
+    amount: 2500,
+  },
+  {
+    name: 'Value E',
+    amount: 6000,
+  },
+  {
+    name: 'Value F',
+    amount: 6500,
+  },
+  {
+    name: 'Value G',
+    amount: 8600,
+  },
+]
 const BlockChart = (props: Props) => {
-  const { itemInfo, dataChart } = props
+  const { itemInfo } = props
   return (
     <BlockChartWrapper>
       <Heading>{itemInfo.heading}</Heading>
-      <DivChart>{dataChart === undefined && <Divider></Divider>}</DivChart>
+      <DivChart>
+        {/*{dataChart === undefined && <Divider></Divider>}*/}
+        {data.length === 0 ? (
+          <Divider></Divider>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <Tooltip />
+              <Line dataKey="amount" stroke="#FAA80A" dot={false} />
+              <XAxis dataKey="name" padding={{ left: 10, right: 10 }} style={{ display: 'none' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </DivChart>
+
       <DivAmount>
         <IconOxy SrcImageIcon={itemInfo.SrcImageIcon} widthIcon={itemInfo.widthIcon} heightIcon={itemInfo.heightIcon} />
         <TextValue>{itemInfo.amount}</TextValue>
