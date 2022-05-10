@@ -8,6 +8,7 @@ import SidebarMenu from '../components/SidebarMenu'
 import Web3ReactManager from '../components/Web3ReactManager'
 import Dashboard from './Dashboard'
 import LandingPage from './LandingPage'
+import Pool from './Pool'
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -114,6 +115,7 @@ export default function App() {
                 <LandingPage />
               </Route>
               <Route path="/dashboard" component={Dashboard} />
+              <Route path="/pool" component={Pool} />
             </Switch>
           </BodyWrapper>
           {location.pathname !== '/' && (
