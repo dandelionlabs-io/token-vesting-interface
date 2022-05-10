@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components/macro'
 
 import { BaseButton } from '../../components/Button'
-
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { PageContainer, PageWrapper } from '../../theme'
 
