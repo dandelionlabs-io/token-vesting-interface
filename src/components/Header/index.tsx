@@ -1,7 +1,7 @@
 import useScrollPosition from '@react-hook/window-scroll'
 // import useTheme from 'hooks/useTheme'
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
@@ -98,7 +98,7 @@ const LiItemMenu = styled.li`
       margin-bottom: 0;
   `};
 `
-const LinkItemMenu = styled.a`
+const LinkItemMenu = styled(NavLink)`
   text-decoration: none;
   color: ${({ theme }) => theme.white};
   font-size: 15px;
@@ -106,8 +106,8 @@ const LinkItemMenu = styled.a`
   padding: 8px 32px;
   font-family: 'Montserrat', sans-serif;
   &:hover {
-    background-color: ${({ theme }) => theme.bg6};
-    border-radius: 12px;
+    color: ${({ theme }) => theme.primary1};
+    // border-radius: 12px;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
      display: block;
@@ -196,8 +196,17 @@ export default function Header() {
           <DivNavbarLanding>
             <ListMenu>
               <LiItemMenu>
-                <LinkItemMenu href={'/'} rel={'noreferrer'}>
-                  Landing
+                <LinkItemMenu to={'/'} rel={'noreferrer'}>
+                  About
+                </LinkItemMenu>
+                <LinkItemMenu to={'/career'} rel={'noreferrer'}>
+                  Careers
+                </LinkItemMenu>
+                <LinkItemMenu to={'/blog'} rel={'noreferrer'}>
+                  Blog
+                </LinkItemMenu>
+                <LinkItemMenu to={'/contact'} rel={'noreferrer'}>
+                  Contact
                 </LinkItemMenu>
               </LiItemMenu>
             </ListMenu>

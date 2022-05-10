@@ -18,6 +18,14 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
   background-position: center;
   background-size: cover;
   background-color: ${({ theme }) => theme.bg5};
+  background-image: ${(props) =>
+    props.bgImage
+      ? `linear-gradient(
+                    0deg,
+                    rgba(10, 37, 27, 0.6),
+                    rgba(10, 37, 27, 0.6)
+            ),url(${props.bgImage})`
+      : 'none'};
 `
 
 const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
