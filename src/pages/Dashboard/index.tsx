@@ -3,7 +3,7 @@ import styled from 'styled-components/macro'
 
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
-import BlockChart from '../../components/BlockChart'
+import BlockChart from '../../components/BlockChart/index'
 import TableActivePool from '../../components/TableActivePool'
 interface TypeItemInfo {
   dataChart?: any
@@ -15,19 +15,57 @@ interface TypeItemInfo {
 }
 const dataETH: TypeItemInfo = {
   heading: 'ETH Balance',
-  amount: 0,
+  amount: 34.524,
   widthIcon: '28px',
   heightIcon: '39px',
   SrcImageIcon: IconETH,
 }
 const dataCDRED: TypeItemInfo = {
   heading: 'CDRED Balance',
-  amount: 0,
+  amount: 35595.83,
   widthIcon: '39px',
   heightIcon: '29px',
   SrcImageIcon: IconCDRED,
 }
-
+const poolItems = {
+  columns: [
+    { key: 'name', name: 'Name' },
+    { key: 'claimed', name: 'Claimed amt.' },
+    { key: 'remain', name: 'Remain amt.' },
+    { key: 'start', name: 'Lock start' },
+    { key: 'end', name: 'Lock end' },
+    { key: 'claim', name: '' },
+  ],
+  rows: [
+    {
+      name: 'First',
+      address: '0x7CBDA416C1b7CccceBCC31db722B583ab3eAb903',
+      claimed: 300000000,
+      remain: 200000000,
+      start: 1651640400,
+      end: 1651740400,
+      claim: 1,
+    },
+    {
+      name: 'Second',
+      address: '0x7CBDA416C1b7CccceBCC31db722B583ab3eAb903',
+      claimed: 300000000,
+      remain: 200000000,
+      start: 1651640400,
+      end: 1651740400,
+      claim: 0,
+    },
+    {
+      name: 'Third',
+      address: '0x7CBDA416C1b7CccceBCC31db722B583ab3eAb903',
+      claimed: 300000000,
+      remain: 200000000,
+      start: 1651640400,
+      end: 1651740400,
+      claim: 0,
+    },
+  ],
+}
 const Dashboard = () => {
   return (
     <div>
@@ -40,7 +78,7 @@ const Dashboard = () => {
         </BlockChartItem>
       </BlockChartList>
       <BlockTable>
-        <TableActivePool />
+        <TableActivePool data={poolItems} />
       </BlockTable>
     </div>
   )
