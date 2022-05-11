@@ -1,13 +1,13 @@
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
 import Popups from '../components/Popups'
-import SidebarMenu from '../components/SidebarMenu'
 import Web3ReactManager from '../components/Web3ReactManager'
-import Dashboard from './Dashboard'
-import LandingPage from './LandingPage'
+import RouterPage from './router'
+
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -18,6 +18,14 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
   background-position: center;
   background-size: cover;
   background-color: ${({ theme }) => theme.bg5};
+  background-image: ${(props) =>
+    props.bgImage
+      ? `linear-gradient(
+                    0deg,
+                    rgba(10, 37, 27, 0.6),
+                    rgba(10, 37, 27, 0.6)
+            ),url(${props.bgImage})`
+      : 'none'};
 `
 
 const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
@@ -90,25 +98,24 @@ const FooterContent = styled.p`
 `
 export default function App() {
   const location = useLocation()
+  const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
+
+  useEffect(() => {
+    setIsNotLandingPage(location.pathname !== '/')
+  }, [location])
+
   return (
     <ErrorBoundary>
       <Web3ReactManager>
         <AppWrapper>
-          <HeaderWrapper headerDashBoard={location.pathname !== '/' ? true : false}>
+          <HeaderWrapper headerDashBoard={isNotLandingPage}>
             <Header />
           </HeaderWrapper>
-
-          {location.pathname !== '/' && <SidebarMenu />}
-          <BodyWrapper bodyDashBoard={location.pathname !== '/' ? true : false}>
+          <BodyWrapper bodyDashBoard={isNotLandingPage}>
             <Popups />
-            <Switch>
-              <Route exact path="/">
-                <LandingPage />
-              </Route>
-              <Route path="/dashboard" component={Dashboard} />
-            </Switch>
+            <RouterPage />
           </BodyWrapper>
-          {location.pathname !== '/' && (
+          {isNotLandingPage && (
             <FooterWrapper>
               <FooterContent>
                 <span>Blockchain:</span> Ethereum Testnet Rinkeby
