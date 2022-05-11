@@ -85,7 +85,7 @@ function colors(): Colors {
     red2: '#DF1F38',
     red3: '#CC3366',
     green1: '#007D35',
-    yellow1: '#E3A507',
+    yellow1: '#FAA80A',
     yellow2: '#FF8F00',
     yellow3: '#F3B71E',
     blue1: '#0068FC',
