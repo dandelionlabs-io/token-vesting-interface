@@ -4,7 +4,9 @@ import styled from 'styled-components/macro'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
+import SidebarMenu from '../../components/SidebarMenu'
 import TableActivePool from '../../components/TableActivePool'
+
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -13,6 +15,7 @@ interface TypeItemInfo {
   heightIcon?: string
   SrcImageIcon?: string
 }
+
 const dataETH: TypeItemInfo = {
   heading: 'ETH Balance',
   amount: 0,
@@ -20,6 +23,7 @@ const dataETH: TypeItemInfo = {
   heightIcon: '39px',
   SrcImageIcon: IconETH,
 }
+
 const dataCDRED: TypeItemInfo = {
   heading: 'CDRED Balance',
   amount: 0,
@@ -30,21 +34,32 @@ const dataCDRED: TypeItemInfo = {
 
 const Dashboard = () => {
   return (
-    <div>
-      <BlockChartList>
-        <BlockChartItem>
-          <BlockChart itemInfo={dataETH} />
-        </BlockChartItem>
-        <BlockChartItem>
-          <BlockChart itemInfo={dataCDRED} />
-        </BlockChartItem>
-      </BlockChartList>
-      <BlockTable>
-        <TableActivePool />
-      </BlockTable>
-    </div>
+    <DashboardContainer>
+      <SidebarMenu />
+      <BlockCharts>
+        <BlockChartList>
+          <BlockChartItem>
+            <BlockChart itemInfo={dataETH} />
+          </BlockChartItem>
+          <BlockChartItem>
+            <BlockChart itemInfo={dataCDRED} />
+          </BlockChartItem>
+        </BlockChartList>
+        <BlockTable>
+          <TableActivePool />
+        </BlockTable>
+      </BlockCharts>
+    </DashboardContainer>
   )
 }
+const DashboardContainer = styled.div`
+  display: flex;
+`
+
+const BlockCharts = styled.div`
+  width: 100%;
+`
+
 const BlockChartList = styled.div`
   display: flex;
   margin-left: -8px;

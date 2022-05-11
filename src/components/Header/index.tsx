@@ -196,18 +196,10 @@ export default function Header() {
           <DivNavbarLanding>
             <ListMenu>
               <LiItemMenu>
-                <LinkItemMenu to={'/'} rel={'noreferrer'}>
-                  About
-                </LinkItemMenu>
-                <LinkItemMenu to={'/career'} rel={'noreferrer'}>
-                  Careers
-                </LinkItemMenu>
-                <LinkItemMenu to={'/blog'} rel={'noreferrer'}>
-                  Blog
-                </LinkItemMenu>
-                <LinkItemMenu to={'/contact'} rel={'noreferrer'}>
-                  Contact
-                </LinkItemMenu>
+                <LinkItemMenu to={'#'}>About</LinkItemMenu>
+                <LinkItemMenu to={'#'}>Careers</LinkItemMenu>
+                <LinkItemMenu to={'#'}>Blog</LinkItemMenu>
+                <LinkItemMenu to={'#'}>Contact</LinkItemMenu>
               </LiItemMenu>
             </ListMenu>
           </DivNavbarLanding>
