@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import LandingPage from './LandingPage'
 import NotFound from './NotFound'
+import Pool from './Pool'
 
 const RouterPage = () => {
   return (
@@ -20,6 +21,7 @@ const RouterPage = () => {
         <LandingPage />
       </Route>
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/pool" component={Pool} />
       <Route exact component={NotFound} />
     </Switch>
   )

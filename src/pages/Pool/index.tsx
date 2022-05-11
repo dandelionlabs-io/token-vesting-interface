@@ -5,6 +5,8 @@ import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dash
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
+import SidebarMenu from '../../components/SidebarMenu'
+
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -41,92 +43,95 @@ const DandelionIcon = styled.div`
 `
 const Pool = () => {
   return (
-    <div>
-      <BlockChartList>
-        <BlockChartItem>
-          <BlockChart itemInfo={dataETH} />
-        </BlockChartItem>
-        <BlockChartItem>
-          <BlockChart itemInfo={dataCDRED} />
-        </BlockChartItem>
-      </BlockChartList>
+    <>
+      <SidebarMenu />
+      <div>
+        <BlockChartList>
+          <BlockChartItem>
+            <BlockChart itemInfo={dataETH} />
+          </BlockChartItem>
+          <BlockChartItem>
+            <BlockChart itemInfo={dataCDRED} />
+          </BlockChartItem>
+        </BlockChartList>
 
-      <DandelionIcon>
-        <Logo width="200px" height="100%" title="logo" />
-      </DandelionIcon>
+        <DandelionIcon>
+          <Logo width="200px" height="100%" title="logo" />
+        </DandelionIcon>
 
-      <BlockWrapper>
-        <EmptyContainer>
-          <Heading>Detail</Heading>
+        <BlockWrapper>
+          <EmptyContainer>
+            <Heading>Detail</Heading>
 
-          <ListContainer>
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Contract Address
-            </HeadSpan>
-            <HeadSpan>
-              <HeadSpan fontsize="16px">0x75...02BbF</HeadSpan> <HeadSpan>icon</HeadSpan>
-            </HeadSpan>
-          </ListContainer>
-          <ListContainer>
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Lock Start Time
-            </HeadSpan>
-            <HeadSpan>
-              <HeadSpan fontsize="16px">Jul 18th 2021, 2:30 pm</HeadSpan>
-            </HeadSpan>
-          </ListContainer>
-          <ListContainer>
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Lock End Time
-            </HeadSpan>
-            <HeadSpan>
-              <HeadSpan fontsize="16px">Jul 18th 2022, 5:00 pm</HeadSpan>
-            </HeadSpan>
-          </ListContainer>
-          <ListContainer>
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Total Locked Amount
-            </HeadSpan>
-            <HeadSpan>
-              <HeadSpan fontsize="16px">5000</HeadSpan> <HeadSpan>icon</HeadSpan>
-            </HeadSpan>
-          </ListContainer>
-          <ProgressDiv>
-            <HeadSpan fontsize="16px" fontweight="bold" color="white">
-              Progress detail
-            </HeadSpan>
-            <ProgressBar>
-              <ProgressInner width="20" background="#FAA80A"></ProgressInner>
-              <ProgressInner width="5" background="#18aa00"></ProgressInner>
-            </ProgressBar>
-            <ProgressBarContent>
-              <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
-                Claimed <SpanIcon background="#FAA80A"></SpanIcon>
+            <ListContainer>
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Contract Address
               </HeadSpan>
-              <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
-                Claimable <SpanIcon background="#18AA00"></SpanIcon>
+              <HeadSpan>
+                <HeadSpan fontsize="16px">0x75...02BbF</HeadSpan> <HeadSpan>icon</HeadSpan>
               </HeadSpan>
-              <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
-                Remaining balance <SpanIcon background="#868B90"></SpanIcon>
+            </ListContainer>
+            <ListContainer>
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Lock Start Time
               </HeadSpan>
-              <ClaimButton>Claim</ClaimButton>
-            </ProgressBarContent>
-          </ProgressDiv>
-        </EmptyContainer>
-        <EmptyContainer>
-          <Heading>History of Claims</Heading>
+              <HeadSpan>
+                <HeadSpan fontsize="16px">Jul 18th 2021, 2:30 pm</HeadSpan>
+              </HeadSpan>
+            </ListContainer>
+            <ListContainer>
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Lock End Time
+              </HeadSpan>
+              <HeadSpan>
+                <HeadSpan fontsize="16px">Jul 18th 2022, 5:00 pm</HeadSpan>
+              </HeadSpan>
+            </ListContainer>
+            <ListContainer>
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Total Locked Amount
+              </HeadSpan>
+              <HeadSpan>
+                <HeadSpan fontsize="16px">5000</HeadSpan> <HeadSpan>icon</HeadSpan>
+              </HeadSpan>
+            </ListContainer>
+            <ProgressDiv>
+              <HeadSpan fontsize="16px" fontweight="bold" color="white">
+                Progress detail
+              </HeadSpan>
+              <ProgressBar>
+                <ProgressInner width="20" background="#FAA80A"></ProgressInner>
+                <ProgressInner width="5" background="#18aa00"></ProgressInner>
+              </ProgressBar>
+              <ProgressBarContent>
+                <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
+                  Claimed <SpanIcon background="#FAA80A"></SpanIcon>
+                </HeadSpan>
+                <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
+                  Claimable <SpanIcon background="#18AA00"></SpanIcon>
+                </HeadSpan>
+                <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
+                  Remaining balance <SpanIcon background="#868B90"></SpanIcon>
+                </HeadSpan>
+                <ClaimButton>Claim</ClaimButton>
+              </ProgressBarContent>
+            </ProgressDiv>
+          </EmptyContainer>
+          <EmptyContainer>
+            <Heading>History of Claims</Heading>
 
-          <ListContainer>
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Date
-            </HeadSpan>
-            <HeadSpan>
-              <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan> <HeadSpan>Remaining</HeadSpan>
-            </HeadSpan>
-          </ListContainer>
-        </EmptyContainer>
-      </BlockWrapper>
-    </div>
+            <ListContainer>
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Date
+              </HeadSpan>
+              <HeadSpan>
+                <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan> <HeadSpan>Remaining</HeadSpan>
+              </HeadSpan>
+            </ListContainer>
+          </EmptyContainer>
+        </BlockWrapper>
+      </div>
+    </>
   )
 }
 const ClaimButton = styled.button`
@@ -159,7 +164,6 @@ const ProgressInner = styled.div<{ width?: string; background?: string }>`
 const ProgressBar = styled.div`
   display: flex;
   background: #868b90;
-  width: 426px;
   height: 20px;
   border-radius: 12px;
   width: 100%;
@@ -227,8 +231,5 @@ const BlockChartItem = styled.div`
   max-width: 50%;
   padding-left: 8px;
   padding-right: 8px;
-`
-const BlockTable = styled.div`
-  margin-top: 16px;
 `
 export default Pool
