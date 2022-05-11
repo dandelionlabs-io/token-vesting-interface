@@ -12,6 +12,7 @@ const PendingSection = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
+  color: ${({ theme }) => theme.white};
   & > * {
     width: 100%;
   }
@@ -27,7 +28,8 @@ const LoadingMessage = styled.div<{ error?: boolean }>`
   justify-content: flex-start;
   margin-bottom: 20px;
   color: ${({ theme, error }) => (error ? theme.red1 : 'inherit')};
-  border: 1px solid ${({ theme, error }) => (error ? theme.red1 : theme.text4)};
+  border-radius: 8px;
+  border: 1px solid ${({ theme, error }) => (error ? theme.red1 : theme.borderCard)};
 
   & > * {
     padding: 1rem;

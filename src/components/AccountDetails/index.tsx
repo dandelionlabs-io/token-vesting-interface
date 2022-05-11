@@ -3,7 +3,6 @@ import { ExternalLink as LinkIcon } from 'react-feather'
 import styled from 'styled-components/macro'
 import { AbstractConnector } from 'web3-react-abstract-connector'
 
-import { ReactComponent as Close } from '../../assets/images/x.svg'
 import { injected, portis, walletlink } from '../../connectors'
 import { SUPPORTED_WALLETS } from '../../constants/wallet'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
@@ -16,12 +15,12 @@ import Copy from './Copy'
 
 const HeaderRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
-  padding: 1rem 1rem;
   font-weight: 500;
-  color: ${(props) => (props.color === 'blue' ? ({ theme }) => theme.primary1 : 'inherit')};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem;
-  `};
+  margin-bottom: 12px;
+  font-size: 16px;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: ${(props) => (props.color === 'blue' ? ({ theme }) => theme.primary1 : ({ theme }) => theme.white)};
 `
 
 const UpperSection = styled.div`
@@ -46,11 +45,12 @@ const UpperSection = styled.div`
 
 const InfoCard = styled.div`
   padding: 1rem;
-  border: 1px solid ${({ theme }) => theme.bg3};
+  border: 1px solid ${({ theme }) => theme.borderCard};
   position: relative;
   display: grid;
   grid-row-gap: 12px;
   margin-bottom: 20px;
+  border-radius: 8px;
 `
 
 const AccountGroupingRow = styled.div`
@@ -67,8 +67,7 @@ const AccountGroupingRow = styled.div`
 `
 
 const AccountSection = styled.div`
-  padding: 0rem 1rem;
-  ${({ theme }) => theme.mediaWidth.upToMedium`padding: 0rem 1rem 1.5rem 1rem;`};
+  padding: 0;
 `
 
 const YourAccount = styled.div`
@@ -102,41 +101,26 @@ const AccountControl = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: ${({ theme }) => theme.white};
   }
 `
 
 const AddressLink = styled(ExternalLink)`
   font-size: 0.825rem;
-  color: ${({ theme }) => theme.text3};
+  color: ${({ theme }) => theme.white};
   margin-left: 1rem;
   font-size: 0.825rem;
   display: flex;
   :hover {
-    color: ${({ theme }) => theme.text2};
-  }
-`
-
-const CloseIcon = styled.div`
-  position: absolute;
-  right: 1rem;
-  top: 14px;
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-`
-
-const CloseColor = styled(Close)`
-  path {
-    stroke: ${({ theme }) => theme.text4};
+    color: ${({ theme }) => theme.text4};
   }
 `
 
 const WalletName = styled.div`
   width: initial;
-  font-size: 0.825rem;
+  font-size: 14px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text3};
+  color: ${({ theme }) => theme.white};
 `
 
 const IconWrapper = styled.div<{ size?: number }>`
@@ -177,9 +161,11 @@ const WalletAction = styled(ButtonSecondary)`
   margin-left: 8px;
   font-size: 0.825rem;
   padding: 4px 6px;
+  border-radius: 8px;
   :hover {
     cursor: pointer;
     text-decoration: underline;
+    border-color: ${({ theme }) => theme.borderCard};
   }
 `
 
@@ -210,9 +196,6 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
   return (
     <>
       <UpperSection>
-        <CloseIcon onClick={toggleWalletModal}>
-          <CloseColor />
-        </CloseIcon>
         <HeaderRow>Account</HeaderRow>
         <AccountSection>
           <YourAccount>

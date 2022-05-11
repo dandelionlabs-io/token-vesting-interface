@@ -29,18 +29,29 @@ const OptionCardLeft = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
   justify-content: center;
   height: 100%;
+  margin-left: 12px;
+  order: 2;
 `
 
 const OptionCardClickable = styled(OptionCard as any)<{ clickable?: boolean }>`
   margin-top: 0;
-  border-radius: 25px;
-  border-color: ${({ theme }) => `${theme.borderCard}`};
+  border-radius: 8px;
+  border: none;
   color: ${({ theme }) => `${theme.white}`};
+  background-color: ${({ theme }) => theme.bgPrimary};
+  box-shadow: none;
+  justify-content: center;
+  &:focus {
+    box-shadow: ${({ theme }) => `0 0 0 2px ${theme.borderCard}`};
+  }
   &:hover {
     cursor: ${({ clickable }) => (clickable ? 'pointer' : '')};
-    border: ${({ clickable, theme }) => (clickable ? `1px solid ${theme.primary1}` : ``)};
+    box-shadow: ${({ theme }) => `0 0 0 2px ${theme.borderCard}`};
   }
   opacity: ${({ disabled }) => (disabled ? '0.5' : '1')};
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `
 
 const GreenCircle = styled.div`
@@ -67,12 +78,17 @@ const CircleWrapper = styled.div`
 const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
   color: ${(props) => (props.color === 'blue' ? ({ theme }) => theme.white : ({ theme }) => theme.white)};
-  font-size: 1rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.56px;
 `
 
 const SubHeader = styled.div`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.white};
   margin-top: 10px;
   font-size: 12px;
 `
