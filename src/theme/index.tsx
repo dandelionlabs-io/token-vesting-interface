@@ -50,6 +50,7 @@ function colors(): Colors {
     text7: 'rgba(255, 255, 255, 0.56)',
     text8: '#afafaf',
     textGray: '#878787',
+    text10: '#DADADA',
     // backgrounds / greys
     bg0: '#ffffff',
     bg1: '#f2f8ff',
@@ -63,9 +64,9 @@ function colors(): Colors {
     bgPrimaryLight: '#01152D',
     //specialty colors
     modalBG: 'rgba(246, 246, 246, 0.1)',
-    modalLay: 'rgba(0, 20, 45, 0.425)',
+    modalLay: 'rgba(0,20,45,0.5)',
     advancedBG: 'rgba(255,255,255,0.6)',
-    borderCard: '#979797',
+    borderCard: '#F5841F',
     //primary colors
     primary1: '#CC3366',
     primary2: '#f6b664',
@@ -84,7 +85,7 @@ function colors(): Colors {
     red2: '#DF1F38',
     red3: '#CC3366',
     green1: '#007D35',
-    yellow1: '#E3A507',
+    yellow1: '#FAA80A',
     yellow2: '#FF8F00',
     yellow3: '#F3B71E',
     blue1: '#0068FC',

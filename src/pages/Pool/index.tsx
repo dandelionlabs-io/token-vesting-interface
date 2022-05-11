@@ -5,7 +5,10 @@ import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dash
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
+import ModalSuccess from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
+import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
+import { ApplicationModal } from '../../state/application/reducer'
 
 interface TypeItemInfo {
   dataChart?: any
@@ -42,6 +45,8 @@ const DandelionIcon = styled.div`
   `};
 `
 const Pool = () => {
+  const toggleSuccessModal = useSuccessModalToggle()
+  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   return (
     <>
       <SidebarMenu />
@@ -113,7 +118,7 @@ const Pool = () => {
                 <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
                   Remaining balance <SpanIcon background="#868B90"></SpanIcon>
                 </HeadSpan>
-                <ClaimButton>Claim</ClaimButton>
+                <ClaimButton onClick={toggleSuccessModal}>Claim</ClaimButton>
               </ProgressBarContent>
             </ProgressDiv>
           </EmptyContainer>
@@ -131,6 +136,7 @@ const Pool = () => {
           </EmptyContainer>
         </BlockWrapper>
       </div>
+      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} />
     </>
   )
 }
@@ -138,11 +144,12 @@ const ClaimButton = styled.button`
   color: ${({ theme }) => theme.white};
   background: #18aa00;
   margin-top: 30px;
-  padding: 8px 0px;
+  padding: 8px 0;
   width: 180px;
   height: 36px;
   border-radius: 8px;
   border: transparent;
+  cursor: pointer;
 `
 const ProgressBarContent = styled.div`
   padding: 5px;

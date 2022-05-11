@@ -16,7 +16,6 @@ const StyledDialogOverlay = styled(AnimatedDialogOverlay)`
     align-items: center;
     justify-content: center;
     background-color: ${({ theme }) => theme.modalLay};
-    backdrop-filter: blur(10px);
   }
 `
 
@@ -33,14 +32,14 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, mobile, isOpen, maxW
 
   &[data-reach-dialog-content] {
     border: none;
-    background-color: ${({ theme }) => theme.modalBG};
-    box-shadow: -3px -3px 3px rgba(255, 255, 255, 0.25), 3px 3px 6px 1px rgba(0, 0, 0, 0.26);
-    border-radius: 50px;
-    padding: 24px 30px;
+    background: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 40px 32px;
     width: 100%;
     margin: 0 auto;
 
-    max-width: ${(props) => props.maxWidth || '510px'};
+    max-width: ${(props) => props.maxWidth || '460px'};
     ${({ maxHeight }) =>
       maxHeight &&
       css`
