@@ -1,7 +1,40 @@
+import moment from 'moment'
 import React from 'react'
 import styled, { css } from 'styled-components/macro'
 
-const TableActivePool = () => {
+import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
+import { shortenAddress } from '../../utils'
+import IconOxy from '../Icons/IconOxy'
+
+interface Props {
+  data: TypeRows[]
+}
+type TypeColumns = {
+  key?: string
+  name?: string
+}
+type TypeRows = {
+  srcImage?: string
+  name: string
+  address: string
+  claimed: number
+  remain: number
+  start: number
+  end: number
+  claim: number
+}
+
+const columns: TypeColumns[] = [
+  { key: 'name', name: 'Name' },
+  { key: 'claimed', name: 'Claimed amt.' },
+  { key: 'remain', name: 'Remain amt.' },
+  { key: 'start', name: 'Lock start' },
+  { key: 'end', name: 'Lock end' },
+  { key: 'claim', name: '' },
+]
+
+const TableActivePool = (props: Props) => {
+  const { data } = props
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
@@ -9,16 +42,60 @@ const TableActivePool = () => {
         <Table>
           <thead>
             <tr>
-              <TableTh>Name</TableTh>
-              <TableTh width={'130px'}>Claimed</TableTh>
-              <TableTh width={'130px'}>Remain</TableTh>
-              <TableTh width={'120px'}>Lock start</TableTh>
-              <TableTh width={'120px'}>Lock end</TableTh>
+              {columns.map((item, index) => {
+                return (
+                  <TableTh key={item.key} data-head={item.key}>
+                    {item.name}
+                  </TableTh>
+                )
+              })}
             </tr>
           </thead>
+          {data && !!data?.length && (
+            <tbody>
+              {data?.map((item: any, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td>
+                      <DivNameBox>
+                        <IconOxy
+                          SrcImageIcon={item.srcImage !== undefined ? item.srcImage : IconTableDefault}
+                          widthIcon={'14px'}
+                          heightIcon={'14px'}
+                        />
+                        <NamePool>{item.name}</NamePool>
+                        <AddressWallet>( {shortenAddress(item.address)} )</AddressWallet>
+                      </DivNameBox>
+                    </td>
+                    <td>
+                      <span>{item.claimed}</span>
+                    </td>
+                    <td>
+                      <span>{item.remain}</span>
+                    </td>
+                    <td>
+                      <span>{moment(item.start).format('MMM DD, YYYY')}</span>
+                    </td>
+                    <td>
+                      <span>{moment(item.end).format('MMM DD, YYYY')}</span>
+                    </td>
+                    {item.claim === 1 ? (
+                      <td>
+                        <ButtonClaim active={true}>Claim</ButtonClaim>
+                      </td>
+                    ) : (
+                      <td>
+                        <ButtonClaim>Claim</ButtonClaim>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          )}
         </Table>
       </DivTableBox>
-      <Notification>No data to show !</Notification>
+      {data.length === 0 && <Notification>No data to show !</Notification>}
     </TableActivePoolWrapper>
   )
 }
@@ -73,6 +150,7 @@ const TableTh = styled.th<{ width?: string }>`
   color: ${({ theme }) => theme.white};
   padding: 20px 8px;
   text-align: right;
+  white-space: nowrap;
   &:first-child {
     text-align: left;
   }
@@ -82,6 +160,26 @@ const TableTh = styled.th<{ width?: string }>`
       width: ${width};
       min-width: ${width};
     `}
+  &[data-head='claimed'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='remain'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='start'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='end'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &:last-of-type {
+    max-width: 130px;
+    width: 120px;
+  }
 `
 const Notification = styled.p`
   margin-bottom: 0;
@@ -93,5 +191,48 @@ const Notification = styled.p`
   color: ${({ theme }) => theme.white};
   text-align: center;
   padding-top: 100px;
+`
+const DivNameBox = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+`
+const NamePool = styled.p`
+  color: ${({ theme }) => theme.white};
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  margin: 0 8px;
+`
+const AddressWallet = styled.p`
+  margin-bottom: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: ${({ theme }) => theme.text8};
+`
+const ButtonClaim = styled.button<{ active?: boolean }>`
+  outline: none;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.25;
+  padding: 4px 12px;
+  color: rgba(109, 149, 199, 0.3);
+  background-color: rgba(0, 28, 60, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  ${({ active }) =>
+    active &&
+    css`
+      color: ${({ theme }) => theme.white};
+      background-color: #18aa00;
+    `}
 `
 export default TableActivePool
