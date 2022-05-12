@@ -7,6 +7,7 @@ import styled from 'styled-components/macro'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import Logo_account from '../../assets/svg/logo_account.svg'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import { shortenAddress } from '../../utils'
 import Web3Status from '../Web3Status'
 
 const HeaderFrame = styled.div<{ showBackground: boolean }>`
@@ -29,7 +30,6 @@ const HeaderFrame = styled.div<{ showBackground: boolean }>`
       padding: 8px 16px;
   `};
 `
-
 const Title = styled.a`
   display: flex;
   align-items: center;
@@ -49,7 +49,6 @@ const Title = styled.a`
     cursor: pointer;
   }
 `
-
 const DandelionIcon = styled.div`
   transition: transform 0.3s ease;
   :hover {
@@ -114,7 +113,6 @@ const LinkItemMenu = styled(NavLink)`
      width: 100%;
   `};
 `
-
 const HeaderControls = styled.div`
   display: flex;
   flex-direction: row;
@@ -136,7 +134,6 @@ const AccountElement = styled.div<{ active: boolean }>`
   height: 40px;
   padding-left: ${({ active }) => (!active ? 0 : '14px')};
 `
-
 const HeaderElement = styled.div`
   display: flex;
   align-items: center;
@@ -155,7 +152,6 @@ const HeaderElement = styled.div`
     align-items: center;
   `};
 `
-
 const InfoAccount = styled.div`
   margin-left: auto;
   display: flex;
@@ -176,14 +172,13 @@ const LogoAccount = styled.img`
 `
 export default function Header() {
   const { account } = useActiveWeb3React()
-  // const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const scrollY = useScrollPosition()
   const location = useLocation()
   return (
     <>
       {location.pathname !== '/' ? (
         <InfoAccount>
-          <AddressWallet>943s...Vs4CC</AddressWallet>
+          <AddressWallet>{account && shortenAddress(account)}</AddressWallet>
           <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount>
         </InfoAccount>
       ) : (

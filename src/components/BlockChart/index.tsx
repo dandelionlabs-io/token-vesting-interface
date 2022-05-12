@@ -6,7 +6,7 @@ import IconOxy from '../Icons/IconOxy'
 interface Props {
   itemInfo: {
     heading?: string
-    amount?: number
+    amount?: number | string
     widthIcon?: string
     heightIcon?: string
     SrcImageIcon?: string

@@ -2,6 +2,7 @@ import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
+import { utils } from 'ethers'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -76,4 +77,11 @@ export function getContract(address: string, ABI: any, library: JsonRpcProvider,
   }
 
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
+}
+
+export const ethBalance = (balance: any) => {
+  if (!balance) return 0
+  const result = parseInt(utils.formatEther(balance)) / 1e18
+
+  return result
 }

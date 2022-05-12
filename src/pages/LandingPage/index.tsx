@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import bannerImage from '../../assets/images/bannerImage.png'
 import { BaseButton } from '../../components/Button'
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { PageContainer, PageWrapper } from '../../theme'
 
@@ -25,6 +27,12 @@ const LandingSection = styled.div`
 
 const LandingPage = () => {
   const toggleWalletModal = useWalletModalToggle()
+  const { account } = useActiveWeb3React()
+  const history = useHistory()
+
+  useEffect(() => {
+    account && history.push({ pathname: `dashboard` })
+  }, [account])
 
   return (
     <PageWrapper>

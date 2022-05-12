@@ -3,12 +3,11 @@ import React from 'react'
 import styled, { css } from 'styled-components/macro'
 
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
+import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
+
 interface Props {
-  data: {
-    columns: TypeColumns[]
-    rows: TypeRows[]
-  }
+  data: TypeRows[]
 }
 type TypeColumns = {
   key?: string
@@ -24,13 +23,16 @@ type TypeRows = {
   end: number
   claim: number
 }
-const shortenAddress = (addr: string) => {
-  if (addr !== undefined && addr.startsWith('0x')) {
-    const length = addr.length
-    return addr.slice(0, 6) + '...' + addr.slice(length - 4)
-  }
-  return addr
-}
+
+const columns: TypeColumns[] = [
+  { key: 'name', name: 'Name' },
+  { key: 'claimed', name: 'Claimed amt.' },
+  { key: 'remain', name: 'Remain amt.' },
+  { key: 'start', name: 'Lock start' },
+  { key: 'end', name: 'Lock end' },
+  { key: 'claim', name: '' },
+]
+
 const TableActivePool = (props: Props) => {
   const { data } = props
   return (
@@ -40,7 +42,7 @@ const TableActivePool = (props: Props) => {
         <Table>
           <thead>
             <tr>
-              {data?.columns.map((item, index) => {
+              {columns.map((item, index) => {
                 return (
                   <TableTh key={item.key} data-head={item.key}>
                     {item.name}
@@ -49,9 +51,9 @@ const TableActivePool = (props: Props) => {
               })}
             </tr>
           </thead>
-          {data.rows && (
+          {data && !!data?.length && (
             <tbody>
-              {data.rows?.map((item, index) => {
+              {data?.map((item: any, index: number) => {
                 return (
                   <tr key={index}>
                     <td>
@@ -93,7 +95,7 @@ const TableActivePool = (props: Props) => {
           )}
         </Table>
       </DivTableBox>
-      {data.columns.length === 0 && <Notification>No data to show !</Notification>}
+      {data.length === 0 && <Notification>No data to show !</Notification>}
     </TableActivePoolWrapper>
   )
 }
