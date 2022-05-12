@@ -13,7 +13,7 @@ import { SUPPORTED_WALLETS } from '../../../constants/wallet'
 import usePrevious from '../../../hooks/usePrevious'
 import { useModalOpen, useWalletModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-import { ExternalLink, ThemedText } from '../../../theme'
+import { ThemedText } from '../../../theme'
 import { isMobile } from '../../../utils/userAgent'
 import AccountDetails from '../../AccountDetails'
 import { LightCard } from '../../Card'
@@ -32,19 +32,15 @@ const Wrapper = styled.div`
 
 const HeaderRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
-  padding: 1rem 1rem;
+  padding: 0;
   font-weight: 500;
   color: ${(props) => (props.color === 'blue' ? ({ theme }) => theme.primary1 : 'inherit')};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem;
-  `};
+  margin-bottom: 12px;
 `
 
 const ContentWrapper = styled.div`
   background-color: transparent;
-  padding: 0 1rem 1rem 1rem;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`padding: 0 1rem 1rem 1rem`};
+  padding: 0;
 `
 
 const UpperSection = styled.div`
@@ -69,28 +65,45 @@ const UpperSection = styled.div`
 
 const OptionGrid = styled.div`
   display: grid;
-  grid-gap: 10px;
+  grid-gap: 20px;
   border-radius: 30px;
+  margin-top: 48px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
     grid-gap: 10px;
+    margin-top: 30px;
   `};
 `
 
 const HoverText = styled.div`
   text-decoration: none;
   color: ${({ theme }) => theme.white};
-  display: flex;
-  align-items: center;
-  font-weight: 400;
-  font-size: 33px;
-  line-height: 40px;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1.225;
 
   :hover {
     cursor: pointer;
   }
 `
-
+const FooterWrapper = styled.div`
+  margin-top: 32px;
+`
+const FooterContent = styled.p`
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 19px;
+  color: ${({ theme }) => theme.text10};
+`
+const SpanRed = styled.span`
+  color: ${({ theme }) => theme.primary1};
+  font-weight: 600;
+`
 const WALLET_VIEWS = {
   OPTIONS: 'options',
   OPTIONS_SECONDARY: 'options_secondary',
@@ -299,7 +312,7 @@ export default function WalletModal() {
           </HeaderRow>
         ) : (
           <HeaderRow>
-            <HoverText>Signin with your wallet</HoverText>
+            <HoverText>Connect</HoverText>
           </HeaderRow>
         )}
 
@@ -307,9 +320,8 @@ export default function WalletModal() {
           <AutoColumn gap="16px">
             <LightCard padding="0" backgroundColor="transparent">
               <AutoRow style={{ flexWrap: 'nowrap' }}>
-                <ThemedText.White fontSize={14}>
-                  Sign in with your wallet or create a new wallet.
-                  <ExternalLink href="#"> What is wallet?</ExternalLink>.
+                <ThemedText.White fontSize={16} fontWeight={400}>
+                  Connect wallet to get access and explore our Linear Vesting.
                 </ThemedText.White>
               </AutoRow>
             </LightCard>
@@ -325,6 +337,13 @@ export default function WalletModal() {
             )}
           </AutoColumn>
         </ContentWrapper>
+
+        <FooterWrapper>
+          <FooterContent>
+            By connecting your wallet, you agree to our <SpanRed>Terms of Service</SpanRed> and{' '}
+            <SpanRed>Privacy Policy</SpanRed>.
+          </FooterContent>
+        </FooterWrapper>
       </UpperSection>
     )
   }

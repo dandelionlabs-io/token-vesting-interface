@@ -40,14 +40,6 @@ export function useActivePopups(): AppState['application']['popupList'] {
   return useMemo(() => list.filter((item) => item.show), [list])
 }
 
-export function useSendModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.POPUP_SEND)
-}
-
-export function useSwapModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.POPUP_SWAP)
-}
-
-export function useReleaseModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.POPUP_RELEASE)
+export function useSuccessModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.POPUP_SUCCESS)
 }
