@@ -43,3 +43,6 @@ export function useActivePopups(): AppState['application']['popupList'] {
 export function useSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POPUP_SUCCESS)
 }
+export function useConfirmModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.POPUP_CONFIRM)
+}
