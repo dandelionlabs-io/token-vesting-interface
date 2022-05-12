@@ -7,68 +7,33 @@ interface Props {
   isOpen: boolean
   onDimiss: () => void
   isOpenPopupSuccess?: () => void
+  content: {
+    header: string
+    notification: string
+  }
 }
 const ModalConfirm = (props: Props) => {
-  const { isOpen, onDimiss, isOpenPopupSuccess } = props
-  // const [stateA, setStateA] = useState<boolean>(false)
-  // const handleClickYes = () => {
-  //   setStateA(true)
-  // }
-  // useEffect(() => {
-  //   if (!isOpen) {
-  //     setStateA(false)
-  //   }
-  // }, [isOpen])
+  const { isOpen, onDimiss, isOpenPopupSuccess, content } = props
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDimiss} maxWidth={'516px'}>
-      <ModalContent>
-        <ModalHeader>Change Stakeholder</ModalHeader>
-        <ModalBody>
-          <Notification>Are you sure you want to change to this new address?</Notification>
-          <DivGroupButton>
-            <DivButtonItem>
-              <ButtonNo onClick={onDimiss}>No</ButtonNo>
-            </DivButtonItem>
-            <DivButtonItem>
-              <ButtonYes onClick={isOpenPopupSuccess}>Yes</ButtonYes>
-            </DivButtonItem>
-            {/*<DivButtonItem>*/}
-            {/*  <ButtonYes onClick={handleClickYes}>Yes</ButtonYes>*/}
-            {/*</DivButtonItem>*/}
-          </DivGroupButton>
-        </ModalBody>
-        {/*{!stateA ? (*/}
-        {/*  <>*/}
-        {/*    <ModalHeader>Change Stakeholder</ModalHeader>*/}
-        {/*    <ModalBody>*/}
-        {/*      <Notification>Are you sure you want to change to this new address?</Notification>*/}
-        {/*      <DivGroupButton>*/}
-        {/*        <DivButtonItem>*/}
-        {/*          <ButtonNo onClick={onDimiss}>No</ButtonNo>*/}
-        {/*        </DivButtonItem>*/}
-        {/*        <DivButtonItem>*/}
-        {/*          <ButtonYes onClick={isOpenPopupSuccess}>Yes</ButtonYes>*/}
-        {/*        </DivButtonItem>*/}
-        {/*        /!*<DivButtonItem>*!/*/}
-        {/*        /!*  <ButtonYes onClick={handleClickYes}>Yes</ButtonYes>*!/*/}
-        {/*        /!*</DivButtonItem>*!/*/}
-        {/*      </DivGroupButton>*/}
-        {/*    </ModalBody>*/}
-        {/*  </>*/}
-        {/*) : (*/}
-        {/*  <>*/}
-        {/*    <ModalHeader>Success</ModalHeader>*/}
-        {/*    <ModalBody>*/}
-        {/*      <BlockIcon>*/}
-        {/*        <IconOxy SrcImageIcon={IconSuccess} widthIcon={'80px'} heightIcon={'80px'} />*/}
-        {/*      </BlockIcon>*/}
-        {/*      <NotificationSuccess>New address has been updated</NotificationSuccess>*/}
-        {/*    </ModalBody>*/}
-        {/*  </>*/}
-        {/*)}*/}
-      </ModalContent>
-    </Modal>
+    <>
+      <Modal isOpen={isOpen} onDismiss={onDimiss} maxWidth={'516px'}>
+        <ModalContent>
+          <ModalHeader>{content.header}</ModalHeader>
+          <ModalBody>
+            <Notification>{content.notification}</Notification>
+            <DivGroupButton>
+              <DivButtonItem>
+                <ButtonNo onClick={onDimiss}>No</ButtonNo>
+              </DivButtonItem>
+              <DivButtonItem>
+                <ButtonYes onClick={isOpenPopupSuccess}>Yes</ButtonYes>
+              </DivButtonItem>
+            </DivGroupButton>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   )
 }
 

@@ -9,7 +9,7 @@ import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
 import BlockUpdateAddress from '../../components/BlockUpdateAddress'
 import GoBack from '../../components/GoBack'
-import ModalSuccess from '../../components/Modal/ModalSuccess'
+import ModalSuccess, { DataModalSuccess } from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
 import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
@@ -60,6 +60,10 @@ const Pool = () => {
     toggleSuccessModal()
   }
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
+  const dataModalSuccess: DataModalSuccess = {
+    type: 'claim',
+    amount: 59.6479,
+  }
   return (
     <>
       <SidebarMenu />
@@ -152,6 +156,7 @@ const Pool = () => {
                 </ListContainer>
               </EmptyContainer>
             </BlockWrapper>
+            <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
           </>
         )) || (
           <>
@@ -160,7 +165,6 @@ const Pool = () => {
           </>
         )}
       </div>
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
     </>
   )
 }
@@ -263,22 +267,4 @@ const BlockChartItem = styled.div`
   padding-left: 8px;
   padding-right: 8px;
 `
-/*const InfoClaimed = styled.pre`
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.25;
-  text-align: center;
-  color: ${({ theme }) => theme.white};
-  margin-bottom: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  margin-top: 24px;
-`
-const SpanAmount = styled.span`
-  color: ${({ theme }) => theme.yellow1};
-  font-weight: 600;
-`*/
 export default Pool

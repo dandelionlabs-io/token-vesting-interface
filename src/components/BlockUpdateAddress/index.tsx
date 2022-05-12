@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
+import dataConfirm from '../../data/dataModalConfirm.json'
 import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import ModalConfirm from '../Modal/ModalConfirm'
-import ModalSuccess from '../Modal/ModalSuccess'
-
+import ModalSuccess, { DataModalSuccess } from '../Modal/ModalSuccess'
 interface Props {
   addressWallet?: string
 }
@@ -19,14 +19,20 @@ const BlockUpdateAddress = (props: Props) => {
   const confirmModalOpen = useModalOpen(ApplicationModal.POPUP_CONFIRM)
   const toggleSuccessModal = useSuccessModalToggle()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const dataModalSuccess: DataModalSuccess = { type: 'ownership' }
+  const contentConfirm = dataConfirm.ownership
+  const contentModalConfirm = {
+    header: contentConfirm.header,
+    notification: contentConfirm.notification,
+  }
   return (
     <>
       <BlockWrapper>
-        <Heading3>Change Stakeholder</Heading3>
+        <Heading3>{contentConfirm.header}</Heading3>
         <DivFlex>
           <DivFlexItem>
             <div>
-              <Label>Old Address</Label>
+              <Label>{contentConfirm.oldLabel}</Label>
               <FormControlBox>
                 <FormControl type="text" value={addressWallet} readOnly={true} />
               </FormControlBox>
@@ -34,7 +40,7 @@ const BlockUpdateAddress = (props: Props) => {
           </DivFlexItem>
           <DivFlexItem>
             <div>
-              <Label>New Address</Label>
+              <Label>{contentConfirm.newLabel}</Label>
               <FormControlBox>
                 <FormControl type="text" placeholder={'Input new address'} onChange={(e) => handleChange(e)} />
               </FormControlBox>
@@ -47,8 +53,14 @@ const BlockUpdateAddress = (props: Props) => {
           </BtnChange>
         </DivBoxBtn>
       </BlockWrapper>
-      <ModalConfirm isOpen={confirmModalOpen} onDimiss={toggleConfirmModal} isOpenPopupSuccess={toggleSuccessModal} />
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
+      <ModalConfirm
+        isOpen={confirmModalOpen}
+        onDimiss={toggleConfirmModal}
+        isOpenPopupSuccess={toggleSuccessModal}
+        content={contentModalConfirm}
+      />
+
+      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess} />
     </>
   )
 }
@@ -135,14 +147,4 @@ const DivBoxBtn = styled.div`
   display: flex;
   margin-top: 22px;
 `
-/*const NotificationSuccess = styled.p`
-  margin-bottom: 0;
-  margin-top: 24px;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.25;
-  text-align: center;
-  color: ${({ theme }) => theme.white};
-`*/
 export default BlockUpdateAddress
