@@ -32,7 +32,7 @@ const LandingPage = () => {
 
   useEffect(() => {
     account && history.push({ pathname: `dashboard` })
-  }, [account])
+  }, [account, history])
 
   return (
     <PageWrapper>
