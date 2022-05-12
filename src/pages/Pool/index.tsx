@@ -1,15 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
+import IconUser from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
+import BlockFeatureUser from '../../components/BlockFeatureUser'
+import BlockUpdateAddress from '../../components/BlockUpdateAddress'
+import GoBack from '../../components/GoBack'
 import ModalSuccess from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
 import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
-
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -44,9 +47,19 @@ const DandelionIcon = styled.div`
     }
   `};
 `
+
+const dataImage = {
+  SrcImageIcon: IconUser,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
 const Pool = () => {
   const toggleSuccessModal = useSuccessModalToggle()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const handleShowSuccessModal = () => {
+    toggleSuccessModal()
+  }
+  const [transferOwner, setTransferOwner] = useState<boolean>(false)
   return (
     <>
       <SidebarMenu />
@@ -60,83 +73,94 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        <DandelionIcon>
-          <Logo width="200px" height="100%" title="logo" />
-        </DandelionIcon>
+        {(!transferOwner && (
+          <>
+            <DandelionIcon>
+              <Logo width="200px" height="100%" title="logo" />
+            </DandelionIcon>
+            <BlockWrapper>
+              <EmptyContainer>
+                <Heading>Detail</Heading>
 
-        <BlockWrapper>
-          <EmptyContainer>
-            <Heading>Detail</Heading>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Contract Address
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">0x75...02BbF</HeadSpan> <HeadSpan>icon</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Lock Start Time
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">Jul 18th 2021, 2:30 pm</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Lock End Time
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">Jul 18th 2022, 5:00 pm</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Total Locked Amount
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">5000</HeadSpan> <HeadSpan>icon</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ProgressDiv>
+                  <HeadSpan fontsize="16px" fontweight="bold" color="white">
+                    Progress detail
+                  </HeadSpan>
+                  <ProgressBar>
+                    <ProgressInner width="20" background="#FAA80A"></ProgressInner>
+                    <ProgressInner width="5" background="#18aa00"></ProgressInner>
+                  </ProgressBar>
+                  <ProgressBarContent>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
+                      Claimed <SpanIcon background="#FAA80A"></SpanIcon>
+                    </HeadSpan>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
+                      Claimable <SpanIcon background="#18AA00"></SpanIcon>
+                    </HeadSpan>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
+                      Remaining balance <SpanIcon background="#868B90"></SpanIcon>
+                    </HeadSpan>
+                    <ClaimButton onClick={handleShowSuccessModal}>Claim</ClaimButton>
+                  </ProgressBarContent>
+                </ProgressDiv>
+                <div onClick={() => setTransferOwner(true)}>
+                  <BlockFeatureUser dataImage={dataImage} name={'Transfer Owner'} />
+                </div>
+              </EmptyContainer>
+              <EmptyContainer>
+                <Heading>History of Claims</Heading>
 
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Contract Address
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">0x75...02BbF</HeadSpan> <HeadSpan>icon</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Lock Start Time
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">Jul 18th 2021, 2:30 pm</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Lock End Time
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">Jul 18th 2022, 5:00 pm</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Total Locked Amount
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">5000</HeadSpan> <HeadSpan>icon</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ProgressDiv>
-              <HeadSpan fontsize="16px" fontweight="bold" color="white">
-                Progress detail
-              </HeadSpan>
-              <ProgressBar>
-                <ProgressInner width="20" background="#FAA80A"></ProgressInner>
-                <ProgressInner width="5" background="#18aa00"></ProgressInner>
-              </ProgressBar>
-              <ProgressBarContent>
-                <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
-                  Claimed <SpanIcon background="#FAA80A"></SpanIcon>
-                </HeadSpan>
-                <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
-                  Claimable <SpanIcon background="#18AA00"></SpanIcon>
-                </HeadSpan>
-                <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
-                  Remaining balance <SpanIcon background="#868B90"></SpanIcon>
-                </HeadSpan>
-                <ClaimButton onClick={toggleSuccessModal}>Claim</ClaimButton>
-              </ProgressBarContent>
-            </ProgressDiv>
-          </EmptyContainer>
-          <EmptyContainer>
-            <Heading>History of Claims</Heading>
-
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Date
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan> <HeadSpan>Remaining</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-          </EmptyContainer>
-        </BlockWrapper>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Date
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan> <HeadSpan>Remaining</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+              </EmptyContainer>
+            </BlockWrapper>
+          </>
+        )) || (
+          <>
+            <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
+            <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
+          </>
+        )}
       </div>
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} />
+      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
     </>
   )
 }
@@ -239,4 +263,22 @@ const BlockChartItem = styled.div`
   padding-left: 8px;
   padding-right: 8px;
 `
+/*const InfoClaimed = styled.pre`
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: center;
+  color: ${({ theme }) => theme.white};
+  margin-bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+`
+const SpanAmount = styled.span`
+  color: ${({ theme }) => theme.yellow1};
+  font-weight: 600;
+`*/
 export default Pool
