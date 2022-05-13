@@ -16,6 +16,7 @@ import { AppState } from '../../state'
 import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import { useAppSelector } from '../../state/hooks'
+import { useCDREDBalance } from '../../state/pools/hook'
 import { shortenAddress } from '../../utils'
 import { ethBalance } from '../../utils'
 
@@ -52,6 +53,8 @@ const Pool = () => {
   const [historyClaim, setHistoryClam] = useState<any>([])
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
   const [claimablePercent, setClaimablePercent] = useState<number>(0)
+
+  const userCDREDBalance = useCDREDBalance()
 
   useEffect(() => {
     !address && history.push({ pathname: `dashboard` })
@@ -92,7 +95,7 @@ const Pool = () => {
   }
   const dataCDRED: TypeItemInfo = {
     heading: 'CDRED Balance',
-    amount: 0,
+    amount: userCDREDBalance,
     widthIcon: '39px',
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,

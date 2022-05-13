@@ -18,7 +18,9 @@ const store = configureStore({
     multicall: multicall.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: true }).concat(save({ states: PERSISTED_KEYS, debounce: 1000 })),
+    getDefaultMiddleware({ thunk: true, serializableCheck: false }).concat(
+      save({ states: PERSISTED_KEYS, debounce: 1000 })
+    ),
   preloadedState: load({ states: PERSISTED_KEYS, disableWarnings: process.env.NODE_ENV === 'test' }),
 })
 
