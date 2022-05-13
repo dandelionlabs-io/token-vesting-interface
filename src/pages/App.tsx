@@ -1,4 +1,5 @@
-import { ethers } from 'ethers'
+import detectEthereumProvider from '@metamask/detect-provider'
+import { ethers, providers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
@@ -12,7 +13,6 @@ import Header from '../components/Header'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
-import { useMulticall } from '../hooks/useContract'
 import { useAppDispatch } from '../state/hooks'
 import { getAddressActive, IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
@@ -37,7 +37,6 @@ const AppWrapper = styled.div<{ bgImage?: string }>`
             ),url(${props.bgImage})`
       : 'none'};
 `
-
 const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -63,7 +62,6 @@ const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
       background-image: linear-gradient(180deg, #01152d 31.72%, #011024 100%);
     `}
 `
-
 const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
   width: 100%;
@@ -114,7 +112,6 @@ export default function App() {
   const dispatch = useAppDispatch()
   const location = useLocation()
   const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
-  const contract = useMulticall() || null
 
   const checkAndGetPool = useCallback(
     async (pool: string) => {
@@ -122,7 +119,10 @@ export default function App() {
         return
       }
 
-      const vestingInstance = new ethers.Contract(pool, Vesting, contract.provider)
+      const provider: any = await detectEthereumProvider()
+      const web3Provider = new providers.Web3Provider(provider)
+
+      const vestingInstance = new ethers.Contract(pool, Vesting, web3Provider.getSigner())
       const grant = await vestingInstance.getTokenGrant(account)
       const amount = ethBalance(grant.amount)
       const claimable = await vestingInstance.calculateGrantClaim(account)
@@ -144,7 +144,7 @@ export default function App() {
         remain: amount - ethBalance(grant.totalClaimed) - ethBalance(claimable),
       }
     },
-    [account, contract?.provider]
+    [account]
   )
 
   useEffect(() => {
@@ -155,15 +155,18 @@ export default function App() {
     if (!account) {
       return
     }
-    const factoryInstance = new ethers.Contract(
-      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
-      Factory,
-      contract.provider
-    )
-    const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/pools`
 
     ;(async () => {
       try {
+        const provider: any = await detectEthereumProvider()
+        const web3Provider = new providers.Web3Provider(provider)
+
+        const factoryInstance = new ethers.Contract(
+          process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
+          Factory,
+          web3Provider
+        )
+        const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/pools`
         const poolsAddresses = await factoryInstance.getPools()
         const poolResult = await Promise.all(
           poolsAddresses.map(async (address: string) => {
@@ -184,7 +187,7 @@ export default function App() {
         console.log(e)
       }
     })()
-  }, [account, contract?.provider, checkAndGetPool])
+  }, [account, checkAndGetPool])
 
   useEffect(() => {
     if (!poolsResult.length || !pools.length) {
@@ -217,12 +220,20 @@ export default function App() {
     if (!account) {
       return
     }
-    const Erc20Instance = new ethers.Contract(process.env.REACT_APP_TOKEN_ADDRESS || '', Erc20, contract.provider)
+
     ;(async () => {
+      const provider: any = await detectEthereumProvider()
+      const web3Provider = new providers.Web3Provider(provider)
+
+      const Erc20Instance = new ethers.Contract(
+        process.env.REACT_APP_TOKEN_ADDRESS || '',
+        Erc20,
+        web3Provider.getSigner()
+      )
       const balance = await Erc20Instance.balanceOf(account)
       dispatch(updateErc20Balance(ethBalance(balance)))
     })()
-  }, [account, contract?.provider, dispatch])
+  }, [account, dispatch])
 
   return (
     <ErrorBoundary>

@@ -1,11 +1,11 @@
+import ModalConfirm from 'components/Modal/ModalConfirm'
+import ModalSuccess, { DataModalSuccess } from 'components/Modal/ModalSuccess'
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
-import dataConfirm from '../../data/dataModalConfirm.json'
-import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
-import { ApplicationModal } from '../../state/application/reducer'
-import ModalConfirm from '../Modal/ModalConfirm'
-import ModalSuccess, { DataModalSuccess } from '../Modal/ModalSuccess'
+import dataConfirm from '../../../data/dataModalConfirm.json'
+import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
+import { ApplicationModal } from '../../../state/application/reducer'
 interface Props {
   addressWallet?: string
 }
