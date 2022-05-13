@@ -95,7 +95,7 @@ function colors(): Colors {
     warning: '#FF8F00',
     // dont wanna forget these blue yet
     blue4: '#153d6f70',
-    // blue5: '#153d6f70' : '#EBF4FF',
+    blue5: '#00316E',
   }
 }
 
