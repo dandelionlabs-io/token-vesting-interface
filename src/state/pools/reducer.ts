@@ -16,11 +16,13 @@ export interface IPoolsData {
 export interface IInitialState {
   data: IPoolsData | any
   addressActive: string
+  erc20Balance: number
 }
 
 const initialState: IInitialState = {
   data: null,
   addressActive: '',
+  erc20Balance: 0,
 }
 
 const poolsSlice = createSlice({
@@ -33,8 +35,11 @@ const poolsSlice = createSlice({
     getAddressActive(state: IInitialState, action) {
       state.addressActive = action.payload
     },
+    updateErc20Balance(state: IInitialState, action) {
+      state.erc20Balance = action.payload
+    },
   },
 })
 
-export const { updatePoolsData, getAddressActive } = poolsSlice.actions
+export const { updatePoolsData, getAddressActive, updateErc20Balance } = poolsSlice.actions
 export default poolsSlice.reducer

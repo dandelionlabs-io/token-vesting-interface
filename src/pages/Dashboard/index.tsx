@@ -11,6 +11,7 @@ import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
 import { useAppSelector } from '../../state/hooks'
+import { useCDREDBalance } from '../../state/pools/hook'
 
 interface TypeItemInfo {
   dataChart?: any
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const poolData = useAppSelector((state: AppState) => state.pools).data
 
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
+  const userCDREDBalance = useCDREDBalance()
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
@@ -38,7 +40,7 @@ const Dashboard = () => {
 
   const dataCDRED: TypeItemInfo = {
     heading: 'CDRED Balance',
-    amount: 0,
+    amount: userCDREDBalance,
     widthIcon: '39px',
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,

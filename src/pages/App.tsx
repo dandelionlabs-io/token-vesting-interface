@@ -14,7 +14,7 @@ import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
 import { useMulticall } from '../hooks/useContract'
 import { useAppDispatch } from '../state/hooks'
-import { getAddressActive, IPoolsData, updatePoolsData } from '../state/pools/reducer'
+import { getAddressActive, IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
 import RouterPage from './router'
 
@@ -107,7 +107,6 @@ const FooterContent = styled.p`
   }
 `
 export default function App() {
-  const [erc20Balance, setErc20Balance] = useState<number>(0)
   const { account } = useActiveWeb3React()
   const [pools, setPools] = useState<any>([])
   const [poolsResult, setPoolsResult] = useState<Array<any>>([])
@@ -143,10 +142,9 @@ export default function App() {
         claimed: ethBalance(grant.totalClaimed),
         claimable: ethBalance(claimable),
         remain: amount - ethBalance(grant.totalClaimed) - ethBalance(claimable),
-        erc20Balance: erc20Balance || 0,
       }
     },
-    [account, contract?.provider, erc20Balance]
+    [account, contract?.provider]
   )
 
   useEffect(() => {
@@ -203,8 +201,6 @@ export default function App() {
         return pool
       })
 
-      console.log(availablePools)
-
       dispatch(updatePoolsData(availablePools))
       dispatch(getAddressActive(''))
     }
@@ -217,9 +213,9 @@ export default function App() {
     const Erc20Instance = new ethers.Contract(process.env.REACT_APP_TOKEN_ADDRESS || '', Erc20, contract.provider)
     ;(async () => {
       const balance = await Erc20Instance.balanceOf(account)
-      setErc20Balance(ethBalance(balance))
+      dispatch(updateErc20Balance(ethBalance(balance)))
     })()
-  }, [account, contract?.provider])
+  }, [account, contract?.provider, dispatch])
 
   return (
     <ErrorBoundary>
