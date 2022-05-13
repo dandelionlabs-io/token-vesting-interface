@@ -4,6 +4,7 @@ import Dashboard from './Dashboard'
 import LandingPage from './LandingPage'
 import NotFound from './NotFound'
 import Pool from './Pool'
+import StakeHolder from './StakeHolders'
 
 const RouterPage = () => {
   return (
@@ -22,6 +23,7 @@ const RouterPage = () => {
       </Route>
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pool" component={Pool} />
+      <Route path="/stake" component={StakeHolder} />
       <Route exact component={NotFound} />
     </Switch>
   )
