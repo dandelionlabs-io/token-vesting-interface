@@ -5,6 +5,7 @@ import { load, save } from 'redux-localstorage-simple'
 import application from './application/reducer'
 import { updateVersion } from './global/actions'
 import multicall from './multicall'
+import pools from './pools/reducer'
 import user from './user/reducer'
 
 const PERSISTED_KEYS: string[] = ['user']
@@ -12,6 +13,7 @@ const PERSISTED_KEYS: string[] = ['user']
 const store = configureStore({
   reducer: {
     application,
+    pools,
     user,
     multicall: multicall.reducer,
   },

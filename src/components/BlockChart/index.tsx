@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import styled from 'styled-components/macro'
 
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import IconOxy from '../Icons/IconOxy'
 interface Props {
   itemInfo: {
@@ -48,24 +50,33 @@ const data: DataChart[] = [
   },
 ]
 const BlockChart = (props: Props) => {
+  const location = useLocation()
+  const [isPoolPage, setIsPoolPage] = useState<boolean>(true)
+  const { account } = useActiveWeb3React()
+
+  useEffect(() => {
+    setIsPoolPage(location.pathname === '/pool')
+  }, [account, location.pathname])
+
   const { itemInfo } = props
   return (
-    <BlockChartWrapper>
+    <BlockChartWrapper isPoolPage={isPoolPage}>
       <Heading>{itemInfo.heading}</Heading>
-      <DivChart>
-        {/*{dataChart === undefined && <Divider></Divider>}*/}
-        {data.length === 0 ? (
-          <Divider></Divider>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <Tooltip />
-              <Line dataKey="amount" stroke="#FAA80A" dot={false} />
-              <XAxis dataKey="name" padding={{ left: 10, right: 10 }} style={{ display: 'none' }} />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </DivChart>
+      {!isPoolPage && (
+        <DivChart>
+          {data.length === 0 ? (
+            <Divider></Divider>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <Tooltip />
+                <Line dataKey="amount" stroke="#FAA80A" dot={false} />
+                <XAxis dataKey="name" padding={{ left: 10, right: 10 }} style={{ display: 'none' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </DivChart>
+      )}
 
       <DivAmount>
         <IconOxy SrcImageIcon={itemInfo.SrcImageIcon} widthIcon={itemInfo.widthIcon} heightIcon={itemInfo.heightIcon} />
@@ -74,14 +85,18 @@ const BlockChart = (props: Props) => {
     </BlockChartWrapper>
   )
 }
-const BlockChartWrapper = styled.div`
+const BlockChartWrapper = styled.div<{ isPoolPage: boolean }>`
   border-radius: 16px;
   background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
   padding: 24px 32px 20px;
   display: flex;
-  flex-direction: column;
-  height: 227px;
+  flex-direction: ${({ isPoolPage, theme }) => (!isPoolPage ? 'column' : 'row')};
+  height: ${({ isPoolPage, theme }) => (!isPoolPage ? '227px' : '70px')};
   box-sizing: border-box;
+
+  & > h3 {
+    margin-right: ${({ isPoolPage, theme }) => isPoolPage && 'auto'};
+  }
 `
 const Heading = styled.h3`
   color: ${({ theme }) => theme.white};

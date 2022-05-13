@@ -1,36 +1,31 @@
-import React from 'react'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
+import Api from '../../api'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
 import ModalSuccess from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
+import { AppState } from '../../state'
 import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
+import { useAppSelector } from '../../state/hooks'
+import { shortenAddress } from '../../utils'
+import { ethBalance } from '../../utils'
 
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
-  amount?: number
+  amount?: number | string
   widthIcon?: string
   heightIcon?: string
   SrcImageIcon?: string
-}
-const dataETH: TypeItemInfo = {
-  heading: 'ETH Balance',
-  amount: 0,
-  widthIcon: '28px',
-  heightIcon: '39px',
-  SrcImageIcon: IconETH,
-}
-const dataCDRED: TypeItemInfo = {
-  heading: 'CDRED Balance',
-  amount: 0,
-  widthIcon: '39px',
-  heightIcon: '29px',
-  SrcImageIcon: IconCDRED,
 }
 
 const DandelionIcon = styled.div`
@@ -45,8 +40,63 @@ const DandelionIcon = styled.div`
   `};
 `
 const Pool = () => {
+  const { account } = useActiveWeb3React()
   const toggleSuccessModal = useSuccessModalToggle()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const poolsData = useAppSelector((state: AppState) => state.pools)
+  const history = useHistory()
+  const address = window.localStorage.getItem('address')
+  const [data, setData] = useState<any>({})
+  const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
+  const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
+  const [historyClaim, setHistoryClam] = useState<any>([])
+  const [claimedPercent, setClaimedPercent] = useState<number>(0)
+  const [claimablePercent, setClaimablePercent] = useState<number>(0)
+
+  useEffect(() => {
+    !address && history.push({ pathname: `dashboard` })
+  }, [history, address])
+
+  useEffect(() => {
+    if (!poolsData.data?.length) {
+      return
+    }
+    const obj = poolsData.data.find((o: any) => o.address === address)
+    setData(obj)
+    if (obj.amount <= 0) {
+      setClaimedPercent(0)
+      setClaimablePercent(0)
+    } else {
+      setClaimedPercent((obj.claimed / obj.amount) * 100)
+      setClaimablePercent((obj.claimable / obj.amount) * 100)
+    }
+  }, [address, poolsData?.data])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const data = await Api.get(url)
+        setHistoryClam(data)
+      } catch (e) {
+        console.log(e)
+      }
+    })()
+  }, [url])
+
+  const dataETH: TypeItemInfo = {
+    heading: 'ETH Balance',
+    amount: userEthBalance?.toSignificant(4),
+    widthIcon: '28px',
+    heightIcon: '39px',
+    SrcImageIcon: IconETH,
+  }
+  const dataCDRED: TypeItemInfo = {
+    heading: 'CDRED Balance',
+    amount: 0,
+    widthIcon: '39px',
+    heightIcon: '29px',
+    SrcImageIcon: IconCDRED,
+  }
   return (
     <>
       <SidebarMenu />
@@ -73,7 +123,7 @@ const Pool = () => {
                 Contract Address
               </HeadSpan>
               <HeadSpan>
-                <HeadSpan fontsize="16px">0x75...02BbF</HeadSpan> <HeadSpan>icon</HeadSpan>
+                <HeadSpan fontsize="16px">{shortenAddress(address || '')}</HeadSpan> <HeadSpan></HeadSpan>
               </HeadSpan>
             </ListContainer>
             <ListContainer>
@@ -81,7 +131,7 @@ const Pool = () => {
                 Lock Start Time
               </HeadSpan>
               <HeadSpan>
-                <HeadSpan fontsize="16px">Jul 18th 2021, 2:30 pm</HeadSpan>
+                <HeadSpan fontsize="16px">{moment(data.start).format('MMM DD, YYYY')}</HeadSpan>
               </HeadSpan>
             </ListContainer>
             <ListContainer>
@@ -89,7 +139,7 @@ const Pool = () => {
                 Lock End Time
               </HeadSpan>
               <HeadSpan>
-                <HeadSpan fontsize="16px">Jul 18th 2022, 5:00 pm</HeadSpan>
+                <HeadSpan fontsize="16px">{moment(data.end).format('MMM DD, YYYY')}</HeadSpan>
               </HeadSpan>
             </ListContainer>
             <ListContainer>
@@ -97,7 +147,7 @@ const Pool = () => {
                 Total Locked Amount
               </HeadSpan>
               <HeadSpan>
-                <HeadSpan fontsize="16px">5000</HeadSpan> <HeadSpan>icon</HeadSpan>
+                <HeadSpan fontsize="16px">{data.remain}</HeadSpan> <HeadSpan></HeadSpan>
               </HeadSpan>
             </ListContainer>
             <ProgressDiv>
@@ -105,8 +155,8 @@ const Pool = () => {
                 Progress detail
               </HeadSpan>
               <ProgressBar>
-                <ProgressInner width="20" background="#FAA80A"></ProgressInner>
-                <ProgressInner width="5" background="#18aa00"></ProgressInner>
+                <ProgressInner width={`${claimedPercent}`} background="#FAA80A"></ProgressInner>
+                <ProgressInner width={`${claimablePercent}`} background="#18aa00"></ProgressInner>
               </ProgressBar>
               <ProgressBarContent>
                 <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
@@ -129,10 +179,19 @@ const Pool = () => {
               <HeadSpan fontsize="16px" fontweight="bold">
                 Date
               </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan> <HeadSpan>Remaining</HeadSpan>
-              </HeadSpan>
+              <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
+              <HeadSpan>Remaining</HeadSpan>
             </ListContainer>
+
+            {historyClaim &&
+              !!historyClaim.length &&
+              historyClaim.map((item: any, i: number) => (
+                <ListContainer key={i}>
+                  <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
+                  <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
+                  <HeadSpan>Remaining</HeadSpan>
+                </ListContainer>
+              ))}
           </EmptyContainer>
         </BlockWrapper>
       </div>

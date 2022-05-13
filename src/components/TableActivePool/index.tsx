@@ -1,27 +1,20 @@
 import moment from 'moment'
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
+import { useAppDispatch } from '../../state/hooks'
+import { getAddressActive, IPoolsData } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
 
 interface Props {
-  data: TypeRows[]
+  data: IPoolsData[] | null
 }
 type TypeColumns = {
   key?: string
   name?: string
-}
-type TypeRows = {
-  srcImage?: string
-  name: string
-  address: string
-  claimed: number
-  remain: number
-  start: number
-  end: number
-  claim: number
 }
 
 const columns: TypeColumns[] = [
@@ -35,6 +28,16 @@ const columns: TypeColumns[] = [
 
 const TableActivePool = (props: Props) => {
   const { data } = props
+  const dispatch = useAppDispatch()
+  const history = useHistory()
+
+  const handleRedirectClaimDetail = (address: string) => {
+    dispatch(getAddressActive(address))
+
+    window.localStorage.setItem('address', address)
+    history.push({ pathname: `pool` })
+  }
+
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
@@ -79,9 +82,11 @@ const TableActivePool = (props: Props) => {
                     <td>
                       <span>{moment(item.end).format('MMM DD, YYYY')}</span>
                     </td>
-                    {item.claim === 1 ? (
+                    {item.statusClaim === 1 ? (
                       <td>
-                        <ButtonClaim active={true}>Claim</ButtonClaim>
+                        <ButtonClaim active={true} onClick={() => handleRedirectClaimDetail(item.address)}>
+                          Claim
+                        </ButtonClaim>
                       </td>
                     ) : (
                       <td>
@@ -95,7 +100,7 @@ const TableActivePool = (props: Props) => {
           )}
         </Table>
       </DivTableBox>
-      {data.length === 0 && <Notification>No data to show !</Notification>}
+      {data && !data.length && <Notification>No data to show !</Notification>}
     </TableActivePoolWrapper>
   )
 }

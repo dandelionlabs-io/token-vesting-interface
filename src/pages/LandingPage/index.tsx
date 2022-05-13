@@ -5,7 +5,7 @@ import styled from 'styled-components/macro'
 import bannerImage from '../../assets/images/bannerImage.png'
 import { BaseButton } from '../../components/Button'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
-import { useWalletModalToggle } from '../../state/application/hooks'
+import { useToggleModal } from '../../state/application/hooks'
 import { PageContainer, PageWrapper } from '../../theme'
 
 const LandingBanner = styled.div`
@@ -26,7 +26,7 @@ const LandingSection = styled.div`
 `
 
 const LandingPage = () => {
-  const toggleWalletModal = useWalletModalToggle()
+  const toggleWalletModal = useToggleModal(0)
   const { account } = useActiveWeb3React()
   const history = useHistory()
 
