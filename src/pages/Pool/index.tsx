@@ -11,7 +11,6 @@ import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
-import BlockUpdateAddress from '../../components/BlockUpdateAddress'
 import GoBack from '../../components/GoBack'
 import ModalSuccess, { DataModalSuccess } from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
@@ -24,6 +23,8 @@ import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { shortenAddress } from '../../utils'
 import { ethBalance } from '../../utils'
+import BlockUpdateAddress from './BlockUpdateAddress'
+import StakeHolder from './StakeHolders'
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -72,6 +73,7 @@ const Pool = () => {
 
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
+  const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
   const [amount, setAmount] = useState<number>(59.6479)
   const dataModalSuccess: DataModalSuccess = {
     type: 'claim',
@@ -108,7 +110,8 @@ const Pool = () => {
   }, [url])
 
   const handleAddStake = () => {
-    history.push({ pathname: `stake` })
+    //history.push({ pathname: `stake` })
+    setAddStakeholder(true)
   }
 
   const dataETH: TypeItemInfo = {
@@ -138,7 +141,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        {(!transferOwner && (
+        {!transferOwner && !addStakeholder && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
@@ -231,10 +234,17 @@ const Pool = () => {
             </BlockWrapper>
             <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
           </>
-        )) || (
+        )}
+        {transferOwner && (
           <>
             <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
             <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
+          </>
+        )}
+        {addStakeholder && (
+          <>
+            <GoBack setTransferOwner={setAddStakeholder} data={'Go back to DandelionLabs'} />
+            <StakeHolder />
           </>
         )}
       </div>
