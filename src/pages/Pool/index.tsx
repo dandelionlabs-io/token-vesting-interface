@@ -23,7 +23,6 @@ import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { shortenAddress } from '../../utils'
 import { ethBalance } from '../../utils'
-
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -65,9 +64,10 @@ const Pool = () => {
 
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
+  const [amount, setAmount] = useState<number>(59.6479)
   const dataModalSuccess: DataModalSuccess = {
     type: 'claim',
-    amount: 59.6479,
+    amount,
   }
   useEffect(() => {
     !address && history.push({ pathname: `dashboard` })
@@ -135,92 +135,95 @@ const Pool = () => {
               <EmptyContainer>
                 <Heading>Detail</Heading>
 
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Contract Address
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">{shortenAddress(address || '')}</HeadSpan> <HeadSpan></HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Lock Start Time
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">{moment(data.start).format('MMM DD, YYYY')}</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Lock End Time
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">{moment(data.end).format('MMM DD, YYYY')}</HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Total Locked Amount
-              </HeadSpan>
-              <HeadSpan>
-                <HeadSpan fontsize="16px">{data.remain}</HeadSpan> <HeadSpan></HeadSpan>
-              </HeadSpan>
-            </ListContainer>
-            <ProgressDiv>
-              <HeadSpan fontsize="16px" fontweight="bold" color="white">
-                Progress detail
-              </HeadSpan>
-              <ProgressBar>
-                <ProgressInner width={`${claimedPercent}`} background="#FAA80A"></ProgressInner>
-                <ProgressInner width={`${claimablePercent}`} background="#18aa00"></ProgressInner>
-              </ProgressBar>
-              <ProgressBarContent>
-                <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
-                  Claimed <SpanIcon background="#FAA80A"></SpanIcon>
-                </HeadSpan>
-                <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
-                  Claimable <SpanIcon background="#18AA00"></SpanIcon>
-                </HeadSpan>
-                <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
-                  Remaining balance <SpanIcon background="#868B90"></SpanIcon>
-                </HeadSpan>
-                <ClaimButton onClick={toggleSuccessModal}>Claim</ClaimButton>
-              </ProgressBarContent>
-            </ProgressDiv>
-          </EmptyContainer>
-          <EmptyContainer>
-            <Heading>History of Claims</Heading>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Contract Address
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">{shortenAddress(address || '')}</HeadSpan> <HeadSpan></HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Lock Start Time
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">{moment(data.start).format('MMM DD, YYYY')}</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Lock End Time
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">{moment(data.end).format('MMM DD, YYYY')}</HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Total Locked Amount
+                  </HeadSpan>
+                  <HeadSpan>
+                    <HeadSpan fontsize="16px">{data.remain}</HeadSpan> <HeadSpan></HeadSpan>
+                  </HeadSpan>
+                </ListContainer>
+                <ProgressDiv>
+                  <HeadSpan fontsize="16px" fontweight="bold" color="white">
+                    Progress detail
+                  </HeadSpan>
+                  <ProgressBar>
+                    <ProgressInner width={`${claimedPercent}`} background="#FAA80A"></ProgressInner>
+                    <ProgressInner width={`${claimablePercent}`} background="#18aa00"></ProgressInner>
+                  </ProgressBar>
+                  <ProgressBarContent>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#FAA80A" style={{ margin: '0' }}>
+                      Claimed <SpanIcon background="#FAA80A"></SpanIcon>
+                    </HeadSpan>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#18AA00" style={{ margin: '0' }}>
+                      Claimable <SpanIcon background="#18AA00"></SpanIcon>
+                    </HeadSpan>
+                    <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
+                      Remaining balance <SpanIcon background="#868B90"></SpanIcon>
+                    </HeadSpan>
+                    <ClaimButton onClick={toggleSuccessModal}>Claim</ClaimButton>
+                  </ProgressBarContent>
+                </ProgressDiv>
+                <div onClick={() => setTransferOwner(true)}>
+                  <BlockFeatureUser dataImage={dataImage} name={'Transfer Owner'} />
+                </div>
+              </EmptyContainer>
+              <EmptyContainer>
+                <Heading>History of Claims</Heading>
 
-            <ListContainer>
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Date
-              </HeadSpan>
-              <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
-              <HeadSpan>Remaining</HeadSpan>
-            </ListContainer>
-
-            {historyClaim &&
-              !!historyClaim.length &&
-              historyClaim.map((item: any, i: number) => (
-                <ListContainer key={i}>
-                  <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                  <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
+                <ListContainer>
+                  <HeadSpan fontsize="16px" fontweight="bold">
+                    Date
+                  </HeadSpan>
+                  <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
                   <HeadSpan>Remaining</HeadSpan>
                 </ListContainer>
-              ))}
-          </EmptyContainer>
-        </BlockWrapper>
+
+                {historyClaim &&
+                  !!historyClaim.length &&
+                  historyClaim.map((item: any, i: number) => (
+                    <ListContainer key={i}>
+                      <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
+                      <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
+                      <HeadSpan>Remaining</HeadSpan>
+                    </ListContainer>
+                  ))}
+              </EmptyContainer>
+            </BlockWrapper>
             <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
-       </>
+          </>
         )) || (
-            <>
-              <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
-              <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
-            </>
-          )}
+          <>
+            <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
+            <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
+          </>
+        )}
       </div>
-      </>
+    </>
   )
 }
 const ClaimButton = styled.button`
