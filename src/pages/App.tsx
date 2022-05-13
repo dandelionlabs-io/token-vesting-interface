@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react'
+import { ethers } from 'ethers'
+import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import Factory from '../abis/Factory'
+import Vesting from '../abis/Vesting'
+import Api from '../api'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
+import useActiveWeb3React from '../hooks/useActiveWeb3React'
+import { useMulticall } from '../hooks/useContract'
+import { useAppDispatch } from '../state/hooks'
+import { getAddressActive, updatePoolsData } from '../state/pools/reducer'
+import { ethBalance } from '../utils'
 import RouterPage from './router'
 
 const AppWrapper = styled.div<{ bgImage?: string }>`
@@ -97,8 +106,90 @@ const FooterContent = styled.p`
   }
 `
 export default function App() {
+  const { account } = useActiveWeb3React()
+  const [pools, setPools] = useState<any>([])
+  const [poolsResult, setPoolsResult] = useState<Array<any>>([])
+
+  const dispatch = useAppDispatch()
   const location = useLocation()
   const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
+  const contract = useMulticall() || null
+
+  const checkAndGetPool = useCallback(
+    async (pool: string) => {
+      if (!account) {
+        return
+      }
+
+      const vestingInstance = new ethers.Contract(pool, Vesting, contract.provider)
+      const grant = await vestingInstance.getTokenGrant(account)
+      const amount = ethBalance(grant.amount)
+      const claimable = await vestingInstance.calculateGrantClaim(account)
+
+      if (amount) {
+        const blacklist = await vestingInstance.blacklist(account).catch((e: string) => {
+          console.error(e)
+        })
+
+        console.log(blacklist)
+      }
+
+      return {
+        statusClaim: 1,
+        address: pool,
+        amount,
+        claimed: ethBalance(grant.totalClaimed),
+        claimable: ethBalance(claimable),
+        remain: amount - ethBalance(grant.totalClaimed) - ethBalance(claimable),
+        name: '',
+        start: 0,
+        end: 0,
+      }
+    },
+    [account, contract?.provider]
+  )
+
+  useEffect(() => {
+    if (!account) {
+      return
+    }
+    const factoryInstance = new ethers.Contract(
+      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
+      Factory,
+      contract.provider
+    )
+    const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/pools`
+
+    ;(async () => {
+      try {
+        const poolsAddresses = await factoryInstance.getPools()
+        const poolResult = await Promise.all(
+          poolsAddresses.map(async (address: string) => {
+            return await checkAndGetPool(address)
+          })
+        )
+        const pools = await Api.get(url)
+
+        setPools(pools)
+        setPoolsResult(poolResult)
+      } catch (e) {
+        console.log(e)
+      }
+    })()
+  }, [account, contract?.provider, checkAndGetPool])
+
+  useEffect(() => {
+    const availablePools: any = [...poolsResult]
+    availablePools.forEach((pool: any) => {
+      const data = pools.find((x: any) => x.address === pool.address)
+      pool.name = data.name
+      pool.start = data.start * 1000
+      pool.end = data.end * 1000
+    })
+
+    dispatch(updatePoolsData(availablePools))
+    dispatch(getAddressActive(''))
+  }, [pools, poolsResult, dispatch])
 
   useEffect(() => {
     setIsNotLandingPage(location.pathname !== '/')
