@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import Erc20 from '../abis/Erc20'
 import Factory from '../abis/Factory'
 import Vesting from '../abis/Vesting'
 import Api from '../api'
@@ -13,7 +14,7 @@ import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
 import { useMulticall } from '../hooks/useContract'
 import { useAppDispatch } from '../state/hooks'
-import { getAddressActive, updatePoolsData } from '../state/pools/reducer'
+import { getAddressActive, IPoolsData, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
 import RouterPage from './router'
 
@@ -106,6 +107,7 @@ const FooterContent = styled.p`
   }
 `
 export default function App() {
+  const [erc20Balance, setErc20Balance] = useState<number>(0)
   const { account } = useActiveWeb3React()
   const [pools, setPools] = useState<any>([])
   const [poolsResult, setPoolsResult] = useState<Array<any>>([])
@@ -141,13 +143,15 @@ export default function App() {
         claimed: ethBalance(grant.totalClaimed),
         claimable: ethBalance(claimable),
         remain: amount - ethBalance(grant.totalClaimed) - ethBalance(claimable),
-        name: '',
-        start: 0,
-        end: 0,
+        erc20Balance: erc20Balance || 0,
       }
     },
-    [account, contract?.provider]
+    [account, contract?.provider, erc20Balance]
   )
+
+  useEffect(() => {
+    setIsNotLandingPage(location.pathname !== '/')
+  }, [location])
 
   useEffect(() => {
     if (!account) {
@@ -179,21 +183,43 @@ export default function App() {
   }, [account, contract?.provider, checkAndGetPool])
 
   useEffect(() => {
-    const availablePools: any = [...poolsResult]
-    availablePools.forEach((pool: any) => {
-      const data = pools.find((x: any) => x.address === pool.address)
-      pool.name = data.name
-      pool.start = data.start * 1000
-      pool.end = data.end * 1000
-    })
+    if (!poolsResult.length || !pools.length) {
+      return
+    }
 
-    dispatch(updatePoolsData(availablePools))
-    dispatch(getAddressActive(''))
+    const poolsClone = [...pools]
+    let availablePools = [...poolsResult]
+
+    if (availablePools.length !== 0) {
+      availablePools = availablePools.map((pool: IPoolsData) => {
+        const data = poolsClone.find((x: any) => x.address === pool.address)
+        pool = {
+          ...pool,
+          name: data.name,
+          start: data.start * 1000,
+          end: data.end * 1000,
+        }
+
+        return pool
+      })
+
+      console.log(availablePools)
+
+      dispatch(updatePoolsData(availablePools))
+      dispatch(getAddressActive(''))
+    }
   }, [pools, poolsResult, dispatch])
 
   useEffect(() => {
-    setIsNotLandingPage(location.pathname !== '/')
-  }, [location])
+    if (!account) {
+      return
+    }
+    const Erc20Instance = new ethers.Contract(process.env.REACT_APP_TOKEN_ADDRESS || '', Erc20, contract.provider)
+    ;(async () => {
+      const balance = await Erc20Instance.balanceOf(account)
+      setErc20Balance(ethBalance(balance))
+    })()
+  }, [account, contract?.provider])
 
   return (
     <ErrorBoundary>
