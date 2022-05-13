@@ -5,9 +5,10 @@ import styled from 'styled-components/macro'
 
 import Api from '../../api'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
+import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
-import IconUser from '../../assets/svg/icon/icon-user-profile.svg'
+import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
 import BlockUpdateAddress from '../../components/BlockUpdateAddress'
@@ -43,11 +44,18 @@ const DandelionIcon = styled.div`
     }
   `};
 `
-const dataImage = {
-  SrcImageIcon: IconUser,
+const IconUser = {
+  SrcImageIcon: User,
   widthIcon: '16px',
   heightIcon: '15px',
 }
+
+const IconAddStake = {
+  SrcImageIcon: AddStake,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
+
 const Pool = () => {
   const { account } = useActiveWeb3React()
   const toggleSuccessModal = useSuccessModalToggle()
@@ -98,6 +106,10 @@ const Pool = () => {
       }
     })()
   }, [url])
+
+  const handleAddStake = () => {
+    history.push({ pathname: `stake` })
+  }
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
@@ -189,7 +201,7 @@ const Pool = () => {
                   </ProgressBarContent>
                 </ProgressDiv>
                 <div onClick={() => setTransferOwner(true)}>
-                  <BlockFeatureUser dataImage={dataImage} name={'Transfer Owner'} />
+                  <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
                 </div>
               </EmptyContainer>
               <EmptyContainer>
@@ -212,6 +224,9 @@ const Pool = () => {
                       <HeadSpan>Remaining</HeadSpan>
                     </ListContainer>
                   ))}
+                <div onClick={handleAddStake}>
+                  <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                </div>
               </EmptyContainer>
             </BlockWrapper>
             <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
@@ -309,6 +324,10 @@ const EmptyContainer = styled.div`
   box-sizing: border-box;
   width: 45%;
   min-width: 400px;
+
+  & > div:last-child {
+    margin-top: auto;
+  }
 `
 const BlockWrapper = styled.div`
   display: flex;
