@@ -20,6 +20,7 @@ export enum ApplicationModal {
   NETWORK_SELECTOR,
   PRIVACY_POLICY,
   POPUP_SUCCESS,
+  POPUP_CONFIRM,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>

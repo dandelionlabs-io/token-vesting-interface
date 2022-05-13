@@ -5,7 +5,10 @@ import styled from 'styled-components/macro'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
+import ModalSuccess, { DataModalSuccess } from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
+import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
+import { ApplicationModal } from '../../state/application/reducer'
 
 interface TypeItemInfo {
   dataChart?: any
@@ -34,7 +37,12 @@ const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
   const [amount, setAmount] = useState<any>(0)
-
+  const toggleSuccessModal = useSuccessModalToggle()
+  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const dataModalSuccess: DataModalSuccess = {
+    type: 'stakeholder',
+    amount,
+  }
   const handleChange = (e: any, drop: any) => {
     let fileUploaded
     setAmount(0)
@@ -45,7 +53,7 @@ const StakeHolder = () => {
       result.data.map((item: any) => {
         const exist = blacklisted(item.address, blacklist)
         if (exist) {
-          setAmount((existing: any) => existing + Number(item.amount))
+          setAmount((existing: any) => existing + parseInt(item.amount))
         }
       })
 
@@ -57,7 +65,7 @@ const StakeHolder = () => {
       hiddenFileInput.current.innerText = fileName ? `${fileName}...` : `${fileUploaded.lenght} file selected`
     }
   }
-  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC', '']
+  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
 
   const blacklisted = (item: any, list: any) => {
     return list.includes(item)
@@ -151,9 +159,14 @@ const StakeHolder = () => {
               </HeadSpan>
             </ListContainer>
             <ListContainer border={true} justify="flex-end">
-              <CustomButton background="#FAA80A" color="#012553">
+              <CustomButton background="#FAA80A" color="#012553" onClick={toggleSuccessModal}>
                 Approve
               </CustomButton>
+              <ModalSuccess
+                isOpen={succesModalOpen}
+                onDimiss={toggleSuccessModal}
+                data={dataModalSuccess}
+              ></ModalSuccess>
             </ListContainer>
           </EmptyContainer>
         </BlockWrapper>
@@ -172,6 +185,7 @@ const CustomButton = styled.button<{ color?: string; background?: string }>`
   border: transparent;
   font-weight: 700;
   font-size: 16px;
+  cursor: pointer;
 `
 const ListSpan = styled.span<{ fontsize?: string; color?: string; fontweight?: string }>`
   margin-bottom: 10px;
