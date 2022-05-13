@@ -1,0 +1,14 @@
+{
+  "ownership": {
+    "header": "Transfer Ownership",
+    "notification": "Are you sure you want to transfer to this new owner?",
+    "oldLabel": "Current Owner",
+    "newLabel": "New Owner"
+  },
+  "stakeholder": {
+    "header": "Change Stakeholder",
+    "notification": "Are you sure you want to change to this new address?",
+    "oldLabel": "Old Address",
+    "newLabel": "New Address"
+  }
+}
