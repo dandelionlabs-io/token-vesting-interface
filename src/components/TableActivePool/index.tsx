@@ -3,6 +3,7 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
 import { useAppDispatch } from '../../state/hooks'
 import { getAddressActive, IPoolsData } from '../../state/pools/reducer'
@@ -37,7 +38,6 @@ const TableActivePool = (props: Props) => {
     window.localStorage.setItem('address', address)
     history.push({ pathname: `pool` })
   }
-
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
@@ -82,17 +82,22 @@ const TableActivePool = (props: Props) => {
                     <td>
                       <span>{moment(item.end).format('MMM DD, YYYY')}</span>
                     </td>
-                    {item.statusClaim === 1 ? (
-                      <td>
-                        <ButtonClaim active={true} onClick={() => handleRedirectClaimDetail(item.address)}>
-                          Claim
-                        </ButtonClaim>
-                      </td>
-                    ) : (
-                      <td>
-                        <ButtonClaim>Claim</ButtonClaim>
-                      </td>
-                    )}
+                    <td>
+                      <DivAct>
+                        {item.statusClaim === 1 ? (
+                          <ButtonClaim active={true} onClick={() => handleRedirectClaimDetail(item.address)}>
+                            Claim
+                          </ButtonClaim>
+                        ) : (
+                          <ButtonClaim>Claim</ButtonClaim>
+                        )}
+                        {item.roles.includes('ADMIN') && (
+                          <DivIcon>
+                            <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                          </DivIcon>
+                        )}
+                      </DivAct>
+                    </td>
                   </tr>
                 )
               })}
@@ -239,5 +244,28 @@ const ButtonClaim = styled.button<{ active?: boolean }>`
       color: ${({ theme }) => theme.white};
       background-color: #18aa00;
     `}
+`
+const DivAct = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`
+const DivIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 24px;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 12px;
+    width: 1px;
+    background-color: ${({ theme }) => theme.blue5};
+  }
+  & > span {
+    cursor: pointer;
+  }
 `
 export default TableActivePool

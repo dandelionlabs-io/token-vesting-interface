@@ -172,9 +172,15 @@ export default function App() {
             return await checkAndGetPool(address)
           })
         )
-        const pools = await Api.get(url)
-
-        setPools(pools)
+        const pools: any[] = await Api.get(url)
+        const poolsNew = pools.reduce((total, pool) => {
+          const item = {
+            ...pool,
+            roles: [...pool.managers[0][1]],
+          }
+          return [...total, item]
+        }, [])
+        setPools(poolsNew)
         setPoolsResult(poolResult)
       } catch (e) {
         console.log(e)
@@ -198,12 +204,11 @@ export default function App() {
           name: data.name,
           start: data.start * 1000,
           end: data.end * 1000,
+          roles: data.roles,
         }
 
         return pool
       })
-
-      console.log(availablePools)
 
       dispatch(updatePoolsData(availablePools))
       dispatch(getAddressActive(''))
