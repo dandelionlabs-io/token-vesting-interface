@@ -10,6 +10,7 @@ export interface IPoolsData {
   start: any
   end: any
   statusClaim?: any
+  erc20Balance: number
 }
 
 export interface IInitialState {
