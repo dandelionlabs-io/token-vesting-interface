@@ -2,11 +2,46 @@ import { parse } from 'papaparse'
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components/macro'
 
+import IconCDRED from '../../../assets/svg/icon/icon-dandelion-cdred.svg'
+import IconETH from '../../../assets/svg/icon/icon-dandelion-eth.svg'
+import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
+import SidebarMenu from '../../../components/SidebarMenu'
+import { useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
+import { ApplicationModal } from '../../../state/application/reducer'
+
+interface TypeItemInfo {
+  dataChart?: any
+  heading?: string
+  amount?: number
+  widthIcon?: string
+  heightIcon?: string
+  SrcImageIcon?: string
+}
+const dataETH: TypeItemInfo = {
+  heading: 'ETH Balance',
+  amount: 0,
+  widthIcon: '28px',
+  heightIcon: '39px',
+  SrcImageIcon: IconETH,
+}
+const dataCDRED: TypeItemInfo = {
+  heading: 'CDRED Balance',
+  amount: 0,
+  widthIcon: '39px',
+  heightIcon: '29px',
+  SrcImageIcon: IconCDRED,
+}
+
 const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
   const [amount, setAmount] = useState<any>(0)
-
+  const toggleSuccessModal = useSuccessModalToggle()
+  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const dataModalSuccess: DataModalSuccess = {
+    type: 'stakeholder',
+    amount,
+  }
   const handleChange = (e: any, drop: any) => {
     let fileUploaded
     setAmount(0)
@@ -16,8 +51,8 @@ const StakeHolder = () => {
       const result = parse(content, { header: true })
       result.data.map((item: any) => {
         const exist = blacklisted(item.address, blacklist)
-        if (exist) {
-          setAmount((existing: any) => existing + Number(item.amount))
+        if (!exist && item.address) {
+          setAmount((existing: any) => existing + parseInt(item.amount))
         }
       })
 
@@ -29,7 +64,7 @@ const StakeHolder = () => {
       hiddenFileInput.current.innerText = fileName ? `${fileName}...` : `${fileUploaded.lenght} file selected`
     }
   }
-  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC', '']
+  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
 
   const blacklisted = (item: any, list: any) => {
     return list.includes(item)
@@ -37,83 +72,91 @@ const StakeHolder = () => {
 
   return (
     <>
-      <BlockWrapper>
-        <EmptyContainer width="100%">
-          <Heading>Add Stakeholders(s)</Heading>
+      <SidebarMenu />
+      <div>
+        <BlockWrapper>
+          <EmptyContainer width="100%">
+            <Heading>Add Stakeholders(s)</Heading>
 
-          <ListContainer justify="space-between">
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Upload csv file
-            </HeadSpan>
-            <HeadSpan>
-              <FileInput
-                type="file"
-                name="file"
-                id="file"
-                ref={hiddenFileInput}
-                onChange={(e) => {
-                  handleChange(e, false)
-                }}
-                accept=".csv"
-                required
-              />
-              <FileLable
-                htmlFor="file"
-                ref={hiddenFileInput}
-                onDragEnter={() => {
-                  hiddenFileInput.current.innerText = 'Drop file here.'
-                }}
-                onDragLeave={() => {
-                  hiddenFileInput.current.innerText = ' Drag or choose file'
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault()
-                  hiddenFileInput.current.innerText = 'Drop file here!'
-                }}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  handleChange(e, true)
-                }}
-              >
-                Drag or choose file
-              </FileLable>
+            <ListContainer justify="space-between">
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Upload csv file
+              </HeadSpan>
+              <HeadSpan>
+                <FileInput
+                  type="file"
+                  name="file"
+                  id="file"
+                  ref={hiddenFileInput}
+                  onChange={(e) => {
+                    handleChange(e, false)
+                  }}
+                  accept=".csv"
+                  required
+                />
+                <FileLable
+                  htmlFor="file"
+                  ref={hiddenFileInput}
+                  onDragEnter={() => {
+                    hiddenFileInput.current.innerText = 'Drop file here.'
+                  }}
+                  onDragLeave={() => {
+                    hiddenFileInput.current.innerText = ' Drag or choose file'
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    hiddenFileInput.current.innerText = 'Drop file here!'
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    handleChange(e, true)
+                  }}
+                >
+                  Drag or choose file
+                </FileLable>
 
-              {/* <i className="fa fa-cloud-upload" /> Drag or choose file */}
-            </HeadSpan>
-          </ListContainer>
-          <ListContainer justify="space-between">
-            <HeadSpan fontsize="16px" fontweight="bold">
-              Address
-            </HeadSpan>
+                {/* <i className="fa fa-cloud-upload" /> Drag or choose file */}
+              </HeadSpan>
+            </ListContainer>
+            <ListContainer justify="space-between">
+              <HeadSpan fontsize="16px" fontweight="bold">
+                Address
+              </HeadSpan>
 
-            <HeadSpan>Amount</HeadSpan>
-          </ListContainer>
-          <EmptyWrapper>
-            {list.map((item: any, index: any) => {
-              const exist = blacklisted(item.address, blacklist)
-              return (
-                <ListContainer key={index} justify="space-between">
-                  <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
-                  <ListSpan>{item.amount}</ListSpan>
-                </ListContainer>
-              )
-            })}
-          </EmptyWrapper>
-          <ListContainer border={true} justify="space-between">
-            <HeadSpan fontsize="16px" color="white">
-              Token balance to lock
-            </HeadSpan>
-            <HeadSpan fontsize="20px" color="#FAA80A" fontweight="700">
-              {amount}
-            </HeadSpan>
-          </ListContainer>
-          <ListContainer border={true} justify="flex-end">
-            <CustomButton background="#FAA80A" color="#012553">
-              Approve
-            </CustomButton>
-          </ListContainer>
-        </EmptyContainer>
-      </BlockWrapper>
+              <HeadSpan>Amount</HeadSpan>
+            </ListContainer>
+            <EmptyWrapper>
+              {list.map((item: any, index: any) => {
+                const exist = blacklisted(item.address, blacklist)
+                return (
+                  <ListContainer key={index} justify="space-between">
+                    <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
+                    <ListSpan>{item.amount}</ListSpan>
+                  </ListContainer>
+                )
+              })}
+            </EmptyWrapper>
+            <ListContainer border={true} justify="space-between">
+              <HeadSpan fontsize="16px" color="white">
+                Token balance to lock
+              </HeadSpan>
+              <HeadSpan fontsize="20px" color="#FAA80A" fontweight="700">
+                {amount}
+              </HeadSpan>
+            </ListContainer>
+            <ListContainer border={true} justify="flex-end">
+              <CustomButton background="#FAA80A" color="#012553" onClick={toggleSuccessModal}>
+                Approve
+              </CustomButton>
+              <ModalSuccess
+                isOpen={succesModalOpen}
+                onDimiss={toggleSuccessModal}
+                data={dataModalSuccess}
+              ></ModalSuccess>
+            </ListContainer>
+          </EmptyContainer>
+        </BlockWrapper>
+      </div>
     </>
   )
 }
@@ -128,6 +171,7 @@ const CustomButton = styled.button<{ color?: string; background?: string }>`
   border: transparent;
   font-weight: 700;
   font-size: 16px;
+  cursor: pointer;
 `
 const ListSpan = styled.span<{ fontsize?: string; color?: string; fontweight?: string }>`
   margin-bottom: 10px;
@@ -164,6 +208,22 @@ const FileInput = styled.input`
   overflow: hidden;
   position: absolute;
   z-index: -1;
+`
+const ReturnLink = styled.div<{ fontsize?: string; color?: string; fontweight?: string }>`
+  color: ${(props) => props.color};
+  font-weight: ${(props) => (props.fontweight ? props.fontweight : '200')};
+  font-size: ${(props) => props.fontsize};
+  line-height: 28px;
+  margin: 15px 0;
+`
+
+const SpanIcon = styled.div<{ background?: string }>`
+  background: ${(props) => props.background};
+  width: 16px;
+  height: 5px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-left: 5px;
 `
 const HeadSpan = styled.span<{ fontsize?: string; color?: string; fontweight?: string }>`
   margin-bottom: 10px;
@@ -208,12 +268,22 @@ const EmptyContainer = styled.div<{ width?: string }>`
 const EmptyWrapper = styled.div`
   padding-bottom: 100px;
   border-bottom: 1px solid #00316f;
-
   // display: flex;
   // justify-content: space-between;
 `
 const BlockWrapper = styled.div`
   display: flex;
   justify-content: space-evenly;
+`
+const BlockChartList = styled.div`
+  display: flex;
+  margin-left: -8px;
+  margin-right: -8px;
+`
+const BlockChartItem = styled.div`
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding-left: 8px;
+  padding-right: 8px;
 `
 export default StakeHolder

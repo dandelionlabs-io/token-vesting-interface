@@ -113,6 +113,7 @@ const Pool = () => {
   }, [url])
 
   const handleAddStake = () => {
+
     setAddStakeholder(true)
   }
 
