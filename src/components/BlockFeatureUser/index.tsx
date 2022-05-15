@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components/macro'
 
 import IconOxy from '../Icons/IconOxy'
+
 interface Props {
   name?: string
   dataImage?: {
@@ -29,6 +30,7 @@ const Box = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin-top: auto;
 `
 const NameFeature = styled.p`
   font-style: normal;

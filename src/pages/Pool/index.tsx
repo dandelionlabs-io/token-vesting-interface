@@ -5,12 +5,12 @@ import styled from 'styled-components/macro'
 
 import Api from '../../api'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
+import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
-import IconUser from '../../assets/svg/icon/icon-user-profile.svg'
+import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
-import BlockUpdateAddress from '../../components/BlockUpdateAddress'
 import GoBack from '../../components/GoBack'
 import ModalSuccess, { DataModalSuccess } from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
@@ -23,6 +23,8 @@ import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { shortenAddress } from '../../utils'
 import { ethBalance } from '../../utils'
+import BlockUpdateAddress from './BlockUpdateAddress'
+import StakeHolder from './StakeHolders'
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -43,11 +45,18 @@ const DandelionIcon = styled.div`
     }
   `};
 `
-const dataImage = {
-  SrcImageIcon: IconUser,
+const IconUser = {
+  SrcImageIcon: User,
   widthIcon: '16px',
   heightIcon: '15px',
 }
+
+const IconAddStake = {
+  SrcImageIcon: AddStake,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
+
 const Pool = () => {
   const { account } = useActiveWeb3React()
   const toggleSuccessModal = useSuccessModalToggle()
@@ -64,6 +73,7 @@ const Pool = () => {
 
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
+  const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
   const [amount, setAmount] = useState<number>(59.6479)
   const dataModalSuccess: DataModalSuccess = {
     type: 'claim',
@@ -99,6 +109,11 @@ const Pool = () => {
     })()
   }, [url])
 
+  const handleAddStake = () => {
+    // history.push({ pathname: `stake` })
+    setAddStakeholder(true)
+  }
+
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
     amount: userEthBalance?.toSignificant(4),
@@ -126,7 +141,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        {(!transferOwner && (
+        {!transferOwner && !addStakeholder && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
@@ -189,7 +204,7 @@ const Pool = () => {
                   </ProgressBarContent>
                 </ProgressDiv>
                 <div onClick={() => setTransferOwner(true)}>
-                  <BlockFeatureUser dataImage={dataImage} name={'Transfer Owner'} />
+                  <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
                 </div>
               </EmptyContainer>
               <EmptyContainer>
@@ -212,14 +227,24 @@ const Pool = () => {
                       <HeadSpan>Remaining</HeadSpan>
                     </ListContainer>
                   ))}
+                <div onClick={handleAddStake}>
+                  <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                </div>
               </EmptyContainer>
             </BlockWrapper>
             <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
           </>
-        )) || (
+        )}
+        {transferOwner && (
           <>
             <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
             <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
+          </>
+        )}
+        {addStakeholder && (
+          <>
+            <GoBack setTransferOwner={setAddStakeholder} data={'Go back to DandelionLabs'} />
+            <StakeHolder />
           </>
         )}
       </div>
@@ -309,6 +334,10 @@ const EmptyContainer = styled.div`
   box-sizing: border-box;
   width: 45%;
   min-width: 400px;
+
+  & > div:last-child {
+    margin-top: auto;
+  }
 `
 const BlockWrapper = styled.div`
   display: flex;
