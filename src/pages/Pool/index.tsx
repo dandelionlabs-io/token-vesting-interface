@@ -1,8 +1,11 @@
+import detectEthereumProvider from '@metamask/detect-provider'
+import { ethers, providers } from 'ethers'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
+import Vesting from '../../abis/Vesting'
 import Api from '../../api'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
@@ -110,8 +113,26 @@ const Pool = () => {
   }, [url])
 
   const handleAddStake = () => {
-    // history.push({ pathname: `stake` })
+
     setAddStakeholder(true)
+  }
+
+  const handleClaim = async () => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+
+    const tx = await vestingInstance
+      .claimVestedTokens(address)
+      .then(() => {
+        toggleSuccessModal()
+      })
+      .catch((e: any) => {
+        console.log(e)
+      })
+
+    tx?.wait().then(() => window.location.reload())
   }
 
   const dataETH: TypeItemInfo = {
@@ -200,7 +221,7 @@ const Pool = () => {
                     <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
                       Remaining balance <SpanIcon background="#868B90"></SpanIcon>
                     </HeadSpan>
-                    <ClaimButton onClick={toggleSuccessModal}>Claim</ClaimButton>
+                    <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
                   </ProgressBarContent>
                 </ProgressDiv>
                 <div onClick={() => setTransferOwner(true)}>
