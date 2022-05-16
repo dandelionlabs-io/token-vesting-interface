@@ -174,13 +174,14 @@ export default function App() {
           })
         )
         const pools: any[] = await Api.get(url)
-        const poolsNew = pools.reduce((total, pool) => {
+        const poolsNew = pools.map((pool) => {
           const item = {
             ...pool,
-            roles: [...pool.managers[0][1]],
+            managers: [...pool.managers],
           }
-          return [...total, item]
-        }, [])
+          return item
+        })
+        console.log(poolsNew)
         setPools(poolsNew)
         setPoolsResult(poolResult)
       } catch (e) {
@@ -205,7 +206,7 @@ export default function App() {
           name: data.name,
           start: data.start * 1000,
           end: data.end * 1000,
-          roles: data.roles,
+          managers: data.managers,
         }
 
         return pool
