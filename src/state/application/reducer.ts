@@ -21,6 +21,7 @@ export enum ApplicationModal {
   PRIVACY_POLICY,
   POPUP_SUCCESS,
   POPUP_CONFIRM,
+  POPUP_LOADING,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>

@@ -1,21 +1,37 @@
+import detectEthereumProvider from '@metamask/detect-provider'
+import { ethers, providers, utils } from 'ethers'
 import { parse } from 'papaparse'
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components/macro'
 
+import ERC20 from '../../../abis/Erc20'
+import Vesting from '../../../abis/Vesting'
+import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../../components/SidebarMenu'
-import { useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
+import { useLoadingModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
+const address = window.localStorage.getItem('address')
 
 const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
+  const [successButton, setSuccessButton] = useState<any>(false)
   const [amount, setAmount] = useState<any>(0)
+  const [addressList, setAddressList] = useState<any>([])
+  const [amountList, setAmountList] = useState<any>([])
+  const address = window.localStorage.getItem('address')
   const toggleSuccessModal = useSuccessModalToggle()
+  const toggleLoadingModal = useLoadingModalToggle()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
+
   const dataModalSuccess: DataModalSuccess = {
     type: 'stakeholder',
     amount,
+  }
+  const dataModalLoading: DataModalLoading = {
+    type: 'loading',
   }
   const handleChange = (e: any, drop: any) => {
     let fileUploaded
@@ -24,16 +40,27 @@ const StakeHolder = () => {
     Array.from(fileUploaded).forEach(async (file: any) => {
       const content = await file.text()
       const result = parse(content, { header: true })
-      const sumAmount = result.data.reduce((prev: any, next: any) => {
-        const exist = blacklisted(next.address, blacklist)
-        if (!!exist || !next.address) {
-          return parseInt(prev)
-        } else {
-          return parseInt(prev) + parseInt(next.amount)
+      const arrAddress: { address: any }[] = []
+      const arrAmount: { amnt: any }[] = []
+      result.data.map((item: any, index: any) => {
+        if (index == result.data.length - 1) {
+          return
+        }
+
+        const exist = blacklisted(item.address, blacklist)
+        if (!exist && item.address && item.amount) {
+          arrAddress.push(item.address)
+          const amountttt: any = utils.parseEther(item.amount)
+          arrAmount.push(amountttt)
+          console.log(arrAddress)
+          console.log(arrAmount)
+
+          setAmount((existing: any) => existing + parseInt(item.amount))
+          setAddressList(arrAddress)
+          setAmountList(arrAmount)
         }
       }, 0)
 
-      setAmount(sumAmount)
       setList([...result.data])
     })
     const fileName = fileUploaded[0].name
@@ -42,10 +69,49 @@ const StakeHolder = () => {
       hiddenFileInput.current.innerText = fileName ? `${fileName}...` : `${fileUploaded.lenght} file selected`
     }
   }
+
   const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
 
   const blacklisted = (item: any, list: any) => {
     return list.includes(item)
+  }
+
+  const handleApproval = async () => {
+    toggleLoadingModal()
+
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(
+      process.env.REACT_APP_TOKEN_ADDRESS || '',
+      ERC20,
+      web3Provider.getSigner()
+    )
+
+    const tx = await vestingInstance.approve(address, utils.parseEther(amount.toString())).catch((e: any) => {
+      console.log(e)
+    })
+
+    tx?.wait().then(() => {
+      setSuccessButton(true)
+      toggleLoadingModal()
+    })
+  }
+  const handleAdd = async () => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+
+    const tx = await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
+      console.log(e)
+    })
+
+    tx?.wait().then(() => {
+      toggleSuccessModal()
+      setList([])
+      setAmount(0)
+    })
   }
 
   return (
@@ -106,12 +172,16 @@ const StakeHolder = () => {
             <EmptyWrapper>
               {list.map((item: any, index: any) => {
                 const exist = blacklisted(item.address, blacklist)
-                return (
-                  <ListContainer key={index} justify="space-between">
-                    <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
-                    <ListSpan>{item.amount}</ListSpan>
-                  </ListContainer>
-                )
+                if (index == list.length - 1) {
+                  return
+                } else {
+                  return (
+                    <ListContainer key={index} justify="space-between">
+                      <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
+                      <ListSpan color={exist ? '#5F5F5F' : 'white'}>{item.amount}</ListSpan>
+                    </ListContainer>
+                  )
+                }
               })}
             </EmptyWrapper>
             <ListContainer border={true} justify="space-between">
@@ -123,14 +193,25 @@ const StakeHolder = () => {
               </HeadSpan>
             </ListContainer>
             <ListContainer border={true} justify="flex-end">
-              <CustomButton background="#FAA80A" color="#012553" onClick={toggleSuccessModal}>
-                Approve
-              </CustomButton>
+              {successButton ? (
+                <CustomButton background="#FAA80A" color="#012553" onClick={handleAdd}>
+                  Add
+                </CustomButton>
+              ) : (
+                <CustomButton background="#FAA80A" color="#012553" onClick={handleApproval}>
+                  Approve
+                </CustomButton>
+              )}
               <ModalSuccess
                 isOpen={succesModalOpen}
                 onDimiss={toggleSuccessModal}
                 data={dataModalSuccess}
               ></ModalSuccess>
+              <ModalLoading
+                isOpen={loadingModalOpen}
+                onDimiss={toggleLoadingModal}
+                data={dataModalLoading}
+              ></ModalLoading>
             </ListContainer>
           </EmptyContainer>
         </BlockWrapper>
