@@ -175,9 +175,12 @@ export default function App() {
         )
         const pools: any[] = await Api.get(url)
         const poolsNew = pools.reduce((total, pool) => {
+          const roles = pool.managers.filter((manager: any) => {
+            return manager[0] === account
+          })
           const item = {
             ...pool,
-            roles: [...pool.managers[0][1]],
+            roles: !roles.length ? ['STAKEHOLDER'] : roles[0][1],
           }
           return [...total, item]
         }, [])
