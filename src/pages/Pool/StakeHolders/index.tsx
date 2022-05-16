@@ -2,35 +2,10 @@ import { parse } from 'papaparse'
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components/macro'
 
-import IconCDRED from '../../../assets/svg/icon/icon-dandelion-cdred.svg'
-import IconETH from '../../../assets/svg/icon/icon-dandelion-eth.svg'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../../components/SidebarMenu'
 import { useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-
-interface TypeItemInfo {
-  dataChart?: any
-  heading?: string
-  amount?: number
-  widthIcon?: string
-  heightIcon?: string
-  SrcImageIcon?: string
-}
-const dataETH: TypeItemInfo = {
-  heading: 'ETH Balance',
-  amount: 0,
-  widthIcon: '28px',
-  heightIcon: '39px',
-  SrcImageIcon: IconETH,
-}
-const dataCDRED: TypeItemInfo = {
-  heading: 'CDRED Balance',
-  amount: 0,
-  widthIcon: '39px',
-  heightIcon: '29px',
-  SrcImageIcon: IconCDRED,
-}
 
 const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
@@ -49,13 +24,16 @@ const StakeHolder = () => {
     Array.from(fileUploaded).forEach(async (file: any) => {
       const content = await file.text()
       const result = parse(content, { header: true })
-      result.data.map((item: any) => {
-        const exist = blacklisted(item.address, blacklist)
-        if (!exist && item.address) {
-          setAmount((existing: any) => existing + parseInt(item.amount))
+      const sumAmount = result.data.reduce((prev: any, next: any) => {
+        const exist = blacklisted(next.address, blacklist)
+        if (!!exist || !next.address) {
+          return parseInt(prev)
+        } else {
+          return parseInt(prev) + parseInt(next.amount)
         }
-      })
+      }, 0)
 
+      setAmount(sumAmount)
       setList([...result.data])
     })
     const fileName = fileUploaded[0].name
@@ -209,22 +187,7 @@ const FileInput = styled.input`
   position: absolute;
   z-index: -1;
 `
-const ReturnLink = styled.div<{ fontsize?: string; color?: string; fontweight?: string }>`
-  color: ${(props) => props.color};
-  font-weight: ${(props) => (props.fontweight ? props.fontweight : '200')};
-  font-size: ${(props) => props.fontsize};
-  line-height: 28px;
-  margin: 15px 0;
-`
 
-const SpanIcon = styled.div<{ background?: string }>`
-  background: ${(props) => props.background};
-  width: 16px;
-  height: 5px;
-  border-radius: 12px;
-  display: inline-block;
-  margin-left: 5px;
-`
 const HeadSpan = styled.span<{ fontsize?: string; color?: string; fontweight?: string }>`
   margin-bottom: 10px;
   color: ${(props) => props.color};
@@ -268,22 +231,9 @@ const EmptyContainer = styled.div<{ width?: string }>`
 const EmptyWrapper = styled.div`
   padding-bottom: 100px;
   border-bottom: 1px solid #00316f;
-  // display: flex;
-  // justify-content: space-between;
 `
 const BlockWrapper = styled.div`
   display: flex;
   justify-content: space-evenly;
-`
-const BlockChartList = styled.div`
-  display: flex;
-  margin-left: -8px;
-  margin-right: -8px;
-`
-const BlockChartItem = styled.div`
-  flex: 0 0 50%;
-  max-width: 50%;
-  padding-left: 8px;
-  padding-right: 8px;
 `
 export default StakeHolder

@@ -77,10 +77,10 @@ const Pool = () => {
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
-  const [amount, setAmount] = useState<number>(59.6479)
+
   const dataModalSuccess: DataModalSuccess = {
     type: 'claim',
-    amount,
+    amount: 59.6479,
   }
   useEffect(() => {
     !address && history.push({ pathname: `dashboard` })
@@ -113,7 +113,6 @@ const Pool = () => {
   }, [url])
 
   const handleAddStake = () => {
-
     setAddStakeholder(true)
   }
 
