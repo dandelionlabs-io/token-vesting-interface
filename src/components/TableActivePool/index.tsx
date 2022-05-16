@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -29,14 +29,26 @@ const columns: TypeColumns[] = [
 
 const TableActivePool = (props: Props) => {
   const { data } = props
+  const [dataTable, setDataTable] = useState<IPoolsData[] | null | undefined>(data)
   const dispatch = useAppDispatch()
   const history = useHistory()
 
   const handleRedirectClaimDetail = (address: string) => {
+    const timestampSecond = moment().unix()
     dispatch(getAddressActive(address))
 
     window.localStorage.setItem('address', address)
     history.push({ pathname: `pool` })
+    const dataNewTable: IPoolsData[] | null | undefined = data?.map((item) => {
+      if (item.end < timestampSecond) {
+        return {
+          ...item,
+          statusClaim: 0,
+        }
+      }
+      return item
+    })
+    setDataTable(dataNewTable)
   }
   return (
     <TableActivePoolWrapper>
@@ -54,9 +66,9 @@ const TableActivePool = (props: Props) => {
               })}
             </tr>
           </thead>
-          {data && !!data?.length && (
+          {dataTable && !!dataTable?.length && (
             <tbody>
-              {data?.map((item: any, index: number) => {
+              {dataTable?.map((item: any, index: number) => {
                 return (
                   <tr key={index}>
                     <td>
@@ -91,7 +103,7 @@ const TableActivePool = (props: Props) => {
                         ) : (
                           <ButtonClaim>Claim</ButtonClaim>
                         )}
-                        {item.includes('managers') && (
+                        {!item.roles.includes('STAKEHOLDER') && (
                           <DivIcon>
                             <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                           </DivIcon>
@@ -105,7 +117,7 @@ const TableActivePool = (props: Props) => {
           )}
         </Table>
       </DivTableBox>
-      {data && !data.length && <Notification>No data to show !</Notification>}
+      {dataTable && !dataTable.length && <Notification>No data to show !</Notification>}
     </TableActivePoolWrapper>
   )
 }

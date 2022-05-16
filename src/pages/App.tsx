@@ -174,14 +174,16 @@ export default function App() {
           })
         )
         const pools: any[] = await Api.get(url)
-        const poolsNew = pools.map((pool) => {
+        const poolsNew = pools.reduce((total, pool) => {
+          const roles = pool.managers.filter((manager: string) => {
+            return manager === account
+          })
           const item = {
             ...pool,
-            managers: [...pool.managers],
+            roles: !roles.length ? ['STAKEHOLDER'] : roles[0][1],
           }
-          return item
-        })
-        console.log(poolsNew)
+          return [...total, item]
+        }, [])
         setPools(poolsNew)
         setPoolsResult(poolResult)
       } catch (e) {
@@ -206,7 +208,7 @@ export default function App() {
           name: data.name,
           start: data.start * 1000,
           end: data.end * 1000,
-          managers: data.managers,
+          roles: data.roles,
         }
 
         return pool
