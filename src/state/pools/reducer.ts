@@ -11,7 +11,7 @@ export interface IPoolsData {
   end: any
   statusClaim?: any
   erc20Balance: number
-  managers?: any
+  roles?: string[]
 }
 
 export interface IInitialState {

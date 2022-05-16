@@ -91,7 +91,7 @@ const TableActivePool = (props: Props) => {
                         ) : (
                           <ButtonClaim>Claim</ButtonClaim>
                         )}
-                        {item.includes('managers') && (
+                        {!item.roles.includes('STAKEHOLDER') && (
                           <DivIcon>
                             <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                           </DivIcon>
