@@ -90,9 +90,10 @@ const Pool = () => {
     if (!poolsData.data?.length) {
       return
     }
-    const obj = poolsData.data.find((o: any) => o.address === address)
-    console.log(obj)
 
+    const obj = poolsData.data.find((o: any) => o.address === address)
+
+    console.log(obj)
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
@@ -232,34 +233,62 @@ const Pool = () => {
                     </div>
                   ))}
               </EmptyContainer>
-              <EmptyContainer>
-                <Heading>History of Claims</Heading>
-                <ListContainer>
-                  <HeadSpan fontsize="16px" fontweight="bold">
-                    Date
-                  </HeadSpan>
-                  <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
-                  <HeadSpan>Remaining</HeadSpan>
-                </ListContainer>
+              {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
+                <EmptyContainer>
+                  <Heading>Stakeholders</Heading>
+                  <ListContainer>
+                    <HeadSpan fontsize="16px" fontweight="bold">
+                      Address
+                    </HeadSpan>
+                    <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
+                    <HeadSpan>Remaining</HeadSpan>
+                  </ListContainer>
 
-                {historyClaim &&
-                  !!historyClaim.length &&
-                  historyClaim.map((item: any, i: number) => (
-                    <ListContainer key={i}>
-                      <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                      <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
-                      <HeadSpan>Remaining</HeadSpan>
-                    </ListContainer>
-                  ))}
-                <div>
-                  {data.roles?.includes('ADMIN') ||
-                    (data.roles?.includes('MANAGER') && (
-                      <div onClick={handleAddStake}>
-                        <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
-                      </div>
+                  {historyClaim &&
+                    !!historyClaim.length &&
+                    historyClaim.map((item: any, i: number) => (
+                      <ListContainer key={i}>
+                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
+                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
+                        <HeadSpan>Remaining</HeadSpan>
+                      </ListContainer>
                     ))}
-                </div>
-              </EmptyContainer>
+                  <div>
+                    <div onClick={handleAddStake}>
+                      <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                    </div>
+                  </div>
+                </EmptyContainer>
+              ) : (
+                <EmptyContainer>
+                  <Heading>History of Claims</Heading>
+                  <ListContainer>
+                    <HeadSpan fontsize="16px" fontweight="bold">
+                      Date
+                    </HeadSpan>
+                    <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
+                    <HeadSpan>Remaining</HeadSpan>
+                  </ListContainer>
+
+                  {historyClaim &&
+                    !!historyClaim.length &&
+                    historyClaim.map((item: any, i: number) => (
+                      <ListContainer key={i}>
+                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
+                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
+                        <HeadSpan>Remaining</HeadSpan>
+                      </ListContainer>
+                    ))}
+                  <div>
+                    {data.roles?.includes('ADMIN') ||
+                      (data.roles?.includes('MANAGER') && (
+                        <div onClick={handleAddStake}>
+                          <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                        </div>
+                      ))}
+                  </div>
+                </EmptyContainer>
+              )}
             </BlockWrapper>
             <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
           </>
