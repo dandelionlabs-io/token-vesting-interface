@@ -180,7 +180,8 @@ export default function App() {
           })
           const item = {
             ...pool,
-            roles: !roles.length ? ['STAKEHOLDER'] : roles[0][1],
+            // roles: !roles.length ? ['STAKEHOLDER'] : roles[0][1],
+            roles: ['ADMIN'],
           }
           return [...total, item]
         }, [])
