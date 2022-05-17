@@ -88,8 +88,6 @@ const Pool = () => {
       return
     }
     const obj = poolsData.data.find((o: any) => o.address === address)
-    console.log(obj)
-
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
