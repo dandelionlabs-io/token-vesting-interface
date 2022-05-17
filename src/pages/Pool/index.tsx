@@ -89,6 +89,8 @@ const Pool = () => {
     }
 
     const obj = poolsData.data.find((o: any) => o.address === address)
+    console.log(obj)
+
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
@@ -240,6 +242,7 @@ const Pool = () => {
                     </div>
                   ))}
               </EmptyContainer>
+
               {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
                 <EmptyContainer>
                   <Heading>Stakeholders</Heading>
@@ -252,14 +255,16 @@ const Pool = () => {
                   </ListContainer>
 
                   {historyClaim &&
-                    !!historyClaim.length &&
-                    historyClaim.map((item: any, i: number) => (
-                      <ListContainer key={i}>
-                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
-                        <HeadSpan>Remaining</HeadSpan>
-                      </ListContainer>
-                    ))}
+                  !!historyClaim.length &&
+                  historyClaim.map((item: any, i: number) => (
+                    <ListContainer key={i}>
+                      <HeadSpan fontsize="16px">
+                        {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
+                      </HeadSpan>
+                      <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
+                      <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
+                    </ListContainer>
+                  ))}
                   <div>
                     <div onClick={handleAddStake}>
                       <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
@@ -278,14 +283,16 @@ const Pool = () => {
                   </ListContainer>
 
                   {historyClaim &&
-                    !!historyClaim.length &&
-                    historyClaim.map((item: any, i: number) => (
-                      <ListContainer key={i}>
-                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
-                        <HeadSpan>Remaining</HeadSpan>
-                      </ListContainer>
-                    ))}
+                  !!historyClaim.length &&
+                  historyClaim.map((item: any, i: number) => (
+                    <ListContainer key={i}>
+                      <HeadSpan fontsize="16px">
+                        {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
+                      </HeadSpan>
+                      <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
+                      <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
+                    </ListContainer>
+                  ))}
                   <div>
                     {data.roles?.includes('ADMIN') ||
                       (data.roles?.includes('MANAGER') && (
@@ -296,6 +303,7 @@ const Pool = () => {
                   </div>
                 </EmptyContainer>
               )}
+
             </BlockWrapper>
             <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
           </>
