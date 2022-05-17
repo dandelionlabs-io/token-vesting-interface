@@ -84,7 +84,6 @@ export function getContract(address: string, ABI: any, library: JsonRpcProvider,
 
 export const ethBalance = (balance: any) => {
   if (!balance) return 0
-  const result = parseInt(utils.formatEther(balance))
-
+  const result = parseFloat(utils.formatEther(balance))
   return result
 }
