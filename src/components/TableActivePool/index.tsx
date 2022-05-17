@@ -89,7 +89,7 @@ const TableActivePool = (props: Props) => {
                             Claim
                           </ButtonClaim>
                         ) : (
-                          <ButtonClaim>Claim</ButtonClaim>
+                          <ButtonClaim active={false}>Claim</ButtonClaim>
                         )}
                         {item.roles.includes('ADMIN') && (
                           <DivIcon>
