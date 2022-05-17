@@ -15,17 +15,16 @@ import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
 import GoBack from '../../components/GoBack'
-import ModalSuccess, { DataModalSuccess } from '../../components/Modal/ModalSuccess'
+import ModalSuccess from '../../components/Modal/ModalSuccess'
 import SidebarMenu from '../../components/SidebarMenu'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
-import { useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
+import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
-import { shortenAddress } from '../../utils'
-import { ethBalance } from '../../utils'
+import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
 import StakeHolder from './StakeHolders'
 interface TypeItemInfo {
@@ -63,7 +62,9 @@ const IconAddStake = {
 const Pool = () => {
   const { account } = useActiveWeb3React()
   const toggleSuccessModal = useSuccessModalToggle()
-  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const closeModal = useCloseModal()
+
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const poolsData = useAppSelector((state: AppState) => state.pools)
   const history = useHistory()
   const address = window.localStorage.getItem('address')
@@ -78,10 +79,6 @@ const Pool = () => {
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
 
-  const dataModalSuccess: DataModalSuccess = {
-    type: 'claim',
-    amount: 59.6479,
-  }
   useEffect(() => {
     !address && history.push({ pathname: `dashboard` })
   }, [history, address])
@@ -107,13 +104,20 @@ const Pool = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        const data = await Api.get(url)
-        setHistoryClam(data)
+        const dataHis: any = await Api.get(url)
+
+        const dataHisClone: Array<any> = [...dataHis]
+
+        for (let i = dataHisClone.length - 1; i > -1; i--) {
+          dataHisClone[i].remain = data.amount - ethBalance(dataHisClone[i].amountClaimed)
+        }
+
+        setHistoryClam(dataHisClone)
       } catch (e) {
         console.log(e)
       }
     })()
-  }, [url])
+  }, [url, data])
 
   const handleAddStake = () => {
     setAddStakeholder(true)
@@ -133,6 +137,11 @@ const Pool = () => {
       .catch((e: any) => {
         console.log(e)
       })
+      .finally(() => {
+        setTimeout(function () {
+          closeModal()
+        }, 3000)
+      })
 
     tx?.wait().then(() => window.location.reload())
   }
@@ -146,7 +155,7 @@ const Pool = () => {
   }
   const dataCDRED: TypeItemInfo = {
     heading: 'CDRED Balance',
-    amount: userCDREDBalance,
+    amount: userCDREDBalance.toFixed(3),
     widthIcon: '39px',
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,
@@ -202,7 +211,7 @@ const Pool = () => {
                     Total Locked Amount
                   </HeadSpan>
                   <HeadSpan>
-                    <HeadSpan fontsize="16px">{data.remain}</HeadSpan> <HeadSpan></HeadSpan>
+                    <HeadSpan fontsize="16px">{data.remain && data.remain.toFixed(3)}</HeadSpan> <HeadSpan></HeadSpan>
                   </HeadSpan>
                 </ListContainer>
                 <ProgressDiv>
@@ -226,13 +235,15 @@ const Pool = () => {
                     <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
                   </ProgressBarContent>
                 </ProgressDiv>
-                {data.roles?.includes('ADMIN') ||
-                  (data.roles?.includes('MANAGER') && (
-                    <div onClick={() => setTransferOwner(true)}>
-                      <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
-                    </div>
-                  ))}
+                {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
+                  <div onClick={() => setTransferOwner(true)}>
+                    <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
+                  </div>
+                ) : (
+                  <div></div>
+                )}
               </EmptyContainer>
+
               {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
                 <EmptyContainer>
                   <Heading>Stakeholders</Heading>
@@ -248,9 +259,11 @@ const Pool = () => {
                     !!historyClaim.length &&
                     historyClaim.map((item: any, i: number) => (
                       <ListContainer key={i}>
-                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
-                        <HeadSpan>Remaining</HeadSpan>
+                        <HeadSpan fontsize="16px">
+                          {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
+                        </HeadSpan>
+                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
+                        <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
                       </ListContainer>
                     ))}
                   <div>
@@ -274,9 +287,11 @@ const Pool = () => {
                     !!historyClaim.length &&
                     historyClaim.map((item: any, i: number) => (
                       <ListContainer key={i}>
-                        <HeadSpan fontsize="16px">{moment(item.timestamp).format('MMM DD, YYYY')}</HeadSpan>
-                        <HeadSpan fontsize="16px">{ethBalance(item.amountClaimed)}</HeadSpan>
-                        <HeadSpan>Remaining</HeadSpan>
+                        <HeadSpan fontsize="16px">
+                          {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
+                        </HeadSpan>
+                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
+                        <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
                       </ListContainer>
                     ))}
                   <div>
@@ -290,7 +305,7 @@ const Pool = () => {
                 </EmptyContainer>
               )}
             </BlockWrapper>
-            <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+            <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
           </>
         )}
 
