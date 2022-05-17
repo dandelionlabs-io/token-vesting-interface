@@ -88,6 +88,8 @@ const Pool = () => {
       return
     }
     const obj = poolsData.data.find((o: any) => o.address === address)
+    console.log(obj)
+
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
@@ -232,13 +234,15 @@ const Pool = () => {
                     <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
                   </ProgressBarContent>
                 </ProgressDiv>
-                <div onClick={() => setTransferOwner(true)}>
-                  <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
-                </div>
+                {data.roles?.includes('ADMIN') ||
+                  (data.roles?.includes('MANAGER') && (
+                    <div onClick={() => setTransferOwner(true)}>
+                      <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
+                    </div>
+                  ))}
               </EmptyContainer>
               <EmptyContainer>
                 <Heading>History of Claims</Heading>
-
                 <ListContainer>
                   <HeadSpan fontsize="16px" fontweight="bold">
                     Date
@@ -258,14 +262,20 @@ const Pool = () => {
                       <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
                     </ListContainer>
                   ))}
-                <div onClick={handleAddStake}>
-                  <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                <div>
+                  {data.roles?.includes('ADMIN') ||
+                    (data.roles?.includes('MANAGER') && (
+                      <div onClick={handleAddStake}>
+                        <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                      </div>
+                    ))}
                 </div>
               </EmptyContainer>
             </BlockWrapper>
             <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal}></ModalSuccess>
           </>
         )}
+
         {transferOwner && (
           <>
             <GoBack setTransferOwner={setTransferOwner} data={'Go back to DandelionLabs'} />
