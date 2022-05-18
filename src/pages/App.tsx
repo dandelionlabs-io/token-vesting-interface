@@ -1,5 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers } from 'ethers'
+import moment from 'moment'
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
@@ -17,7 +18,6 @@ import { useAppDispatch } from '../state/hooks'
 import { getAddressActive, IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
 import RouterPage from './router'
-
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -146,6 +146,20 @@ export default function App() {
     },
     [account]
   )
+  const handleStateStakeholder = useCallback(
+    async (address: string) => {
+      if (!account) {
+        return
+      }
+      const urlAddressGetStakeholder = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/stakeholders`
+      const stakeholders: any[] = await Api.get(urlAddressGetStakeholder)
+      const isStakeholder = stakeholders.some((item) => {
+        return item.address === account
+      })
+      return isStakeholder
+    },
+    [account]
+  )
 
   useEffect(() => {
     setIsNotLandingPage(location.pathname !== '/')
@@ -174,13 +188,28 @@ export default function App() {
           })
         )
         const pools: any[] = await Api.get(url)
-        const poolsNew = pools.reduce((total, pool) => {
+        const stateStakeholders = await Promise.all(
+          poolsAddresses.map(async (address: string) => {
+            return await handleStateStakeholder(address)
+          })
+        )
+        const poolsNew = pools.reduce((total, pool, index) => {
           const roles = pool.managers.filter((manager: any) => {
             return manager[0] === account
           })
+          const handleGetRole = () => {
+            let newRoles: string[] = []
+            if (roles.length !== 0) {
+              newRoles = [...roles[0][1]]
+            }
+            if (stateStakeholders[index]) {
+              newRoles = [...newRoles, 'STAKEHOLDER']
+            }
+            return newRoles
+          }
           const item = {
             ...pool,
-            roles: ['ADMIN'],
+            roles: handleGetRole(),
           }
           return [...total, item]
         }, [])
@@ -197,6 +226,7 @@ export default function App() {
       return
     }
 
+    const currentSecond = moment().unix()
     const poolsClone = [...pools]
     let availablePools = [...poolsResult]
 
@@ -209,6 +239,7 @@ export default function App() {
           start: data.start * 1000,
           end: data.end * 1000,
           roles: data.roles,
+          statusClaim: moment(currentSecond).isAfter(data.end) || moment(currentSecond).isBefore(data.start) ? 0 : 1,
         }
 
         return pool
