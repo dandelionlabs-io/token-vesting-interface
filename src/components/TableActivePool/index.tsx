@@ -39,9 +39,23 @@ const TableActivePool = (props: Props) => {
     window.localStorage.setItem('poolPageType', poolPageType)
     history.push({ pathname: `pool` })
   }
+  const handleButtonClaim = (item: IPoolsData) => {
+    if (!item.roles.includes('STAKEHOLDER')) {
+      return
+    }
+    if (item.statusClaim === 1) {
+      return (
+        <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, 'claim')}>
+          Claim
+        </ButtonClaim>
+      )
+    }
+    return <ButtonClaim active={false}>Claim</ButtonClaim>
+  }
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
+      {JSON.stringify(data)}
       <DivTableBox>
         <Table>
           <thead>
@@ -85,19 +99,12 @@ const TableActivePool = (props: Props) => {
                     </td>
                     <td>
                       <DivAct>
-                        {item.statusClaim === 1 ? (
-                          <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, 'claim')}>
-                            Claim
-                          </ButtonClaim>
-                        ) : (
-                          <ButtonClaim active={false}>Claim</ButtonClaim>
+                        {handleButtonClaim(item)}
+                        {(item.roles.includes('OPERATOR') || item.roles.includes('ADMIN')) && (
+                          <DivIcon onClick={() => handleRedirectPoolDetails(item.address, 'edit')}>
+                            <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                          </DivIcon>
                         )}
-                        {item.roles.includes('OPERATOR') ||
-                          (item.roles.includes('ADMIN') && (
-                            <DivIcon onClick={() => handleRedirectPoolDetails(item.address, 'edit')}>
-                              <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
-                            </DivIcon>
-                          ))}
                       </DivAct>
                     </td>
                   </tr>
@@ -239,12 +246,13 @@ const ButtonClaim = styled.button<{ active?: boolean }>`
   color: rgba(109, 149, 199, 0.3);
   background-color: rgba(0, 28, 60, 0.4);
   border-radius: 12px;
-  cursor: pointer;
+
   ${({ active }) =>
     active &&
     css`
       color: ${({ theme }) => theme.white};
       background-color: #18aa00;
+      cursor: pointer;
     `}
 `
 const DivAct = styled.div`
@@ -257,6 +265,12 @@ const DivIcon = styled.div`
   justify-content: center;
   padding-left: 24px;
   position: relative;
+  &:first-child {
+    padding-left: 0;
+    &::before {
+      display: none;
+    }
+  }
   &::before {
     content: '';
     position: absolute;
