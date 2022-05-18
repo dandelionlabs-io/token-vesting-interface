@@ -47,6 +47,8 @@ const Dashboard = () => {
   }
   useEffect(() => {
     !account && history.push({ pathname: `/` })
+    window.localStorage.removeItem('address')
+    window.localStorage.removeItem('poolPageType')
   }, [account, history])
 
   return (

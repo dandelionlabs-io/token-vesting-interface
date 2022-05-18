@@ -32,10 +32,11 @@ const TableActivePool = (props: Props) => {
   const dispatch = useAppDispatch()
   const history = useHistory()
 
-  const handleRedirectClaimDetail = (address: string) => {
+  const handleRedirectPoolDetails = (address: string, poolPageType: string) => {
     dispatch(getAddressActive(address))
 
     window.localStorage.setItem('address', address)
+    window.localStorage.setItem('poolPageType', poolPageType)
     history.push({ pathname: `pool` })
   }
   return (
@@ -71,10 +72,10 @@ const TableActivePool = (props: Props) => {
                       </DivNameBox>
                     </td>
                     <td>
-                      <span>{item.claimed}</span>
+                      <span>{parseFloat(item.claimed).toFixed(3)}</span>
                     </td>
                     <td>
-                      <span>{item.remain}</span>
+                      <span>{parseFloat(item.remain).toFixed(3)}</span>
                     </td>
                     <td>
                       <span>{moment(item.start).format('MMM DD, YYYY')}</span>
@@ -85,17 +86,18 @@ const TableActivePool = (props: Props) => {
                     <td>
                       <DivAct>
                         {item.statusClaim === 1 ? (
-                          <ButtonClaim active={true} onClick={() => handleRedirectClaimDetail(item.address)}>
+                          <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, 'claim')}>
                             Claim
                           </ButtonClaim>
                         ) : (
                           <ButtonClaim active={false}>Claim</ButtonClaim>
                         )}
-                        {item.roles.includes('ADMIN') && (
-                          <DivIcon>
-                            <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
-                          </DivIcon>
-                        )}
+                        {item.roles.includes('OPERATOR') ||
+                          (item.roles.includes('ADMIN') && (
+                            <DivIcon onClick={() => handleRedirectPoolDetails(item.address, 'edit')}>
+                              <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                            </DivIcon>
+                          ))}
                       </DivAct>
                     </td>
                   </tr>

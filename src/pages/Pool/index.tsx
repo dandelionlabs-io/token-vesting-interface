@@ -61,17 +61,28 @@ const IconAddStake = {
 
 const Pool = () => {
   const { account } = useActiveWeb3React()
+  const history = useHistory()
+  const address = window.localStorage.getItem('address')
+  const typePage = window.localStorage.getItem('poolPageType')
+
+  useEffect(() => {
+    if (!typePage || !address) {
+      history.push({ pathname: `dashboard` })
+      return
+    }
+  }, [history, address, typePage])
+
   const toggleSuccessModal = useSuccessModalToggle()
   const closeModal = useCloseModal()
 
   const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const poolsData = useAppSelector((state: AppState) => state.pools)
-  const history = useHistory()
-  const address = window.localStorage.getItem('address')
+
   const [data, setData] = useState<any>({})
-  const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
-  const [historyClaim, setHistoryClam] = useState<any>([])
+
+  const [stakeholders, setStakeholders] = useState<Array<any>>([])
+  const [historyClaim, setHistoryClam] = useState<Array<any>>([])
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
   const [claimablePercent, setClaimablePercent] = useState<number>(0)
 
@@ -80,11 +91,34 @@ const Pool = () => {
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
 
   useEffect(() => {
-    !address && history.push({ pathname: `dashboard` })
-  }, [history, address])
+    if (!account || !typePage) {
+      return
+    }
+    ;(async () => {
+      try {
+        if (typePage === 'claim') {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
+          const dataHis: any = await Api.get(url)
+          const dataHisClone: Array<any> = [...dataHis]
+
+          for (let i = dataHisClone.length - 1; i > -1; i--) {
+            dataHisClone[i].remain = data.amount - ethBalance(dataHisClone[i].amountClaimed)
+          }
+
+          setHistoryClam(dataHisClone)
+        } else {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/stakeholders`
+          const dataStakeholders: Array<any> = await Api.get(url)
+          setStakeholders(dataStakeholders)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    })()
+  }, [data, account, typePage, address])
 
   useEffect(() => {
-    if (!poolsData.data?.length) {
+    if (!poolsData.data?.length || !address) {
       return
     }
 
@@ -100,24 +134,6 @@ const Pool = () => {
       setClaimablePercent((obj.claimable / obj.amount) * 100)
     }
   }, [address, poolsData?.data])
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const dataHis: any = await Api.get(url)
-
-        const dataHisClone: Array<any> = [...dataHis]
-
-        for (let i = dataHisClone.length - 1; i > -1; i--) {
-          dataHisClone[i].remain = data.amount - ethBalance(dataHisClone[i].amountClaimed)
-        }
-
-        setHistoryClam(dataHisClone)
-      } catch (e) {
-        console.log(e)
-      }
-    })()
-  }, [url, data])
 
   const handleAddStake = () => {
     setAddStakeholder(true)
@@ -232,7 +248,7 @@ const Pool = () => {
                     <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
                       Remaining balance <SpanIcon background="#868B90"></SpanIcon>
                     </HeadSpan>
-                    <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
+                    {typePage === 'claim' && <ClaimButton onClick={handleClaim}>Claim</ClaimButton>}
                   </ProgressBarContent>
                 </ProgressDiv>
                 {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
@@ -244,26 +260,32 @@ const Pool = () => {
                 )}
               </EmptyContainer>
 
-              {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
+              {typePage === 'edit' ? (
                 <EmptyContainer>
                   <Heading>Stakeholders</Heading>
                   <ListContainer>
                     <HeadSpan fontsize="16px" fontweight="bold">
                       Address
                     </HeadSpan>
-                    <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
-                    <HeadSpan>Remaining</HeadSpan>
+                    <HeadSpan fontsize="16px" fontweight="bold">
+                      Locked
+                    </HeadSpan>
+                    <HeadSpan fontsize="16px" fontweight="bold">
+                      Claimed
+                    </HeadSpan>
                   </ListContainer>
 
-                  {historyClaim &&
-                    !!historyClaim.length &&
-                    historyClaim.map((item: any, i: number) => (
+                  {stakeholders &&
+                    !!stakeholders.length &&
+                    stakeholders.map((item: any, i: number) => (
                       <ListContainer key={i}>
+                        <HeadSpan fontsize="16px">{shortenAddress(item.address)}</HeadSpan>
                         <HeadSpan fontsize="16px">
-                          {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
+                          {item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}
                         </HeadSpan>
-                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
-                        <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
+                        <HeadSpan fontsize="16px">
+                          {item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}
+                        </HeadSpan>
                       </ListContainer>
                     ))}
                   <div>
@@ -290,8 +312,8 @@ const Pool = () => {
                         <HeadSpan fontsize="16px">
                           {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
                         </HeadSpan>
-                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(4)}</HeadSpan>
-                        <HeadSpan>{parseFloat(item.remain).toFixed(4)}</HeadSpan>
+                        <HeadSpan fontsize="16px">{(parseFloat(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
+                        <HeadSpan>{parseFloat(item.remain).toFixed(3)}</HeadSpan>
                       </ListContainer>
                     ))}
                   <div>
@@ -348,7 +370,6 @@ const ProgressDiv = styled.div`
 const ProgressInner = styled.div<{ width?: string; background?: string }>`
   background: ${(props) => props.background};
   height: 100%;
-  // border-radius: 12px 0px 0px 12px;
   display: inline-block;
 
   width: ${(props) => props.width}%;
