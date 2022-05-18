@@ -199,8 +199,11 @@ export default function App() {
           })
           const handleGetRole = () => {
             let newRoles: string[] = []
+
             if (roles.length !== 0) {
-              newRoles = [...roles[0][1]]
+              newRoles = [...roles[0][1], 'ADMIN']
+            } else {
+              newRoles = ['STAKEHOLDER', 'ADMIN']
             }
             if (stateStakeholders[index]) {
               newRoles = [...newRoles, 'STAKEHOLDER']
