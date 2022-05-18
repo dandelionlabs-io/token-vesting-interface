@@ -1,16 +1,28 @@
+import detectEthereumProvider from '@metamask/detect-provider'
 import ModalConfirm from 'components/Modal/ModalConfirm'
 import ModalSuccess, { DataModalSuccess } from 'components/Modal/ModalSuccess'
+import { ethers, providers } from 'ethers'
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
+import Vesting from '../../../abis/Vesting'
 import dataConfirm from '../../../data/dataModalConfirm.json'
-import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
+import {
+  useCloseModal,
+  useConfirmModalToggle,
+  useModalOpen,
+  useSuccessModalToggle,
+} from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 interface Props {
   addressWallet?: string
 }
 const StakeholderUpdateAddress = (props: Props) => {
   const { addressWallet } = props
+  const { account } = useActiveWeb3React()
+  const address = window.localStorage.getItem('address')
+  const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
   const handleChange = (e: any) => {
     setValueAddress(e.target.value)
@@ -19,11 +31,35 @@ const StakeholderUpdateAddress = (props: Props) => {
   const confirmModalOpen = useModalOpen(ApplicationModal.POPUP_CONFIRM)
   const toggleSuccessModal = useSuccessModalToggle()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
-  const dataModalSuccess: DataModalSuccess = { type: 'ownership' }
-  const contentConfirm = dataConfirm.ownership
+  const dataModalSuccess: DataModalSuccess = { type: 'stakeholder' }
+  const contentConfirm = dataConfirm.stakeholder
   const contentModalConfirm = {
     header: contentConfirm.header,
     notification: contentConfirm.notification,
+  }
+
+  const handleChangeStakeholder = async (prevAddr: any, newAddr: any) => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    console.log(vestingInstance)
+
+    const tx = await vestingInstance
+      .changeInvestor(prevAddr, newAddr)
+      .then(() => {
+        toggleSuccessModal()
+      })
+      .catch((e: any) => {
+        console.log(e)
+      })
+      .finally(() => {
+        setTimeout(function () {
+          closeModal()
+        }, 3000)
+      })
+
+    tx?.wait().then(() => window.location.reload())
   }
   return (
     <>
@@ -56,7 +92,7 @@ const StakeholderUpdateAddress = (props: Props) => {
       <ModalConfirm
         isOpen={confirmModalOpen}
         onDimiss={toggleConfirmModal}
-        isOpenPopupSuccess={toggleSuccessModal}
+        isOpenPopupSuccess={() => handleChangeStakeholder(addressWallet, valueAddress)}
         content={contentModalConfirm}
       />
 
