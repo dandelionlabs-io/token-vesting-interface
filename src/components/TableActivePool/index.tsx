@@ -55,7 +55,6 @@ const TableActivePool = (props: Props) => {
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
-      {JSON.stringify(data)}
       <DivTableBox>
         <Table>
           <thead>
