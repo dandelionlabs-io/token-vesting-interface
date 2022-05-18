@@ -22,8 +22,9 @@ import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
 import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
-import { useAppSelector } from '../../state/hooks'
+import { useAppDispatch, useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { RolePoolAddress, setRoleForPoolAddress } from '../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
 import StakeHolder from './StakeHolders'
@@ -72,6 +73,7 @@ const Pool = () => {
     }
   }, [history, address, typePage])
 
+  const dispatch = useAppDispatch()
   const toggleSuccessModal = useSuccessModalToggle()
   const closeModal = useCloseModal()
 
@@ -175,6 +177,34 @@ const Pool = () => {
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,
   }
+
+  const handleAdd = async () => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+
+    vestingInstance
+      .grantRole('0xaeb7c7d0e674cc9797d54e42cf23c430de43c016789450024ae5ec0cbee9b98e', account)
+      .then(() => {
+        dispatch(setRoleForPoolAddress({ address, addRole: RolePoolAddress['OPERATOR'] }))
+      })
+      .catch((e: string) => console.log(e))
+  }
+
+  const handleRemove = async () => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+
+    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    vestingInstance
+      .revokeRole('0xaeb7c7d0e674cc9797d54e42cf23c430de43c016789450024ae5ec0cbee9b98e', account)
+      .then(() => {
+        dispatch(setRoleForPoolAddress({ address, removeRole: RolePoolAddress['OPERATOR'] }))
+      })
+      .catch((e: string) => console.log(e))
+  }
+
   return (
     <>
       <SidebarMenu />
@@ -256,6 +286,9 @@ const Pool = () => {
                       <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
                     </div>
                   ))}
+
+                <button onClick={handleAdd}>Add</button>
+                <button onClick={handleRemove}>Remove</button>
               </EmptyContainer>
 
               {typePage === 'edit' ? (
