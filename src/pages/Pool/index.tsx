@@ -247,7 +247,7 @@ const Pool = () => {
                     <HeadSpan fontsize="14px" fontweight="400" color="#868B90 " style={{ margin: '0' }}>
                       Remaining balance <SpanIcon background="#868B90"></SpanIcon>
                     </HeadSpan>
-                    <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
+                    {typePage === 'claim' && <ClaimButton onClick={handleClaim}>Claim</ClaimButton>}
                   </ProgressBarContent>
                 </ProgressDiv>
                 {data.roles?.includes('ADMIN') ||
@@ -278,8 +278,12 @@ const Pool = () => {
                     stakeholders.map((item: any, i: number) => (
                       <ListContainer key={i}>
                         <HeadSpan fontsize="16px">{shortenAddress(item.address)}</HeadSpan>
-                        <HeadSpan fontsize="16px">{(parseInt(item.amountlocked) / 1e18).toFixed(3)}</HeadSpan>
-                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
+                        <HeadSpan fontsize="16px">
+                          {item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}
+                        </HeadSpan>
+                        <HeadSpan fontsize="16px">
+                          {item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}
+                        </HeadSpan>
                       </ListContainer>
                     ))}
                   <div>
@@ -306,7 +310,7 @@ const Pool = () => {
                         <HeadSpan fontsize="16px">
                           {moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}
                         </HeadSpan>
-                        <HeadSpan fontsize="16px">{(parseInt(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
+                        <HeadSpan fontsize="16px">{(parseFloat(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
                         <HeadSpan>{parseFloat(item.remain).toFixed(3)}</HeadSpan>
                       </ListContainer>
                     ))}
