@@ -222,7 +222,7 @@ export default function App() {
         console.log(e)
       }
     })()
-  }, [account, checkAndGetPool])
+  }, [account, checkAndGetPool, handleStateStakeholder])
 
   useEffect(() => {
     if (!poolsResult.length || !pools.length) {
