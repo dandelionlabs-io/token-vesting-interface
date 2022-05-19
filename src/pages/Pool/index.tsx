@@ -30,6 +30,7 @@ import { useCDREDBalance } from '../../state/pools/hook'
 import { IInitialState, IPoolsData } from '../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
+import CreateNewPool from './CreateNewPool'
 import Manager from './Manager'
 import StakeHolder from './StakeHolders'
 import EditStakeHolder from './StakeHolders/change'
@@ -85,6 +86,7 @@ const Pool = () => {
   const history = useHistory()
   const address = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('poolPageType')
+  const flagPool = window.localStorage.getItem('flagPool')
   const statePool: IInitialState = useAppSelector((state) => state.pools)
   const isCheckRole: boolean = statePool.data?.some((pool: IPoolsData) => {
     if (pool.address === address) {
@@ -93,11 +95,11 @@ const Pool = () => {
     return false
   })
   useEffect(() => {
-    if (!typePage || !address) {
+    if (!typePage || (!address && !flagPool)) {
       history.push({ pathname: `dashboard` })
       return
     }
-  }, [history, address, typePage])
+  }, [history, address, typePage, flagPool])
 
   const toggleSuccessModal = useSuccessModalToggle()
   const closeModal = useCloseModal()
@@ -221,8 +223,8 @@ const Pool = () => {
             <BlockChart itemInfo={dataCDRED} />
           </BlockChartItem>
         </BlockChartList>
-
-        {!transferOwner && !addStakeholder && !editStakeholder && !assignManager && (
+        {typePage === 'createPool' && <CreateNewPool />}
+        {!transferOwner && !addStakeholder && !editStakeholder && !assignManager && typePage !== 'createPool' && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
