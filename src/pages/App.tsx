@@ -209,8 +209,11 @@ export default function App() {
           //console.log('managersAddressArray ', managersAddressArray)
           const handleGetRole = () => {
             let newRoles: string[] = []
+
             if (roles.length !== 0) {
-              newRoles = [...roles[0][1]]
+              newRoles = [...roles[0][1], 'ADMIN']
+            } else {
+              newRoles = ['STAKEHOLDER', 'ADMIN']
             }
             if (stateStakeholders[index]) {
               newRoles = [...newRoles, 'STAKEHOLDER']
@@ -230,7 +233,7 @@ export default function App() {
         console.log(e)
       }
     })()
-  }, [account, checkAndGetPool])
+  }, [account, checkAndGetPool, handleStateStakeholder])
 
   useEffect(() => {
     if (!poolsResult.length || !pools.length) {

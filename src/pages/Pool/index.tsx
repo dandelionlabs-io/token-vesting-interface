@@ -3,13 +3,15 @@ import { ethers, providers } from 'ethers'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 
+import IconOxy from '../../../src/components/Icons/IconOxy'
 import Vesting from '../../abis/Vesting'
 import Api from '../../api'
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
+import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import SwapManage from '../../assets/svg/icon/icon-dandelion-swap.svg'
 import User from '../../assets/svg/icon/icon-user-profile.svg'
@@ -30,6 +32,8 @@ import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
 import Manager from './Manager'
 import StakeHolder from './StakeHolders'
+import EditStakeHolder from './StakeHolders/change'
+
 interface TypeItemInfo {
   dataChart?: any
   heading?: string
@@ -61,6 +65,15 @@ const IconAddStake = {
   widthIcon: '16px',
   heightIcon: '15px',
 }
+type TypeColumns = {
+  key?: string
+  name?: string
+}
+const columns: TypeColumns[] = [
+  { key: 'address', name: 'Address' },
+  { key: 'locked', name: 'Locked' },
+  { key: 'claimed', name: 'Claimed' },
+]
 const IconSwapManage = {
   SrcImageIcon: SwapManage,
   widthIcon: '16px',
@@ -103,6 +116,8 @@ const Pool = () => {
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
+  const [editStakeholder, setEditStakeholder] = useState<boolean>(false)
+  const [stakeholderAddress, setStakeholderAddress] = useState<string>()
   const [assignManager, setAssignManager] = useState<boolean>(false)
 
   useEffect(() => {
@@ -151,6 +166,10 @@ const Pool = () => {
 
   const handleAddStake = () => {
     setAddStakeholder(true)
+  }
+  const handleEditStake = (addr: any) => {
+    setStakeholderAddress(addr)
+    setEditStakeholder(true)
   }
 
   const handleClaim = async () => {
@@ -203,7 +222,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        {!transferOwner && !addStakeholder && !assignManager && (
+        {!transferOwner && !addStakeholder && !editStakeholder && !assignManager && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
@@ -267,10 +286,12 @@ const Pool = () => {
                 </ProgressDiv>
                 <DivActionUser>
                   {data.roles?.includes('ADMIN') ||
-                    (data.roles?.includes('MANAGER') && (
+                    (data.roles?.includes('MANAGER') ? (
                       <div onClick={() => setTransferOwner(true)}>
                         <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
                       </div>
+                    ) : (
+                      <div></div>
                     ))}
                   {isCheckRole && (
                     <div onClick={() => setAssignManager(true)}>
@@ -283,35 +304,61 @@ const Pool = () => {
               {typePage === 'edit' ? (
                 <EmptyContainer>
                   <Heading>Stakeholders</Heading>
-                  <ListContainer>
-                    <HeadSpan fontsize="16px" fontweight="bold">
-                      Address
-                    </HeadSpan>
-                    <HeadSpan fontsize="16px" fontweight="bold">
-                      Locked
-                    </HeadSpan>
-                    <HeadSpan fontsize="16px" fontweight="bold">
-                      Claimed
-                    </HeadSpan>
-                  </ListContainer>
+                  <DivTableBox>
+                    <Table>
+                      <thead>
+                        <tr>
+                          {columns.map((item, index) => {
+                            return (
+                              <TableTh key={item.key} data-head={item.key}>
+                                {item.name}
+                              </TableTh>
+                            )
+                          })}
+                        </tr>
+                      </thead>
+                      {stakeholders && !!stakeholders.length && (
+                        <tbody>
+                          {stakeholders?.map((item: any, index: number) => {
+                            return (
+                              <tr key={index}>
+                                <td>
+                                  <DivNameBox>
+                                    <AddressWallet>{shortenAddress(item.address)} </AddressWallet>
+                                  </DivNameBox>
+                                </td>
 
-                  {stakeholders &&
-                    !!stakeholders.length &&
-                    stakeholders.map((item: any, i: number) => (
-                      <ListContainer key={i}>
-                        <HeadSpan fontsize="16px">{shortenAddress(item.address)}</HeadSpan>
-                        <HeadSpan fontsize="16px">
-                          {item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}
-                        </HeadSpan>
-                        <HeadSpan fontsize="16px">
-                          {item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}
-                        </HeadSpan>
-                      </ListContainer>
-                    ))}
-                  <div>
-                    <div onClick={handleAddStake}>
-                      <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
-                    </div>
+                                <td>
+                                  <span>
+                                    {item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span>
+                                    {item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}
+                                  </span>
+                                </td>
+
+                                <td>
+                                  <DivAct>
+                                    {data.roles && (data.roles.includes('OPERATOR') || data.roles.includes('ADMIN')) && (
+                                      <DivIcon onClick={() => handleEditStake(item.address)}>
+                                        <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                                      </DivIcon>
+                                    )}
+                                  </DivAct>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      )}
+                    </Table>
+                  </DivTableBox>
+                  {stakeholders && !stakeholders.length && <Notification>No data to show !</Notification>}
+
+                  <div onClick={handleAddStake}>
+                    <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
                   </div>
                 </EmptyContainer>
               ) : (
@@ -337,12 +384,11 @@ const Pool = () => {
                       </ListContainer>
                     ))}
                   <div>
-                    {data.roles?.includes('ADMIN') ||
-                      (data.roles?.includes('MANAGER') && (
-                        <div onClick={handleAddStake}>
-                          <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
-                        </div>
-                      ))}
+                    {(data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER')) && (
+                      <div onClick={handleAddStake}>
+                        <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                      </div>
+                    )}
                   </div>
                 </EmptyContainer>
               )}
@@ -363,6 +409,12 @@ const Pool = () => {
             <StakeHolder />
           </>
         )}
+        {editStakeholder && (
+          <>
+            <GoBack setTransferOwner={setEditStakeholder} data={'Go back to DandelionLabs'} />
+            <EditStakeHolder addressWallet={stakeholderAddress} />
+          </>
+        )}
         {assignManager && (
           <>
             <GoBack setTransferOwner={setAssignManager} data={'Go back to DandelionLabs'} />
@@ -373,6 +425,125 @@ const Pool = () => {
     </>
   )
 }
+const AddressWallet = styled.p`
+  margin-bottom: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: ${({ theme }) => theme.text8};
+`
+const Notification = styled.p`
+  margin-bottom: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+  color: ${({ theme }) => theme.white};
+  text-align: center;
+  padding-top: 100px;
+`
+const DivTableBox = styled.div`
+  margin-top: 8px;
+`
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  thead tr {
+    border-bottom: 1px solid #00316f;
+  }
+
+  tbody tr {
+    border-bottom: 1px dashed #00316f;
+  }
+  tbody tr td {
+    color: ${({ theme }) => theme.white};
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+    text-align: right;
+    padding: 20px 8px;
+  }
+`
+const TableTh = styled.th<{ width?: string }>`
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.25;
+  color: ${({ theme }) => theme.white};
+  padding: 20px 8px;
+  text-align: right;
+  white-space: nowrap;
+  &:first-child {
+    text-align: left;
+  }
+  ${({ width }) =>
+    width &&
+    css`
+      width: ${width};
+      min-width: ${width};
+    `}
+  &[data-head='claimed'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='remain'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='start'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &[data-head='end'] {
+    width: 130px;
+    min-width: 130px;
+  }
+  &:last-of-type {
+    max-width: 130px;
+    width: 120px;
+  }
+`
+const DivNameBox = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+`
+const DivAct = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`
+const DivIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 24px;
+  position: relative;
+  &:first-child {
+    padding-left: 0;
+    &::before {
+      display: none;
+    }
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 12px;
+    width: 1px;
+    background-color: ${({ theme }) => theme.blue5};
+  }
+  & > span {
+    cursor: pointer;
+  }
+`
+
 const ClaimButton = styled.button`
   color: ${({ theme }) => theme.white};
   background: #18aa00;

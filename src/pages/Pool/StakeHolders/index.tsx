@@ -11,7 +11,6 @@ import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalS
 import SidebarMenu from '../../../components/SidebarMenu'
 import { useLoadingModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-const address = window.localStorage.getItem('address')
 
 const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
@@ -42,8 +41,8 @@ const StakeHolder = () => {
       const result = parse(content, { header: true })
       const arrAddress: { address: any }[] = []
       const arrAmount: { amnt: any }[] = []
-      result.data.map((item: any, index: any) => {
-        if (index == result.data.length - 1) {
+      result.data.forEach((item: any, index: any) => {
+        if (index === result.data.length - 1) {
           return
         }
 
@@ -52,14 +51,12 @@ const StakeHolder = () => {
           arrAddress.push(item.address)
           const amountttt: any = utils.parseEther(item.amount)
           arrAmount.push(amountttt)
-          console.log(arrAddress)
-          console.log(arrAmount)
 
           setAmount((existing: any) => existing + parseInt(item.amount))
           setAddressList(arrAddress)
           setAmountList(arrAmount)
         }
-      }, 0)
+      })
 
       setList([...result.data])
     })
@@ -172,8 +169,8 @@ const StakeHolder = () => {
             <EmptyWrapper>
               {list.map((item: any, index: any) => {
                 const exist = blacklisted(item.address, blacklist)
-                if (index == list.length - 1) {
-                  return
+                if (index === list.length - 1) {
+                  return false
                 } else {
                   return (
                     <ListContainer key={index} justify="space-between">
