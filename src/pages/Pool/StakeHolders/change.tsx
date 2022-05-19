@@ -7,7 +7,6 @@ import styled from 'styled-components/macro'
 
 import Vesting from '../../../abis/Vesting'
 import dataConfirm from '../../../data/dataModalConfirm.json'
-import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import {
   useCloseModal,
   useConfirmModalToggle,
@@ -20,7 +19,6 @@ interface Props {
 }
 const StakeholderUpdateAddress = (props: Props) => {
   const { addressWallet } = props
-  const { account } = useActiveWeb3React()
   const address = window.localStorage.getItem('address')
   const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
