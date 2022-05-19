@@ -223,6 +223,7 @@ const NamePool = styled.p`
   font-size: 14px;
   line-height: 17px;
   margin: 0 8px;
+  text-transform: capitalize;
 `
 const AddressWallet = styled.p`
   margin-bottom: 0;
