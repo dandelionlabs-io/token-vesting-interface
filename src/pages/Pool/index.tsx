@@ -25,7 +25,6 @@ import { AppState } from '../../state'
 import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import { useAppSelector } from '../../state/hooks'
-import { useAppDispatch } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
@@ -77,7 +76,6 @@ const Pool = () => {
   const history = useHistory()
   const address = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('poolPageType')
-  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (!typePage || !address) {
@@ -320,7 +318,7 @@ const Pool = () => {
 
                                 <td>
                                   <DivAct>
-                                    {(data.roles.includes('OPERATOR') || data.roles.includes('ADMIN')) && (
+                                    {data.roles && (data.roles.includes('OPERATOR') || data.roles.includes('ADMIN')) && (
                                       <DivIcon onClick={() => handleEditStake(item.address)}>
                                         <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                                       </DivIcon>
@@ -363,12 +361,11 @@ const Pool = () => {
                       </ListContainer>
                     ))}
                   <div>
-                    {data.roles?.includes('ADMIN') ||
-                      (data.roles?.includes('MANAGER') && (
-                        <div onClick={handleAddStake}>
-                          <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
-                        </div>
-                      ))}
+                    {(data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER')) && (
+                      <div onClick={handleAddStake}>
+                        <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
+                      </div>
+                    )}
                   </div>
                 </EmptyContainer>
               )}
@@ -418,24 +415,6 @@ const Notification = styled.p`
   color: ${({ theme }) => theme.white};
   text-align: center;
   padding-top: 100px;
-`
-const NamePool = styled.p`
-  color: ${({ theme }) => theme.white};
-  font-family: 'Montserrat', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 17px;
-  margin: 0 8px;
-`
-const TableActivePoolWrapper = styled.div`
-  border-radius: 16px;
-  background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
-  padding: 24px 32px 20px;
-  display: flex;
-  flex-direction: column;
-  min-height: 460px;
-  box-sizing: border-box;
 `
 const DivTableBox = styled.div`
   margin-top: 8px;
