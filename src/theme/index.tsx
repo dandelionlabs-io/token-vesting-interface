@@ -62,6 +62,7 @@ function colors(): Colors {
     bg5: '#00142D',
     bg6: '#01FF45',
     bg7: '#efefef',
+    bg8: 'rgba(255, 255, 255, 0.1)',
     bgPrimary: '#010E1E',
     bgPrimaryLight: '#01152D',
     bgButton: 'rgba(0, 9, 19, 0.3)',
@@ -100,6 +101,7 @@ function colors(): Colors {
     blue4: '#153d6f70',
     blue5: '#00316E',
     blue6: '#012553',
+    blue7: '#00316F',
     // blue5: '#153d6f70' : '#EBF4FF',
   }
 }

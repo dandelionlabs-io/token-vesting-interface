@@ -29,6 +29,7 @@ export interface Colors {
   bg5: Color
   bg6: Color
   bg7: Color
+  bg8: Color
   bgPrimary: Color
   bgPrimaryLight: Color
   bgButton: Color
@@ -66,6 +67,7 @@ export interface Colors {
   blue4: Color
   blue5: Color
   blue6: Color
+  blue7: Color
 
   error: Color
   success: Color

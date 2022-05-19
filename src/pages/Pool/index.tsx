@@ -13,6 +13,7 @@ import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
+import SwapManage from '../../assets/svg/icon/icon-dandelion-swap.svg'
 import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
@@ -26,8 +27,10 @@ import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../state/
 import { ApplicationModal } from '../../state/application/reducer'
 import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { IInitialState, IPoolsData } from '../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
+import Manager from './Manager'
 import StakeHolder from './StakeHolders'
 import EditStakeHolder from './StakeHolders/change'
 
@@ -71,12 +74,24 @@ const columns: TypeColumns[] = [
   { key: 'locked', name: 'Locked' },
   { key: 'claimed', name: 'Claimed' },
 ]
+const IconSwapManage = {
+  SrcImageIcon: SwapManage,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
+
 const Pool = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
   const address = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('poolPageType')
-
+  const statePool: IInitialState = useAppSelector((state) => state.pools)
+  const isCheckRole: boolean = statePool.data?.some((pool: IPoolsData) => {
+    if (pool.address === address) {
+      return pool.roles.includes('ADMIN')
+    }
+    return false
+  })
   useEffect(() => {
     if (!typePage || !address) {
       history.push({ pathname: `dashboard` })
@@ -103,6 +118,7 @@ const Pool = () => {
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
   const [editStakeholder, setEditStakeholder] = useState<boolean>(false)
   const [stakeholderAddress, setStakeholderAddress] = useState<string>()
+  const [assignManager, setAssignManager] = useState<boolean>(false)
 
   useEffect(() => {
     if (!account || !typePage) {
@@ -138,7 +154,6 @@ const Pool = () => {
 
     const obj = poolsData.data.find((o: any) => o.address === address)
 
-    console.log(obj)
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
@@ -207,7 +222,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        {!transferOwner && !addStakeholder && !editStakeholder && (
+        {!transferOwner && !addStakeholder && !editStakeholder && !assignManager && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
@@ -269,13 +284,21 @@ const Pool = () => {
                     {typePage === 'claim' && <ClaimButton onClick={handleClaim}>Claim</ClaimButton>}
                   </ProgressBarContent>
                 </ProgressDiv>
-                {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
-                  <div onClick={() => setTransferOwner(true)}>
-                    <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
-                  </div>
-                ) : (
-                  <div></div>
-                )}
+                <DivActionUser>
+                  {data.roles?.includes('ADMIN') ||
+                    (data.roles?.includes('MANAGER') ? (
+                      <div onClick={() => setTransferOwner(true)}>
+                        <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
+                      </div>
+                    ) : (
+                      <div></div>
+                    ))}
+                  {isCheckRole && (
+                    <div onClick={() => setAssignManager(true)}>
+                      <BlockFeatureUser dataImage={IconSwapManage} name={'Add/Remove Manager'} />
+                    </div>
+                  )}
+                </DivActionUser>
               </EmptyContainer>
 
               {typePage === 'edit' ? (
@@ -390,6 +413,12 @@ const Pool = () => {
           <>
             <GoBack setTransferOwner={setEditStakeholder} data={'Go back to DandelionLabs'} />
             <EditStakeHolder addressWallet={stakeholderAddress} />
+          </>
+        )}
+        {assignManager && (
+          <>
+            <GoBack setTransferOwner={setAssignManager} data={'Go back to DandelionLabs'} />
+            <Manager />
           </>
         )}
       </div>
@@ -616,5 +645,9 @@ const BlockChartItem = styled.div`
   max-width: 50%;
   padding-left: 8px;
   padding-right: 8px;
+`
+const DivActionUser = styled.div`
+  display: flex;
+  justify-content: space-between;
 `
 export default Pool
