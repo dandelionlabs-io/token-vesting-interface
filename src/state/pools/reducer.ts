@@ -37,6 +37,19 @@ const poolsSlice = createSlice({
   reducers: {
     updatePoolsData(state: IInitialState, action) {
       state.data = [...action.payload]
+      let dataSort = [...state.data]
+      dataSort = dataSort.sort((prev: any, next: any) => {
+        const prevName = prev.name.toLowerCase()
+        const nextName = next.name.toLowerCase()
+        if (prevName < nextName) {
+          return -1
+        }
+        if (prevName > nextName) {
+          return 1
+        }
+        return 0
+      })
+      state.data = [...dataSort]
     },
     getAddressActive(state: IInitialState, action) {
       state.addressActive = action.payload
