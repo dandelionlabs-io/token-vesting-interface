@@ -11,6 +11,7 @@ import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dash
 import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
+import SwapManage from '../../assets/svg/icon/icon-dandelion-swap.svg'
 import User from '../../assets/svg/icon/icon-user-profile.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
@@ -24,8 +25,10 @@ import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../state/
 import { ApplicationModal } from '../../state/application/reducer'
 import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { IInitialState, IPoolsData } from '../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../utils'
 import BlockUpdateAddress from './BlockUpdateAddress'
+import Manager from './Manager'
 import StakeHolder from './StakeHolders'
 interface TypeItemInfo {
   dataChart?: any
@@ -58,13 +61,24 @@ const IconAddStake = {
   widthIcon: '16px',
   heightIcon: '15px',
 }
+const IconSwapManage = {
+  SrcImageIcon: SwapManage,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
 
 const Pool = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
   const address = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('poolPageType')
-
+  const statePool: IInitialState = useAppSelector((state) => state.pools)
+  const isCheckRole: boolean = statePool.data?.some((pool: IPoolsData) => {
+    if (pool.address === address) {
+      return pool.roles.includes('ADMIN')
+    }
+    return false
+  })
   useEffect(() => {
     if (!typePage || !address) {
       history.push({ pathname: `dashboard` })
@@ -89,6 +103,7 @@ const Pool = () => {
   const userCDREDBalance = useCDREDBalance()
   const [transferOwner, setTransferOwner] = useState<boolean>(false)
   const [addStakeholder, setAddStakeholder] = useState<boolean>(false)
+  const [assignManager, setAssignManager] = useState<boolean>(false)
 
   useEffect(() => {
     if (!account || !typePage) {
@@ -188,7 +203,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
 
-        {!transferOwner && !addStakeholder && (
+        {!transferOwner && !addStakeholder && !assignManager && (
           <>
             <DandelionIcon>
               <Logo width="200px" height="100%" title="logo" />
@@ -250,12 +265,19 @@ const Pool = () => {
                     {typePage === 'claim' && <ClaimButton onClick={handleClaim}>Claim</ClaimButton>}
                   </ProgressBarContent>
                 </ProgressDiv>
-                {data.roles?.includes('ADMIN') ||
-                  (data.roles?.includes('MANAGER') && (
-                    <div onClick={() => setTransferOwner(true)}>
-                      <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
+                <DivActionUser>
+                  {data.roles?.includes('ADMIN') ||
+                    (data.roles?.includes('MANAGER') && (
+                      <div onClick={() => setTransferOwner(true)}>
+                        <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
+                      </div>
+                    ))}
+                  {isCheckRole && (
+                    <div onClick={() => setAssignManager(true)}>
+                      <BlockFeatureUser dataImage={IconSwapManage} name={'Add/Remove Manager'} />
                     </div>
-                  ))}
+                  )}
+                </DivActionUser>
               </EmptyContainer>
 
               {typePage === 'edit' ? (
@@ -339,6 +361,12 @@ const Pool = () => {
           <>
             <GoBack setTransferOwner={setAddStakeholder} data={'Go back to DandelionLabs'} />
             <StakeHolder />
+          </>
+        )}
+        {assignManager && (
+          <>
+            <GoBack setTransferOwner={setAssignManager} data={'Go back to DandelionLabs'} />
+            <Manager />
           </>
         )}
       </div>
@@ -446,5 +474,9 @@ const BlockChartItem = styled.div`
   max-width: 50%;
   padding-left: 8px;
   padding-right: 8px;
+`
+const DivActionUser = styled.div`
+  display: flex;
+  justify-content: space-between;
 `
 export default Pool

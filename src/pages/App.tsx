@@ -193,10 +193,20 @@ export default function App() {
             return await handleStateStakeholder(address)
           })
         )
+
         const poolsNew = pools.reduce((total, pool, index) => {
           const roles = pool.managers.filter((manager: any) => {
             return manager[0] === account
           })
+          const managersAddressArray = pool.managers
+            .filter((manager: any) => {
+              return manager[1].includes('OPERATOR')
+            })
+            .reduce((total: string[], item: any) => {
+              total.push(item[0])
+              return total
+            }, [])
+          //console.log('managersAddressArray ', managersAddressArray)
           const handleGetRole = () => {
             let newRoles: string[] = []
             if (roles.length !== 0) {
@@ -210,6 +220,7 @@ export default function App() {
           const item = {
             ...pool,
             roles: handleGetRole(),
+            managersAddressArray,
           }
           return [...total, item]
         }, [])
@@ -240,6 +251,7 @@ export default function App() {
           end: data.end * 1000,
           roles: data.roles,
           statusClaim: moment(currentSecond).isAfter(data.end) || moment(currentSecond).isBefore(data.start) ? 0 : 1,
+          managersAddress: data.managersAddressArray,
         }
 
         return pool
