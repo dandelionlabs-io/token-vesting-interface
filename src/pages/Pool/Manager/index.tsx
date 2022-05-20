@@ -116,6 +116,7 @@ const HeadingBlock = styled.h3`
 `
 const ManagerList = styled.div`
   margin-bottom: 20px;
+  min-height: 100px;
 `
 const ManagerItem = styled.div`
   padding: 20px 8px;

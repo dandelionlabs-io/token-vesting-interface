@@ -218,6 +218,7 @@ export default function App() {
             if (stateStakeholders[index]) {
               newRoles = [...newRoles, 'STAKEHOLDER']
             }
+            newRoles = Array.from(new Set(newRoles))
             return newRoles
           }
           const item = {
