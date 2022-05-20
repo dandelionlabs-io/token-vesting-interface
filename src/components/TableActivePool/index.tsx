@@ -4,12 +4,12 @@ import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
 import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
+import IconSort from '../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
 import { useAppDispatch } from '../../state/hooks'
-import { getAddressActive, IPoolsData } from '../../state/pools/reducer'
+import { getAddressActive, IPoolsData, sortPoolsData } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
-
 interface Props {
   data: IPoolsData[] | null
 }
@@ -52,6 +52,9 @@ const TableActivePool = (props: Props) => {
     }
     return <ButtonClaim active={false}>Claim</ButtonClaim>
   }
+  const handleSortPools = (data: any) => {
+    dispatch(sortPoolsData(data))
+  }
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
@@ -60,7 +63,16 @@ const TableActivePool = (props: Props) => {
           <thead>
             <tr>
               {columns.map((item, index) => {
-                return (
+                return index === 0 ? (
+                  <TableTh key={item.key} data-head={item.key}>
+                    <DivTableThFirst>
+                      {item.name}
+                      <DivIconSort onClick={() => handleSortPools(data)}>
+                        <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
+                      </DivIconSort>
+                    </DivTableThFirst>
+                  </TableTh>
+                ) : (
                   <TableTh key={item.key} data-head={item.key}>
                     {item.name}
                   </TableTh>
@@ -283,5 +295,13 @@ const DivIcon = styled.div`
   & > span {
     cursor: pointer;
   }
+`
+const DivTableThFirst = styled.div`
+  display: flex;
+  align-items: center;
+`
+const DivIconSort = styled.div`
+  margin-left: 10px;
+  cursor: pointer;
 `
 export default TableActivePool
