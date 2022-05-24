@@ -17,7 +17,7 @@ const Manager = () => {
   const [listManagers, setListManagers] = useState<string[]>([])
 
   useEffect(() => {
-    if (!address || !statePools.length) {
+    if (!address || !statePools) {
       return
     }
     const listManagers = statePools.filter((statePool: IPoolsData) => {

@@ -6,6 +6,7 @@ import styled, { css } from 'styled-components/macro'
 import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconSort from '../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
+import { typesPoolPage } from '../../pages/Pool'
 import { useAppDispatch } from '../../state/hooks'
 import { getAddressActive, IPoolsData, sortPoolsData } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
@@ -32,11 +33,12 @@ const TableActivePool = (props: Props) => {
   const dispatch = useAppDispatch()
   const history = useHistory()
 
-  const handleRedirectPoolDetails = (address: string, poolPageType: string) => {
+  const handleRedirectPoolDetails = (address: string, typePoolPage: string) => {
     dispatch(getAddressActive(address))
 
+    console.log(typePoolPage)
     window.localStorage.setItem('address', address)
-    window.localStorage.setItem('poolPageType', poolPageType)
+    window.localStorage.setItem('typePoolPage', typePoolPage)
     history.push({ pathname: `pool` })
   }
   const handleButtonClaim = (item: IPoolsData) => {
@@ -45,7 +47,7 @@ const TableActivePool = (props: Props) => {
     }
     if (item.statusClaim === 1) {
       return (
-        <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, 'claim')}>
+        <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.CLAIM)}>
           Claim
         </ButtonClaim>
       )
@@ -112,7 +114,7 @@ const TableActivePool = (props: Props) => {
                       <DivAct>
                         {handleButtonClaim(item)}
                         {(item.roles.includes('OPERATOR') || item.roles.includes('ADMIN')) && (
-                          <DivIcon onClick={() => handleRedirectPoolDetails(item.address, 'edit')}>
+                          <DivIcon onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.EDIT)}>
                             <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                           </DivIcon>
                         )}

@@ -4,13 +4,12 @@ import styled from 'styled-components/macro'
 import IconPrev from '../../assets/svg/icon/icon-dandelionlabs-prev.svg'
 import IconOxy from '../Icons/IconOxy'
 interface Props {
-  setTransferOwner: React.Dispatch<React.SetStateAction<boolean>>
   data: string
 }
 const GoBack = (props: Props) => {
-  const { setTransferOwner, data } = props
+  const { data } = props
   return (
-    <GoBackWrapper onClick={() => setTransferOwner(false)}>
+    <GoBackWrapper>
       <IconOxy SrcImageIcon={IconPrev} heightIcon={'9px'} widthIcon={'14px'} />
       <NameBack>{data}</NameBack>
     </GoBackWrapper>

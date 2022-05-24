@@ -14,11 +14,9 @@ import {
   useSuccessModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-interface Props {
-  addressWallet?: string
-}
-const StakeholderUpdateAddress = (props: Props) => {
-  const { addressWallet } = props
+
+const StakeholderUpdateAddress = () => {
+  const addressWallet = window.localStorage.getItem('addressWallet')
   const address = window.localStorage.getItem('address')
   const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
@@ -41,7 +39,6 @@ const StakeholderUpdateAddress = (props: Props) => {
     const web3Provider = new providers.Web3Provider(provider)
 
     const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
-    console.log(vestingInstance)
 
     const tx = await vestingInstance
       .changeInvestor(prevAddr, newAddr)
@@ -68,7 +65,7 @@ const StakeholderUpdateAddress = (props: Props) => {
             <div>
               <Label>{contentConfirm.oldLabel}</Label>
               <FormControlBox>
-                <FormControl type="text" value={addressWallet} readOnly={true} />
+                <FormControl type="text" value={addressWallet || ''} readOnly={true} />
               </FormControlBox>
             </div>
           </DivFlexItem>
