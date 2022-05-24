@@ -130,9 +130,6 @@ const TableActivePool = (props: Props) => {
   )
 }
 const TableActivePoolWrapper = styled.div`
-  border-radius: 16px;
-  background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
-  padding: 24px 32px 20px;
   display: flex;
   flex-direction: column;
   min-height: 460px;
