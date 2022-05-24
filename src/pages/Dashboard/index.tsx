@@ -5,6 +5,7 @@ import styled from 'styled-components/macro'
 import AddStake from '../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
+import BrowseAll from '../../assets/svg/icon/icon-eye.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
 import SidebarMenu from '../../components/SidebarMenu'
@@ -14,6 +15,7 @@ import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
 import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { typesPoolPage } from '../Pool'
 
 interface TypeItemInfo {
   dataChart?: any
@@ -23,11 +25,19 @@ interface TypeItemInfo {
   heightIcon?: string
   SrcImageIcon?: string
 }
+
 const IconAddStake = {
   SrcImageIcon: AddStake,
   widthIcon: '16px',
   heightIcon: '15px',
 }
+
+const IconBrowseAll = {
+  SrcImageIcon: BrowseAll,
+  widthIcon: '16px',
+  heightIcon: '15px',
+}
+
 const Dashboard = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
@@ -51,15 +61,15 @@ const Dashboard = () => {
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,
   }
+
   useEffect(() => {
     !account && history.push({ pathname: `/` })
     window.localStorage.removeItem('address')
-    window.localStorage.removeItem('poolPageType')
-    window.localStorage.removeItem('flagPool')
+    window.localStorage.removeItem('typePoolPage')
   }, [account, history])
-  const handleRedirectPool = (poolPageType: string) => {
-    window.localStorage.setItem('poolPageType', poolPageType)
-    window.localStorage.setItem('flagPool', 'true')
+
+  const handleRedirectPool = (typePoolPage: string) => {
+    window.localStorage.setItem('typePoolPage', typePoolPage)
     window.localStorage.removeItem('address')
     history.push({ pathname: `pool` })
   }
@@ -77,9 +87,14 @@ const Dashboard = () => {
         </BlockChartList>
         <BlockTable>
           <TableActivePool data={poolData} />
-          <DivCreatePool onClick={() => handleRedirectPool('createPool')}>
-            <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
-          </DivCreatePool>
+          <TableBottom>
+            <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
+              <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
+            </DivTableBottom>
+            <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.LIST_POOL)}>
+              <BlockFeatureUser dataImage={IconBrowseAll} name={'Browse all'} />
+            </DivTableBottom>
+          </TableBottom>
         </BlockTable>
       </BlockCharts>
     </DashboardContainer>
@@ -110,7 +125,16 @@ const BlockTable = styled.div`
   background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
   padding: 24px 32px 20px;
 `
-const DivCreatePool = styled.div`
+const DivTableBottom = styled.div`
   margin-top: 30px;
+`
+const TableBottom = styled.div`
+  display: flex;
+
+  & > div {
+    &:last-child {
+      margin-left: auto;
+    }
+  }
 `
 export default Dashboard
