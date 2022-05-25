@@ -38,9 +38,6 @@ const poolsSlice = createSlice({
     updatePoolsData(state: IInitialState, action) {
       state.data = [...action.payload]
     },
-    getAddressActive(state: IInitialState, action) {
-      state.addressActive = action.payload
-    },
     updateErc20Balance(state: IInitialState, action) {
       state.erc20Balance = action.payload
     },
@@ -75,30 +72,8 @@ const poolsSlice = createSlice({
       }
       state.data[index].managersAddress = [...dataManagerIndex]
     },
-    sortPoolsData(state: IInitialState, action) {
-      let dataSort = [...action.payload]
-      dataSort = dataSort.sort((prev: any, next: any) => {
-        const prevName = prev.name.toLowerCase()
-        const nextName = next.name.toLowerCase()
-        if (prevName < nextName) {
-          return -1
-        }
-        if (prevName > nextName) {
-          return 1
-        }
-        return 0
-      })
-      state.data = [...dataSort]
-    },
   },
 })
 
-export const {
-  updatePoolsData,
-  getAddressActive,
-  updateErc20Balance,
-  setRoleForPoolAddress,
-  updateManagers,
-  sortPoolsData,
-} = poolsSlice.actions
+export const { updatePoolsData, updateErc20Balance, setRoleForPoolAddress, updateManagers } = poolsSlice.actions
 export default poolsSlice.reducer
