@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -7,8 +7,7 @@ import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconSort from '../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
 import { typesPoolPage } from '../../pages/Pool'
-import { useAppDispatch } from '../../state/hooks'
-import { getAddressActive, IPoolsData, sortPoolsData } from '../../state/pools/reducer'
+import { IPoolsData } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
 interface Props {
@@ -30,17 +29,16 @@ const columns: TypeColumns[] = [
 
 const TableActivePool = (props: Props) => {
   const { data } = props
-  const dispatch = useAppDispatch()
   const history = useHistory()
+  const alphabet = useRef<boolean>(true)
+  const [dataPools, setDataPools] = useState<Props['data']>(data)
 
   const handleRedirectPoolDetails = (address: string, typePoolPage: string) => {
-    dispatch(getAddressActive(address))
-
-    console.log(typePoolPage)
     window.localStorage.setItem('address', address)
     window.localStorage.setItem('typePoolPage', typePoolPage)
     history.push({ pathname: `pool` })
   }
+
   const handleButtonClaim = (item: IPoolsData) => {
     if (!item.roles.includes('STAKEHOLDER')) {
       return
@@ -54,9 +52,43 @@ const TableActivePool = (props: Props) => {
     }
     return <ButtonClaim active={false}>Claim</ButtonClaim>
   }
-  const handleSortPools = (data: any) => {
-    dispatch(sortPoolsData(data))
+
+  useEffect(() => {
+    handleSortPools(data)
+  }, [data])
+
+  const handleSortPools = (pools: Array<any> | null) => {
+    if (!pools) {
+      return
+    }
+
+    const dataSort = [...pools].sort((prev: IPoolsData, next: IPoolsData) => {
+      const prevName = prev.name.toLowerCase()
+      const nextName = next.name.toLowerCase()
+
+      if (alphabet.current) {
+        if (prevName < nextName) {
+          return 1
+        }
+        if (prevName > nextName) {
+          return -1
+        }
+      } else {
+        if (prevName < nextName) {
+          return -1
+        }
+        if (prevName > nextName) {
+          return 1
+        }
+      }
+
+      return 0
+    })
+
+    alphabet.current = !alphabet.current
+    setDataPools(dataSort)
   }
+
   return (
     <TableActivePoolWrapper>
       <Heading>Active Pools</Heading>
@@ -69,7 +101,7 @@ const TableActivePool = (props: Props) => {
                   <TableTh key={item.key} data-head={item.key}>
                     <DivTableThFirst>
                       {item.name}
-                      <DivIconSort onClick={() => handleSortPools(data)}>
+                      <DivIconSort reverse={alphabet.current} onClick={() => handleSortPools(data)}>
                         <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
                       </DivIconSort>
                     </DivTableThFirst>
@@ -82,9 +114,9 @@ const TableActivePool = (props: Props) => {
               })}
             </tr>
           </thead>
-          {data && !!data?.length && (
+          {dataPools && !!dataPools?.length && (
             <tbody>
-              {data?.map((item: any, index: number) => {
+              {dataPools?.map((item: any, index: number) => {
                 return (
                   <tr key={index}>
                     <td>
@@ -270,6 +302,7 @@ const DivAct = styled.div`
   display: flex;
   justify-content: flex-end;
 `
+
 const DivIcon = styled.div`
   display: flex;
   align-items: center;
@@ -299,7 +332,8 @@ const DivTableThFirst = styled.div`
   display: flex;
   align-items: center;
 `
-const DivIconSort = styled.div`
+const DivIconSort = styled.div<{ reverse?: boolean }>`
+  transform: ${({ reverse }) => (reverse ? 'rotate(180deg)' : 'rotate(0deg)')};
   margin-left: 10px;
   cursor: pointer;
 `

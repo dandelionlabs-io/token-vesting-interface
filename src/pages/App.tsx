@@ -15,7 +15,7 @@ import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
 import { useAppDispatch } from '../state/hooks'
-import { getAddressActive, IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
+import { IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
 import RouterPage from './router'
 const AppWrapper = styled.div<{ bgImage?: string }>`
@@ -262,7 +262,6 @@ export default function App() {
       })
 
       dispatch(updatePoolsData(availablePools))
-      dispatch(getAddressActive(''))
     }
   }, [pools, poolsResult, dispatch])
 

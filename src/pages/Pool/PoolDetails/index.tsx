@@ -1,7 +1,7 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers } from 'ethers'
 import moment from 'moment'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -11,6 +11,7 @@ import Api from '../../../api'
 import { ReactComponent as Logo } from '../../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import AddStake from '../../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconTableEdit from '../../../assets/svg/icon/icon-dandelion-edit.svg'
+import IconSort from '../../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import SwapManage from '../../../assets/svg/icon/icon-dandelion-swap.svg'
 import User from '../../../assets/svg/icon/icon-user-profile.svg'
 import BlockFeatureUser from '../../../components/BlockFeatureUser'
@@ -76,52 +77,8 @@ const PoolDetails = () => {
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
   const [claimablePercent, setClaimablePercent] = useState<number>(0)
 
-  useEffect(() => {
-    if (!account || !typePage) {
-      return
-    }
-    ;(async () => {
-      try {
-        if (typePage === typesPoolPage.CLAIM) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
-          const dataHis: any = await Api.get(url)
-          const dataHisClone: Array<any> = [...dataHis]
-
-          for (let i = dataHisClone.length - 1; i > -1; i--) {
-            dataHisClone[i].remain = data.amount - ethBalance(dataHisClone[i].amountClaimed)
-          }
-
-          setHistoryClam(dataHisClone)
-        }
-
-        if (typePage === typesPoolPage.EDIT) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/stakeholders`
-          const dataStakeholders: Array<any> = await Api.get(url)
-          console.log(dataStakeholders)
-          setStakeholders(dataStakeholders)
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    })()
-  }, [data, account, typePage, address])
-
-  useEffect(() => {
-    if (!poolsData.data?.length || !address) {
-      return
-    }
-
-    const obj = poolsData.data.find((o: any) => o.address === address)
-
-    setData(obj)
-    if (obj.amount <= 0) {
-      setClaimedPercent(0)
-      setClaimablePercent(0)
-    } else {
-      setClaimedPercent((obj.claimed / obj.amount) * 100)
-      setClaimablePercent((obj.claimable / obj.amount) * 100)
-    }
-  }, [address, poolsData?.data])
+  const increaseDate = useRef<boolean>(false)
+  const alphabet = useRef<boolean>(false)
 
   const handleClaim = async () => {
     const provider: any = await detectEthereumProvider()
@@ -151,6 +108,105 @@ const PoolDetails = () => {
     addressWallet && window.localStorage.setItem('addressWallet', addressWallet)
     history.push({ pathname: `/pool` })
   }
+
+  const handleSortStakeholders = useCallback((data: Array<any>) => {
+    if (!data || !data.length) {
+      return
+    }
+
+    let dataSort = [...data]
+
+    dataSort = dataSort.sort((prev: any, next: any) => {
+      const prevName = prev.address.toLowerCase()
+      const nextName = next.address.toLowerCase()
+
+      if (alphabet.current) {
+        if (prevName < nextName) {
+          return -1
+        }
+        if (prevName > nextName) {
+          return 1
+        }
+      } else {
+        if (prevName < nextName) {
+          return 1
+        }
+        if (prevName > nextName) {
+          return -1
+        }
+      }
+
+      return 0
+    })
+
+    alphabet.current = !alphabet.current
+    setStakeholders(dataSort)
+  }, [])
+
+  const handleSortHistoryClaim = useCallback((data: Array<any>) => {
+    if (!data || !data.length) {
+      return
+    }
+    const dataSort: Array<any> = [...data]
+    if (increaseDate.current) {
+      dataSort.sort((firstItem, secondItem) => firstItem.timestamp - secondItem.timestamp)
+    } else {
+      dataSort.sort((firstItem, secondItem) => secondItem.timestamp - firstItem.timestamp)
+    }
+
+    increaseDate.current = !increaseDate.current
+
+    setHistoryClam(dataSort)
+  }, [])
+
+  useEffect(() => {
+    if (!account || !typePage) {
+      return
+    }
+    ;(async () => {
+      try {
+        if (typePage === typesPoolPage.CLAIM) {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
+          const dataHis: any = await Api.get(url)
+          const dataHisClone: Array<any> = [...dataHis]
+
+          let amounts = data.amount
+
+          for (let i = dataHisClone.length - 1; i > -1; i--) {
+            amounts = amounts - ethBalance(dataHisClone[i].amountClaimed)
+            dataHisClone[i].remain = amounts
+          }
+
+          handleSortHistoryClaim(dataHisClone)
+        }
+
+        if (typePage === typesPoolPage.EDIT) {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/stakeholders`
+          const dataStakeholders: Array<any> = await Api.get(url)
+          handleSortStakeholders(dataStakeholders)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    })()
+  }, [data, account, typePage, address, handleSortStakeholders, handleSortHistoryClaim])
+
+  useEffect(() => {
+    if (!poolsData.data?.length || !address) {
+      return
+    }
+
+    const obj = poolsData.data.find((o: any) => o.address === address)
+
+    setData(obj)
+    if (obj.amount <= 0) {
+      setClaimedPercent(0)
+      setClaimablePercent(0)
+    } else {
+      setClaimedPercent((obj.claimed / obj.amount) * 100)
+      setClaimablePercent((obj.claimable / obj.amount) * 100)
+    }
+  }, [address, poolsData?.data])
 
   return (
     <>
@@ -243,6 +299,14 @@ const PoolDetails = () => {
                       return (
                         <TableTh key={item.key} data-head={item.key}>
                           {item.name}
+                          {!index && (
+                            <DivIconSort
+                              onClick={() => handleSortStakeholders(stakeholders)}
+                              reverse={alphabet.current}
+                            >
+                              <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
+                            </DivIconSort>
+                          )}
                         </TableTh>
                       )
                     })}
@@ -298,7 +362,10 @@ const PoolDetails = () => {
             <Heading>History of Claims</Heading>
             <ListContainer>
               <HeadSpan fontsize="16px" fontweight="bold">
-                Date
+                <span>Date</span>
+                <DivIconSort onClick={() => handleSortHistoryClaim(historyClaim)} reverse={increaseDate.current}>
+                  <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
+                </DivIconSort>
               </HeadSpan>
               <HeadSpan fontsize="16px">Claimed Amt.</HeadSpan>
               <HeadSpan>Remaining</HeadSpan>
@@ -308,7 +375,7 @@ const PoolDetails = () => {
               !!historyClaim.length &&
               historyClaim.map((item: any, i: number) => (
                 <ListContainer key={i}>
-                  <HeadSpan fontsize="16px">{moment(item.timestamp * 1000).format('MMM DD YYYY hh:mm:ss')}</HeadSpan>
+                  <HeadSpan fontsize="16px">{moment(item.timestamp * 1000).format('MMM DD YYYY HH:MM')}</HeadSpan>
                   <HeadSpan fontsize="16px">{(parseFloat(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
                   <HeadSpan>{parseFloat(item.remain).toFixed(3)}</HeadSpan>
                 </ListContainer>
@@ -547,5 +614,11 @@ const BlockWrapper = styled.div`
 const DivActionUser = styled.div`
   display: flex;
   justify-content: space-between;
+`
+const DivIconSort = styled.div<{ reverse?: boolean }>`
+  transform: ${(props) => (props.reverse ? 'rotate(180deg)' : 'rotate(0deg)')};
+  margin-left: 10px;
+  cursor: pointer;
+  display: inline-block;
 `
 export default PoolDetails
