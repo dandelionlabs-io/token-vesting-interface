@@ -2,17 +2,28 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers, utils } from 'ethers'
 import { parse } from 'papaparse'
 import React, { useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import ERC20 from '../../../abis/Erc20'
 import Vesting from '../../../abis/Vesting'
+import GoBack from '../../../components/GoBack'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
-import SidebarMenu from '../../../components/SidebarMenu'
-import { useLoadingModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
+import {
+  useCloseModal,
+  useLoadingModalToggle,
+  useModalOpen,
+  useSuccessModalToggle,
+} from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
+import { useAppDispatch } from '../../../state/hooks'
+import { updateListStateHolder } from '../../../state/pools/reducer'
+import { typesPoolPage } from '../index'
 
 const StakeHolder = () => {
+  const { account } = useActiveWeb3React()
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
   const [successButton, setSuccessButton] = useState<any>(false)
@@ -22,8 +33,12 @@ const StakeHolder = () => {
   const address = window.localStorage.getItem('address')
   const toggleSuccessModal = useSuccessModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
+  const closeModal = useCloseModal()
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
+
+  const dispatch = useAppDispatch()
+  const history = useHistory()
 
   const dataModalSuccess: DataModalSuccess = {
     type: 'stakeholder',
@@ -32,6 +47,9 @@ const StakeHolder = () => {
   const dataModalLoading: DataModalLoading = {
     type: 'loading',
   }
+
+  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
+
   const handleChange = (e: any, drop: any) => {
     let fileUploaded
     setAmount(0)
@@ -41,16 +59,19 @@ const StakeHolder = () => {
       const result = parse(content, { header: true })
       const arrAddress: { address: any }[] = []
       const arrAmount: { amnt: any }[] = []
-      result.data.forEach((item: any, index: any) => {
+
+      const dataFiles = result.data.filter((item: any) => !blacklist.includes(item?.address))
+      dispatch(updateListStateHolder(dataFiles))
+
+      dataFiles.forEach((item: any, index: any) => {
         if (index === result.data.length - 1) {
           return
         }
 
-        const exist = blacklisted(item.address, blacklist)
-        if (!exist && item.address && item.amount) {
+        if (item.address && item.amount) {
           arrAddress.push(item.address)
-          const amountttt: any = utils.parseEther(item.amount)
-          arrAmount.push(amountttt)
+          const amounts: any = utils.parseEther(item.amount)
+          arrAmount.push(amounts)
 
           setAmount((existing: any) => existing + parseInt(item.amount))
           setAddressList(arrAddress)
@@ -66,8 +87,6 @@ const StakeHolder = () => {
       hiddenFileInput.current.innerText = fileName ? `${fileName}...` : `${fileUploaded.lenght} file selected`
     }
   }
-
-  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
 
   const blacklisted = (item: any, list: any) => {
     return list.includes(item)
@@ -85,21 +104,20 @@ const StakeHolder = () => {
       web3Provider.getSigner()
     )
 
-    const tx = await vestingInstance.approve(address, utils.parseEther(amount.toString())).catch((e: any) => {
+    const tx = await vestingInstance.approve(account, utils.parseEther(amount.toString())).catch((e: any) => {
       console.log(e)
     })
 
     tx?.wait().then(() => {
       setSuccessButton(true)
-      toggleLoadingModal()
+      closeModal()
     })
   }
   const handleAdd = async () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
-
+    const vestingInstance = new ethers.Contract(account || '', Vesting, web3Provider.getSigner())
     const tx = await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
       console.log(e)
     })
@@ -108,111 +126,118 @@ const StakeHolder = () => {
       toggleSuccessModal()
       setList([])
       setAmount(0)
+
+      setTimeout(() => {
+        closeModal()
+
+        if (!address) {
+          window.localStorage.setItem('typePoolPage', typesPoolPage.CREATE_POOL)
+          history.push({ pathname: `pool` })
+        }
+      }, 2000)
     })
   }
 
   return (
     <>
-      <SidebarMenu />
-      <div>
-        <BlockWrapper>
-          <EmptyContainer width="100%">
-            <Heading>Add Stakeholders(s)</Heading>
+      <GoBack
+        textNameBack={`Go back to ${address ? 'DandelionLabs' : 'Create New Pool'}`}
+        pageBack="pool"
+        typePage={address ? typesPoolPage.EDIT : typesPoolPage.CREATE_POOL}
+      />
+      <BlockWrapper>
+        <EmptyContainer width="100%">
+          <Heading>Add Stakeholders(s)</Heading>
 
-            <ListContainer justify="space-between">
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Upload csv file
-              </HeadSpan>
-              <HeadSpan>
-                <FileInput
-                  type="file"
-                  name="file"
-                  id="file"
-                  ref={hiddenFileInput}
-                  onChange={(e) => {
-                    handleChange(e, false)
-                  }}
-                  accept=".csv"
-                  required
-                />
-                <FileLable
-                  htmlFor="file"
-                  ref={hiddenFileInput}
-                  onDragEnter={() => {
-                    hiddenFileInput.current.innerText = 'Drop file here.'
-                  }}
-                  onDragLeave={() => {
-                    hiddenFileInput.current.innerText = ' Drag or choose file'
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    hiddenFileInput.current.innerText = 'Drop file here!'
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    handleChange(e, true)
-                  }}
-                >
-                  Drag or choose file
-                </FileLable>
+          <ListContainer justify="space-between">
+            <HeadSpan fontsize="16px" fontweight="bold">
+              Upload csv file
+            </HeadSpan>
+            <HeadSpan>
+              <FileInput
+                type="file"
+                name="file"
+                id="file"
+                ref={hiddenFileInput}
+                onChange={(e) => {
+                  handleChange(e, false)
+                }}
+                accept=".csv"
+                required
+              />
+              <FileLable
+                htmlFor="file"
+                ref={hiddenFileInput}
+                onDragEnter={() => {
+                  hiddenFileInput.current.innerText = 'Drop file here.'
+                }}
+                onDragLeave={() => {
+                  hiddenFileInput.current.innerText = ' Drag or choose file'
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  hiddenFileInput.current.innerText = 'Drop file here!'
+                }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  handleChange(e, true)
+                }}
+              >
+                Drag or choose file
+              </FileLable>
 
-                {/* <i className="fa fa-cloud-upload" /> Drag or choose file */}
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer justify="space-between">
-              <HeadSpan fontsize="16px" fontweight="bold">
-                Address
-              </HeadSpan>
+              {/* <i className="fa fa-cloud-upload" /> Drag or choose file */}
+            </HeadSpan>
+          </ListContainer>
+          <ListContainer justify="space-between">
+            <HeadSpan fontsize="16px" fontweight="bold">
+              Address
+            </HeadSpan>
 
-              <HeadSpan>Amount</HeadSpan>
-            </ListContainer>
-            <EmptyWrapper>
-              {list.map((item: any, index: any) => {
-                const exist = blacklisted(item.address, blacklist)
-                if (index === list.length - 1) {
-                  return false
-                } else {
-                  return (
-                    <ListContainer key={index} justify="space-between">
-                      <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
-                      <ListSpan color={exist ? '#5F5F5F' : 'white'}>{item.amount}</ListSpan>
-                    </ListContainer>
-                  )
-                }
-              })}
-            </EmptyWrapper>
-            <ListContainer border={true} justify="space-between">
-              <HeadSpan fontsize="16px" color="white">
-                Token balance to lock
-              </HeadSpan>
-              <HeadSpan fontsize="20px" color="#FAA80A" fontweight="700">
-                {amount}
-              </HeadSpan>
-            </ListContainer>
-            <ListContainer border={true} justify="flex-end">
-              {successButton ? (
-                <CustomButton background="#FAA80A" color="#012553" onClick={handleAdd}>
-                  Add
-                </CustomButton>
-              ) : (
-                <CustomButton background="#FAA80A" color="#012553" onClick={handleApproval}>
-                  Approve
-                </CustomButton>
-              )}
-              <ModalSuccess
-                isOpen={succesModalOpen}
-                onDimiss={toggleSuccessModal}
-                data={dataModalSuccess}
-              ></ModalSuccess>
-              <ModalLoading
-                isOpen={loadingModalOpen}
-                onDimiss={toggleLoadingModal}
-                data={dataModalLoading}
-              ></ModalLoading>
-            </ListContainer>
-          </EmptyContainer>
-        </BlockWrapper>
-      </div>
+            <HeadSpan>Amount</HeadSpan>
+          </ListContainer>
+          <EmptyWrapper>
+            {list.map((item: any, index: any) => {
+              const exist = blacklisted(item.address, blacklist)
+              if (index === list.length - 1) {
+                return false
+              } else {
+                return (
+                  <ListContainer key={index} justify="space-between">
+                    <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
+                    <ListSpan color={exist ? '#5F5F5F' : 'white'}>{item.amount}</ListSpan>
+                  </ListContainer>
+                )
+              }
+            })}
+          </EmptyWrapper>
+          <ListContainer border={true} justify="space-between">
+            <HeadSpan fontsize="16px" color="white">
+              Token balance to lock
+            </HeadSpan>
+            <HeadSpan fontsize="20px" color="#FAA80A" fontweight="700">
+              {amount}
+            </HeadSpan>
+          </ListContainer>
+          <ListContainer border={true} justify="flex-end">
+            {successButton ? (
+              <CustomButton background="#FAA80A" color="#012553" onClick={handleAdd}>
+                Add
+              </CustomButton>
+            ) : (
+              <CustomButton background="#FAA80A" color="#012553" onClick={handleApproval}>
+                Approve
+              </CustomButton>
+            )}
+            <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+            <ModalLoading
+              isOpen={loadingModalOpen}
+              onDimiss={toggleLoadingModal}
+              data={dataModalLoading}
+            ></ModalLoading>
+          </ListContainer>
+        </EmptyContainer>
+      </BlockWrapper>
     </>
   )
 }

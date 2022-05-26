@@ -1,17 +1,27 @@
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import IconPrev from '../../assets/svg/icon/icon-dandelionlabs-prev.svg'
 import IconOxy from '../Icons/IconOxy'
 interface Props {
-  data: string
+  textNameBack: string
+  pageBack: string
+  typePage: string
 }
 const GoBack = (props: Props) => {
-  const { data } = props
+  const history = useHistory()
+  const { textNameBack, pageBack, typePage } = props
+
+  const handleBack = () => {
+    window.localStorage.setItem('typePoolPage', typePage)
+    history.push({ pathname: pageBack })
+  }
+
   return (
-    <GoBackWrapper>
+    <GoBackWrapper onClick={handleBack}>
       <IconOxy SrcImageIcon={IconPrev} heightIcon={'9px'} widthIcon={'14px'} />
-      <NameBack>{data}</NameBack>
+      <NameBack>{textNameBack}</NameBack>
     </GoBackWrapper>
   )
 }

@@ -3,9 +3,12 @@ import ModalSuccess, { DataModalSuccess } from 'components/Modal/ModalSuccess'
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
+import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
 import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
+import { typesPoolPage } from '../index'
+
 interface Props {
   addressWallet?: string
 }
@@ -27,6 +30,7 @@ const BlockUpdateAddress = (props: Props) => {
   }
   return (
     <>
+      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
       <BlockWrapper>
         <Heading3>{contentConfirm.header}</Heading3>
         <DivFlex>

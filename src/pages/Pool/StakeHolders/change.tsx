@@ -6,7 +6,9 @@ import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
 import Vesting from '../../../abis/Vesting'
+import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import {
   useCloseModal,
   useConfirmModalToggle,
@@ -14,10 +16,11 @@ import {
   useSuccessModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
+import { typesPoolPage } from '../index'
 
 const StakeholderUpdateAddress = () => {
+  const { account } = useActiveWeb3React()
   const addressWallet = window.localStorage.getItem('addressWallet')
-  const address = window.localStorage.getItem('address')
   const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
   const handleChange = (e: any) => {
@@ -38,7 +41,7 @@ const StakeholderUpdateAddress = () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(account || '', Vesting, web3Provider.getSigner())
 
     const tx = await vestingInstance
       .changeInvestor(prevAddr, newAddr)
@@ -58,6 +61,7 @@ const StakeholderUpdateAddress = () => {
   }
   return (
     <>
+      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
       <BlockWrapper>
         <Heading3>{contentConfirm.header}</Heading3>
         <DivFlex>
