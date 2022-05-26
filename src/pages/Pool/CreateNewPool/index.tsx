@@ -1,13 +1,22 @@
 import 'react-datepicker/dist/react-datepicker.css'
 
-import React, { useState } from 'react'
+import detectEthereumProvider from '@metamask/detect-provider'
+import { ethers, providers } from 'ethers'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
+import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import Factory from '../../../abis/Factory'
 import IconBin from '../../../assets/svg/icon/icon-dandelion-bin.svg'
 import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'
+import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
+import { BaseButton } from '../../../components/Button'
 import IconOxy from '../../../components/Icons/IconOxy'
+import { useAppSelector } from '../../../state/hooks'
+import { IStakeholders } from '../../../state/pools/reducer'
+import { typesPoolPage } from '../index'
 import TitleOptionNewPool from '../TitleOptionNewPool'
 
 interface fileImage {
@@ -17,12 +26,17 @@ interface fileImage {
   src: any
 }
 const CreateNewPool = () => {
-  const [startDate, setStartDate] = useState(null)
-  const [endDate, setEndDate] = useState(null)
-  const handleStartDateChange = (date: any) => setStartDate(date)
-  const handleEndDateChange = (date: any) => setEndDate(date)
+  const history = useHistory()
+  const [name, setName] = useState<string>('')
+  const [startDate, setStartDate] = useState<Date | null>(null)
+  const [endDate, setEndDate] = useState<Date | null>(null)
   const [fileImage, setFileImage] = useState<fileImage[]>([])
-  const [showInpuFile, setShowInputFile] = useState<boolean>(true)
+  const [showInpuFile, setShowInputFile] = useState<boolean>(false)
+
+  const [isDisable, setIsDisable] = useState<boolean>(false)
+
+  const listAddStakeholders: IStakeholders[] = useAppSelector((state) => state.pools)?.listAddStakeholders
+
   const onDragEnter = (event: any) => {
     event.preventDefault()
     event.stopPropagation()
@@ -31,6 +45,9 @@ const CreateNewPool = () => {
     event.preventDefault()
     event.stopPropagation()
   }
+
+  const handleStartDateChange = (date: any) => setStartDate(date)
+  const handleEndDateChange = (date: any) => setEndDate(date)
 
   const handleFileUpload = (files: any) => {
     const imageArray: fileImage[] = []
@@ -76,6 +93,44 @@ const CreateNewPool = () => {
     setShowInputFile(true)
   }
 
+  const handleGetName = (e: any) => {
+    setName(String(e.target.value))
+  }
+
+  const handleAddStakeholders = () => {
+    window.localStorage.setItem('typePoolPage', typesPoolPage.ADD_STAKEHOLDER)
+    history.push({ pathname: `pool` })
+  }
+
+  const handleCreatePool = async () => {
+    if (!startDate || !endDate || !name) {
+      return
+    }
+
+    const start = parseInt(String(startDate.getTime() / 1000))
+    const duration = parseInt(String((endDate.getTime() - startDate.getTime()) / 1000))
+    console.log(start, duration)
+
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+    const contract = new ethers.Contract(
+      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
+      Factory,
+      web3Provider.getSigner()
+    )
+
+    const tx = await contract
+      .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
+      .catch((e: any) => {
+        console.log(e)
+      })
+    tx.wait().then(() => window.location.reload())
+  }
+
+  useEffect(() => {
+    setIsDisable(!endDate || !startDate || !name || !(endDate.getTime() - startDate.getTime() > 0))
+  }, [endDate, startDate, name])
+
   return (
     <DivNewPoolWrapper>
       <HeadingNewPool>Create New Pool</HeadingNewPool>
@@ -84,20 +139,26 @@ const CreateNewPool = () => {
           <DivColumn>
             <TitleOptionNewPool title={'Pool Name'} />
             <OptionContent>
-              <InputControl type="text" placeholder={'Input name for the pool'} />
+              <InputControl
+                type="text"
+                placeholder={'Input name for the pool'}
+                onChange={(e) => handleGetName(e)}
+                value={name}
+              />
             </OptionContent>
           </DivColumn>
           <DivColumn>
-            <TitleOptionNewPool title={'Icon/Logo Upload'} />
-
             {(showInpuFile && (
-              <DivUpload onDragEnter={onDragEnter} onDragOver={onDragOver} onDrop={handleDropFile}>
-                <InputFile type={'file'} id={'file_upload'} name={'file_upload'} onChange={handleChangeUploadImage} />
-                <LabelInputFile htmlFor={'file_upload'}>
-                  <IconOxy SrcImageIcon={IconUploadFile} widthIcon={'15px'} heightIcon={'17px'} />
-                  <span>Drag or choose file</span>
-                </LabelInputFile>
-              </DivUpload>
+              <>
+                <TitleOptionNewPool title={'Icon/Logo Upload'} />
+                <DivUpload onDragEnter={onDragEnter} onDragOver={onDragOver} onDrop={handleDropFile}>
+                  <InputFile type={'file'} id={'file_upload'} name={'file_upload'} onChange={handleChangeUploadImage} />
+                  <LabelInputFile htmlFor={'file_upload'}>
+                    <IconOxy SrcImageIcon={IconUploadFile} widthIcon={'15px'} heightIcon={'17px'} />
+                    <span>Drag or choose file</span>
+                  </LabelInputFile>
+                </DivUpload>
+              </>
             )) ||
               fileImage?.map((image: any, index: any) => {
                 return (
@@ -119,11 +180,13 @@ const CreateNewPool = () => {
                 <DatePicker
                   selected={startDate}
                   onChange={handleStartDateChange}
-                  showYearDropdown
-                  dateFormatCalendar="MMMM"
-                  yearDropdownItemNumber={15}
-                  scrollableYearDropdown
+                  showTimeSelect
+                  minDate={new Date()}
                   placeholderText="Select prefer date"
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  timeCaption="time"
+                  dateFormat="MMMM d, yyyy h:mm aa"
                 />
                 <DivIconCalendar>
                   <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
@@ -138,11 +201,13 @@ const CreateNewPool = () => {
                 <DatePicker
                   selected={endDate}
                   onChange={handleEndDateChange}
-                  showYearDropdown
-                  dateFormatCalendar="MMMM"
-                  yearDropdownItemNumber={15}
-                  scrollableYearDropdown
+                  showTimeSelect
+                  minDate={new Date()}
+                  timeFormat="HH:mm"
                   placeholderText="Select prefer date"
+                  timeIntervals={15}
+                  timeCaption="time"
+                  dateFormat="MMMM d, yyyy h:mm aa"
                 />
                 <DivIconCalendar>
                   <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
@@ -150,11 +215,30 @@ const CreateNewPool = () => {
               </LabelBox>
             </DivDatePicker>
           </DivColumn>
+
           <DivColumn fullWidth={true}>
             <TitleOptionNewPool title={'Stakeholder(s)'} />
+            {!listAddStakeholders.length ? (
+              <DivAddStakeholders onClick={handleAddStakeholders}>
+                <IconOxy SrcImageIcon={IconPlus} widthIcon={'16px'} heightIcon={'16px'} />
+                <span>Add stakeholder(s)</span>
+              </DivAddStakeholders>
+            ) : (
+              <ListStakeholder>
+                {listAddStakeholders.map((item, index) => (
+                  <ItemStakeholder key={index}>
+                    <AddressStakeholder>{item.address}</AddressStakeholder>
+                    <AmountStakeholder>{item.amount}</AmountStakeholder>
+                  </ItemStakeholder>
+                ))}
+              </ListStakeholder>
+            )}
           </DivColumn>
         </DivRow>
       </DivContent>
+      <DivSubmit disabled={isDisable} onClick={handleCreatePool}>
+        Create
+      </DivSubmit>
     </DivNewPoolWrapper>
   )
 }
@@ -348,4 +432,52 @@ const DivImageIcon = styled.div`
   margin-left: 12px;
   cursor: pointer;
 `
+const DivAddStakeholders = styled.div`
+  margin-top: 20px;
+  display: flex;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  color: ${({ theme }) => theme.advancedBG};
+  background: ${({ theme }) => theme.bg8};
+  border-radius: 8px;
+  cursor: pointer;
+
+  & > span {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+`
+
+const DivSubmit = styled(BaseButton)`
+  text-align: center;
+  margin-top: 50px;
+  margin-left: auto;
+  width: 180px;
+  padding: 8px 50px;
+  color: ${({ theme }) => theme.blue6};
+  background: ${({ theme }) => theme.yellow1};
+
+  &:disabled {
+    color: ${({ theme }) => theme.text12};
+    background: ${({ theme }) => theme.bgButton};
+  }
+  align-items: baseline;
+`
+
+const ListStakeholder = styled.div``
+const ItemStakeholder = styled.div`
+  display: flex;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: ${({ theme }) => theme.white};
+  padding: 20px 0;
+  border-bottom: ${({ theme }) => `1px dashed ${theme.blue7}`};
+`
+const AddressStakeholder = styled.div``
+const AmountStakeholder = styled.div`
+  margin-left: auto;
+`
+
 export default CreateNewPool

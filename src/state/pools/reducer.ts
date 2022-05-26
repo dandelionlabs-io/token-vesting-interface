@@ -1,5 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+export interface IStakeholders {
+  address: string
+  amount: string
+}
+
 export interface IPoolsData {
   name: string
   address: string
@@ -16,15 +21,15 @@ export interface IPoolsData {
 }
 
 export interface IInitialState {
-  data: IPoolsData | any
-  addressActive: string
+  data: IPoolsData[]
   erc20Balance: number
+  listAddStakeholders: IStakeholders[]
 }
 
 const initialState: IInitialState = {
-  data: null,
-  addressActive: '',
+  data: [],
   erc20Balance: 0,
+  listAddStakeholders: [],
 }
 export enum RolePoolAddress {
   ADMIN = 'ADMIN',
@@ -37,6 +42,9 @@ const poolsSlice = createSlice({
   reducers: {
     updatePoolsData(state: IInitialState, action) {
       state.data = [...action.payload]
+    },
+    updateListStateHolder(state: IInitialState, action) {
+      state.listAddStakeholders = [...action.payload]
     },
     updateErc20Balance(state: IInitialState, action) {
       state.erc20Balance = action.payload
@@ -75,5 +83,6 @@ const poolsSlice = createSlice({
   },
 })
 
-export const { updatePoolsData, updateErc20Balance, setRoleForPoolAddress, updateManagers } = poolsSlice.actions
+export const { updatePoolsData, updateErc20Balance, setRoleForPoolAddress, updateManagers, updateListStateHolder } =
+  poolsSlice.actions
 export default poolsSlice.reducer

@@ -101,7 +101,7 @@ function colors(): Colors {
     blue4: '#153d6f70',
     blue5: '#00316E',
     blue6: '#012553',
-    blue7: '#00316F',
+    blue7: '#00316f',
     // blue5: '#153d6f70' : '#EBF4FF',
   }
 }

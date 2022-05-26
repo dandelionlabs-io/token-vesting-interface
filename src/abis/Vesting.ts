@@ -2,6 +2,55 @@ const Vesting = [
   {
     inputs: [
       {
+        internalType: 'address[]',
+        name: '_recipients',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: '_amounts',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'addTokenGrants',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_newAdmin',
+        type: 'address',
+      },
+    ],
+    name: 'changeAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_oldAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_newAddress',
+        type: 'address',
+      },
+    ],
+    name: 'changeInvestor',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'string',
         name: '_name',
         type: 'string',
@@ -50,6 +99,39 @@ const Vesting = [
     type: 'event',
   },
   {
+    inputs: [],
+    name: 'claimVestedTokens',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_address',
+        type: 'address',
+      },
+    ],
+    name: 'deleteInvestor',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'DeleteInvestor',
+    type: 'event',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -69,6 +151,24 @@ const Vesting = [
     type: 'event',
   },
   {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'grantRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -86,6 +186,42 @@ const Vesting = [
     ],
     name: 'GrantTokensClaimed',
     type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'renounceRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'revokeRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     anonymous: false,
@@ -163,63 +299,6 @@ const Vesting = [
     type: 'event',
   },
   {
-    inputs: [],
-    name: 'DEFAULT_ADMIN_ROLE',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'OPERATORS',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'OPERATORS_ADMIN',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address[]',
-        name: '_recipients',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '_amounts',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'addTokenGrants',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'address',
@@ -261,37 +340,6 @@ const Vesting = [
     inputs: [
       {
         internalType: 'address',
-        name: '_oldAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_newAddress',
-        type: 'address',
-      },
-    ],
-    name: 'changeInvestor',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'claimVestedTokens',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
         name: '_recipient',
         type: 'address',
       },
@@ -302,6 +350,19 @@ const Vesting = [
         internalType: 'uint256',
         name: '',
         type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'DEFAULT_ADMIN_ROLE',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
     stateMutability: 'view',
@@ -354,30 +415,12 @@ const Vesting = [
             type: 'uint256',
           },
         ],
-        internalType: 'struct VestingPeriod.Grant',
+        internalType: 'struct VestingBase.Grant',
         name: '',
         type: 'tuple',
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'grantRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -399,6 +442,32 @@ const Vesting = [
         internalType: 'bool',
         name: '',
         type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'OPERATORS',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'OPERATORS_ADMIN',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
     stateMutability: 'view',
@@ -445,42 +514,6 @@ const Vesting = [
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'renounceRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'revokeRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {

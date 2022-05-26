@@ -21,6 +21,7 @@ import { AppState } from '../../../state'
 import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppSelector } from '../../../state/hooks'
+import { IPoolsData } from '../../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../../utils'
 import { typesPoolPage } from '../index'
 
@@ -87,7 +88,7 @@ const PoolDetails = () => {
     const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
 
     const tx = await vestingInstance
-      .claimVestedTokens(account)
+      .claimVestedTokens()
       .then(() => {
         toggleSuccessModal()
       })
@@ -196,8 +197,10 @@ const PoolDetails = () => {
       return
     }
 
-    const obj = poolsData.data.find((o: any) => o.address === address)
-
+    const obj = poolsData.data.find((o: IPoolsData) => o.address === address)
+    if (!obj) {
+      return
+    }
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)

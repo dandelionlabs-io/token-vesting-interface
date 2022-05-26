@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
-import GoBack from '../../components/GoBack'
 import SidebarMenu from '../../components/SidebarMenu'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
@@ -38,7 +36,6 @@ export enum typesPoolPage {
 }
 
 const Pool = () => {
-  const history = useHistory()
   const { account } = useActiveWeb3React()
   const address = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('typePoolPage') || ''
@@ -66,11 +63,6 @@ const Pool = () => {
     SrcImageIcon: IconCDRED,
   }
 
-  const handleBack = (page: string) => {
-    window.localStorage.setItem('typePoolPage', page)
-    history.push({ pathname: `pool` })
-  }
-
   return (
     <>
       <SidebarMenu />
@@ -85,38 +77,10 @@ const Pool = () => {
         </BlockChartList>
         {typePage === typesPoolPage.CREATE_POOL && <CreateNewPool />}
         {(typePage === typesPoolPage.CLAIM || typePage === typesPoolPage.EDIT) && <PoolDetails />}
-        {typePage === typesPoolPage.TRANSFER_OWNER && (
-          <>
-            <RedirectBack onClick={() => handleBack(typesPoolPage.EDIT)}>
-              <GoBack data={'Go back to DandelionLabs'} />
-            </RedirectBack>
-            <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />
-          </>
-        )}
-        {typePage === typesPoolPage.ADD_STAKEHOLDER && (
-          <>
-            <RedirectBack onClick={() => handleBack(typesPoolPage.EDIT)}>
-              <GoBack data={'Go back to DandelionLabs'} />
-            </RedirectBack>
-            <StakeHolder />
-          </>
-        )}
-        {typePage === typesPoolPage.EDIT_STAKEHOLDER && (
-          <>
-            <RedirectBack onClick={() => handleBack(typesPoolPage.EDIT)}>
-              <GoBack data={'Go back to DandelionLabs'} />
-            </RedirectBack>
-            <EditStakeHolder />
-          </>
-        )}
-        {typePage === typesPoolPage.ASSIGN_MANAGER && (
-          <>
-            <RedirectBack onClick={() => handleBack(typesPoolPage.EDIT)}>
-              <GoBack data={'Go back to DandelionLabs'} />
-            </RedirectBack>
-            <Manager />
-          </>
-        )}
+        {typePage === typesPoolPage.TRANSFER_OWNER && <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />}
+        {typePage === typesPoolPage.ADD_STAKEHOLDER && <StakeHolder />}
+        {typePage === typesPoolPage.EDIT_STAKEHOLDER && <EditStakeHolder />}
+        {typePage === typesPoolPage.ASSIGN_MANAGER && <Manager />}
       </div>
     </>
   )
@@ -131,10 +95,6 @@ const BlockChartItem = styled.div`
   max-width: 50%;
   padding-left: 8px;
   padding-right: 8px;
-`
-
-const RedirectBack = styled.div`
-  display: flex;
 `
 
 export default Pool

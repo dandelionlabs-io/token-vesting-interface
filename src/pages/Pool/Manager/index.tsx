@@ -5,15 +5,17 @@ import styled from 'styled-components/macro'
 
 import Vesting from '../../../abis/Vesting'
 import Delete from '../../../assets/svg/icon/icon-dandelion-delete.svg'
+import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { IPoolsData, RolePoolAddress, setRoleForPoolAddress, updateManagers } from '../../../state/pools/reducer'
+import { typesPoolPage } from '../index'
 const Manager = () => {
   const dispatch = useAppDispatch()
   const address = window.localStorage.getItem('address')
   const [valueAddress, setValueAddress] = useState<string>('')
   const [checkValue, setCheckValue] = useState<boolean>(false)
-  const statePools: IPoolsData[] = useAppSelector((state) => state.pools).data
+  const statePools: IPoolsData[] | null = useAppSelector((state) => state.pools).data
   const [listManagers, setListManagers] = useState<string[]>([])
 
   useEffect(() => {
@@ -65,38 +67,41 @@ const Manager = () => {
       .catch((e: string) => console.log(e))
   }
   return (
-    <DivWrapper>
-      <HeadingBlock>Manager Address</HeadingBlock>
-      <ManagerList>
-        {listManagers?.map((itemManager: string) => {
-          return (
-            <ManagerItem key={itemManager}>
-              <ManagerItemContent>
-                <ManagerItemAddress>{itemManager}</ManagerItemAddress>
-                <div onClick={() => handleRemoveManager(itemManager)}>
-                  <IconOxy SrcImageIcon={Delete} heightIcon={'17px'} widthIcon={'17px'} />
-                </div>
-              </ManagerItemContent>
-            </ManagerItem>
-          )
-        })}
-      </ManagerList>
-      <DivAddManager>
-        <InputControl
-          type={'text'}
-          placeholder={'New operator address'}
-          onChange={(e) => handleChange(e)}
-          value={valueAddress}
-        />
-        <ButtonAdd
-          disabled={!valueAddress || checkValue}
-          type={'button'}
-          onClick={() => handleAddManager(valueAddress)}
-        >
-          Add
-        </ButtonAdd>
-      </DivAddManager>
-    </DivWrapper>
+    <>
+      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
+      <DivWrapper>
+        <HeadingBlock>Manager Address</HeadingBlock>
+        <ManagerList>
+          {listManagers?.map((itemManager: string) => {
+            return (
+              <ManagerItem key={itemManager}>
+                <ManagerItemContent>
+                  <ManagerItemAddress>{itemManager}</ManagerItemAddress>
+                  <div onClick={() => handleRemoveManager(itemManager)}>
+                    <IconOxy SrcImageIcon={Delete} heightIcon={'17px'} widthIcon={'17px'} />
+                  </div>
+                </ManagerItemContent>
+              </ManagerItem>
+            )
+          })}
+        </ManagerList>
+        <DivAddManager>
+          <InputControl
+            type={'text'}
+            placeholder={'New operator address'}
+            onChange={(e) => handleChange(e)}
+            value={valueAddress}
+          />
+          <ButtonAdd
+            disabled={!valueAddress || checkValue}
+            type={'button'}
+            onClick={() => handleAddManager(valueAddress)}
+          >
+            Add
+          </ButtonAdd>
+        </DivAddManager>
+      </DivWrapper>
+    </>
   )
 }
 const DivWrapper = styled.div`
