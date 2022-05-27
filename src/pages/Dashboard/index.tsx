@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
@@ -15,6 +15,7 @@ import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
 import { useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { IPoolsData } from '../../state/pools/reducer'
 import { typesPoolPage } from '../Pool'
 
 interface TypeItemInfo {
@@ -46,6 +47,10 @@ const Dashboard = () => {
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const userCDREDBalance = useCDREDBalance()
 
+  const [dataActive, setDataActive] = useState<IPoolsData[]>([])
+
+  console.log(poolData)
+
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
     amount: userEthBalance?.toSignificant(4),
@@ -66,7 +71,11 @@ const Dashboard = () => {
     !account && history.push({ pathname: `/` })
     window.localStorage.removeItem('address')
     window.localStorage.removeItem('typePoolPage')
-  }, [account, history])
+    const currentDayTime = new Date().getTime()
+    const data = poolData.filter((data) => data.start < currentDayTime && data.end > currentDayTime)
+
+    setDataActive(data)
+  }, [account, history, poolData])
 
   const handleRedirectPool = (typePoolPage: string) => {
     window.localStorage.setItem('typePoolPage', typePoolPage)
@@ -86,7 +95,7 @@ const Dashboard = () => {
           </BlockChartItem>
         </BlockChartList>
         <BlockTable>
-          <TableActivePool data={poolData} />
+          <TableActivePool data={dataActive} heading={'Active Pools'} />
           <TableBottom>
             <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
               <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />

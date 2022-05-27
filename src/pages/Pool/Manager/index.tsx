@@ -12,21 +12,22 @@ import { IPoolsData, RolePoolAddress, setRoleForPoolAddress, updateManagers } fr
 import { typesPoolPage } from '../index'
 const Manager = () => {
   const dispatch = useAppDispatch()
-  const address = window.localStorage.getItem('address')
+  const poolAddress = window.localStorage.getItem('address')
   const [valueAddress, setValueAddress] = useState<string>('')
   const [checkValue, setCheckValue] = useState<boolean>(false)
   const statePools: IPoolsData[] | null = useAppSelector((state) => state.pools).data
   const [listManagers, setListManagers] = useState<string[]>([])
 
   useEffect(() => {
-    if (!address || !statePools) {
+    if (!poolAddress || !statePools) {
       return
     }
-    const listManagers = statePools.filter((statePool: IPoolsData) => {
-      return statePool.address === address
-    })[0].managersAddress
+    const listManagers =
+      statePools.filter((statePool: IPoolsData) => {
+        return statePool.address === poolAddress
+      })[0]?.managersAddress || []
     setListManagers(listManagers)
-  }, [address, statePools])
+  }, [poolAddress, statePools])
 
   const handleChange = (e: any) => {
     const valueInput = e.target.value
@@ -41,12 +42,12 @@ const Manager = () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
     vestingInstance
       .revokeRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ address, removeRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ address, itemManager, isRemove: true }))
+        dispatch(setRoleForPoolAddress({ poolAddress, removeRole: RolePoolAddress['OPERATOR'] }))
+        dispatch(updateManagers({ poolAddress, itemManager, isRemove: true }))
         setValueAddress('')
       })
       .catch((e: string) => console.log(e))
@@ -55,13 +56,13 @@ const Manager = () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
 
     vestingInstance
       .grantRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ address, addRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ address, itemManager, isRemove: false }))
+        dispatch(setRoleForPoolAddress({ poolAddress, addRole: RolePoolAddress['OPERATOR'] }))
+        dispatch(updateManagers({ poolAddress, itemManager, isRemove: false }))
         setValueAddress('')
       })
       .catch((e: string) => console.log(e))

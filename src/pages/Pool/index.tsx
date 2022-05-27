@@ -9,6 +9,7 @@ import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { useCDREDBalance } from '../../state/pools/hook'
 import BlockUpdateAddress from './BlockUpdateAddress'
+import BrowseAll from './BrowseAll'
 import CreateNewPool from './CreateNewPool'
 import Manager from './Manager'
 import PoolDetails from './PoolDetails'
@@ -37,16 +38,16 @@ export enum typesPoolPage {
 
 const Pool = () => {
   const { account } = useActiveWeb3React()
-  const address = window.localStorage.getItem('address')
+  const poolAddress = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('typePoolPage') || ''
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const userCDREDBalance = useCDREDBalance()
 
   useEffect(() => {
-    if (!account || !address) {
+    if (!account || !poolAddress) {
       return
     }
-  }, [account, address])
+  }, [account, poolAddress])
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
@@ -76,6 +77,7 @@ const Pool = () => {
           </BlockChartItem>
         </BlockChartList>
         {typePage === typesPoolPage.CREATE_POOL && <CreateNewPool />}
+        {typePage === typesPoolPage.LIST_POOL && <BrowseAll />}
         {(typePage === typesPoolPage.CLAIM || typePage === typesPoolPage.EDIT) && <PoolDetails />}
         {typePage === typesPoolPage.TRANSFER_OWNER && <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />}
         {typePage === typesPoolPage.ADD_STAKEHOLDER && <StakeHolder />}

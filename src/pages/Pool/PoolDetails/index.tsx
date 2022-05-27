@@ -54,16 +54,15 @@ const IconSwapManage = {
 const PoolDetails = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
-  const address = window.localStorage.getItem('address')
+  const poolAddress = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('typePoolPage')
-  const flagPool = window.localStorage.getItem('flagPool')
 
   useEffect(() => {
-    if (!typePage || (!address && !flagPool)) {
+    if (!poolAddress) {
       history.push({ pathname: `dashboard` })
       return
     }
-  }, [history, address, typePage, flagPool])
+  }, [history, poolAddress])
 
   const toggleSuccessModal = useSuccessModalToggle()
   const closeModal = useCloseModal()
@@ -85,7 +84,7 @@ const PoolDetails = () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
 
     const tx = await vestingInstance
       .claimVestedTokens()
@@ -167,7 +166,7 @@ const PoolDetails = () => {
     ;(async () => {
       try {
         if (typePage === typesPoolPage.CLAIM) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/claims/${account}`
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/claims/${account}`
           const dataHis: any = await Api.get(url)
           const dataHisClone: Array<any> = [...dataHis]
 
@@ -182,7 +181,7 @@ const PoolDetails = () => {
         }
 
         if (typePage === typesPoolPage.EDIT) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${address}/stakeholders`
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/stakeholders`
           const dataStakeholders: Array<any> = await Api.get(url)
           handleSortStakeholders(dataStakeholders)
         }
@@ -190,14 +189,14 @@ const PoolDetails = () => {
         console.log(e)
       }
     })()
-  }, [data, account, typePage, address, handleSortStakeholders, handleSortHistoryClaim])
+  }, [data, account, typePage, poolAddress, handleSortStakeholders, handleSortHistoryClaim])
 
   useEffect(() => {
-    if (!poolsData.data?.length || !address) {
+    if (!poolsData.data?.length || !poolAddress) {
       return
     }
 
-    const obj = poolsData.data.find((o: IPoolsData) => o.address === address)
+    const obj = poolsData.data.find((o: IPoolsData) => o.address === poolAddress)
     if (!obj) {
       return
     }
@@ -209,7 +208,7 @@ const PoolDetails = () => {
       setClaimedPercent((obj.claimed / obj.amount) * 100)
       setClaimablePercent((obj.claimable / obj.amount) * 100)
     }
-  }, [address, poolsData?.data])
+  }, [poolAddress, poolsData?.data])
 
   return (
     <>
@@ -225,7 +224,7 @@ const PoolDetails = () => {
               Contract Address
             </HeadSpan>
             <HeadSpan>
-              <HeadSpan fontsize="16px">{shortenAddress(address || '')}</HeadSpan> <HeadSpan></HeadSpan>
+              <HeadSpan fontsize="16px">{shortenAddress(poolAddress || '')}</HeadSpan> <HeadSpan></HeadSpan>
             </HeadSpan>
           </ListContainer>
           <ListContainer>

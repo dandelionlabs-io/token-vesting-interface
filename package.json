@@ -159,6 +159,7 @@
     "papaparse": "^5.3.2",
     "polished": "^3.3.2",
     "popper-max-size-modifier": "^0.2.0",
+    "rc-pagination": "^3.1.16",
     "react-datepicker": "^4.8.0",
     "react-drag-drop-files": "^2.3.5",
     "react-feather": "^2.0.8",
