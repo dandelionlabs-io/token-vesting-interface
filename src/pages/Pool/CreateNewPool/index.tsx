@@ -1,13 +1,15 @@
 import 'react-datepicker/dist/react-datepicker.css'
 
 import detectEthereumProvider from '@metamask/detect-provider'
-import { ethers, providers } from 'ethers'
+import { ethers, providers, utils } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import ERC20 from '../../../abis/Erc20'
 import Factory from '../../../abis/Factory'
+import Vesting from '../../../abis/Vesting'
 import IconBin from '../../../assets/svg/icon/icon-dandelion-bin.svg'
 import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'
@@ -31,7 +33,7 @@ const CreateNewPool = () => {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [fileImage, setFileImage] = useState<fileImage[]>([])
-  const [showInpuFile, setShowInputFile] = useState<boolean>(false)
+  const [showInputFile, setShowInputFile] = useState<boolean>(false)
 
   const [isDisable, setIsDisable] = useState<boolean>(false)
 
@@ -109,10 +111,22 @@ const CreateNewPool = () => {
 
     const start = parseInt(String(startDate.getTime() / 1000))
     const duration = parseInt(String((endDate.getTime() - startDate.getTime()) / 1000))
-    console.log(start, duration)
 
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
+
+    const amount = listAddStakeholders.reduce((prev, next) => prev + parseInt(next.amount), 0)
+    const amountList: string[] = []
+    const addressList: string[] = []
+
+    listAddStakeholders.forEach((item: any, index: any) => {
+      if (item.address && item.amount) {
+        addressList.push(item.address)
+        const amount: any = utils.parseEther(item.amount)
+        amountList.push(amount)
+      }
+    })
+
     const contract = new ethers.Contract(
       process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
       Factory,
@@ -124,7 +138,35 @@ const CreateNewPool = () => {
       .catch((e: any) => {
         console.log(e)
       })
-    tx.wait().then(() => window.location.reload())
+
+    tx.wait().then(async (res: any) => {
+      if (!res.events) {
+        return
+      }
+
+      const address: string = res.events[0]?.address
+
+      if (!address || !listAddStakeholders || !listAddStakeholders.length) {
+        return
+      }
+
+      const ERC20Instance = new ethers.Contract(
+        process.env.REACT_APP_TOKEN_ADDRESS || '',
+        ERC20,
+        web3Provider.getSigner()
+      )
+      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString())).catch((e: any) => {
+        console.log(e)
+      })
+
+      const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
+
+      tx2.wait().then(async () => {
+        await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
+          console.log(e)
+        })
+      })
+    })
   }
 
   useEffect(() => {
@@ -148,7 +190,7 @@ const CreateNewPool = () => {
             </OptionContent>
           </DivColumn>
           <DivColumn>
-            {(showInpuFile && (
+            {(showInputFile && (
               <>
                 <TitleOptionNewPool title={'Icon/Logo Upload'} />
                 <DivUpload onDragEnter={onDragEnter} onDragOver={onDragOver} onDrop={handleDropFile}>

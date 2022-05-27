@@ -10,7 +10,6 @@ import Vesting from '../../../abis/Vesting'
 import GoBack from '../../../components/GoBack'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
-import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import {
   useCloseModal,
   useLoadingModalToggle,
@@ -23,14 +22,13 @@ import { updateListStateHolder } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
 
 const StakeHolder = () => {
-  const { account } = useActiveWeb3React()
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
   const [successButton, setSuccessButton] = useState<any>(false)
   const [amount, setAmount] = useState<any>(0)
   const [addressList, setAddressList] = useState<any>([])
   const [amountList, setAmountList] = useState<any>([])
-  const address = window.localStorage.getItem('address')
+  const poolAddress = window.localStorage.getItem('address')
   const toggleSuccessModal = useSuccessModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
   const closeModal = useCloseModal()
@@ -93,18 +91,24 @@ const StakeHolder = () => {
   }
 
   const handleApproval = async () => {
+    if (!poolAddress) {
+      window.localStorage.setItem('typePoolPage', typesPoolPage.CREATE_POOL)
+      history.push({ pathname: 'pool' })
+      return
+    }
+
     toggleLoadingModal()
 
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(
+    const ERC20Instance = new ethers.Contract(
       process.env.REACT_APP_TOKEN_ADDRESS || '',
       ERC20,
       web3Provider.getSigner()
     )
 
-    const tx = await vestingInstance.approve(account, utils.parseEther(amount.toString())).catch((e: any) => {
+    const tx = await ERC20Instance.approve(poolAddress, utils.parseEther(amount.toString())).catch((e: any) => {
       console.log(e)
     })
 
@@ -113,11 +117,14 @@ const StakeHolder = () => {
       closeModal()
     })
   }
+
   const handleAdd = async () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(account || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
+
+    console.log(addressList, amountList)
     const tx = await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
       console.log(e)
     })
@@ -130,7 +137,7 @@ const StakeHolder = () => {
       setTimeout(() => {
         closeModal()
 
-        if (!address) {
+        if (!poolAddress) {
           window.localStorage.setItem('typePoolPage', typesPoolPage.CREATE_POOL)
           history.push({ pathname: `pool` })
         }
@@ -141,9 +148,9 @@ const StakeHolder = () => {
   return (
     <>
       <GoBack
-        textNameBack={`Go back to ${address ? 'DandelionLabs' : 'Create New Pool'}`}
+        textNameBack={`Go back to ${poolAddress ? 'DandelionLabs' : 'Create New Pool'}`}
         pageBack="pool"
-        typePage={address ? typesPoolPage.EDIT : typesPoolPage.CREATE_POOL}
+        typePage={poolAddress ? typesPoolPage.EDIT : typesPoolPage.CREATE_POOL}
       />
       <BlockWrapper>
         <EmptyContainer width="100%">
@@ -317,7 +324,7 @@ const ListContainer = styled.div<{ border?: boolean; justify?: string }>`
   color: white;
   display: flex;
   justify-content: ${(props) => props.justify};
-  align-item: center;
+  align-items: center;
 `
 
 const EmptyContainer = styled.div<{ width?: string }>`

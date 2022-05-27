@@ -1,18 +1,26 @@
+import 'rc-pagination/assets/index.css'
+
 import moment from 'moment'
+import Pagination from 'rc-pagination'
 import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
+import Api from '../../api'
 import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconSort from '../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { typesPoolPage } from '../../pages/Pool'
-import { IPoolsData } from '../../state/pools/reducer'
+import { IPoolsData, RolePoolAddress } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
+
 interface Props {
   data: IPoolsData[] | null
+  heading: string
 }
+
 type TypeColumns = {
   key?: string
   name?: string
@@ -27,35 +35,36 @@ const columns: TypeColumns[] = [
   { key: 'claim', name: '' },
 ]
 
-const TableActivePool = (props: Props) => {
-  const { data } = props
+export enum ListTabs {
+  ALL = 'all',
+  CLAIMABLE = 'claimable',
+  NEW = 'new',
+  EXPIRED = 'expired',
+  BANNED = 'banned',
+}
+
+console.log(Object.values(ListTabs))
+
+const TableActivePool = ({ data, heading }: Props) => {
+  const { account } = useActiveWeb3React()
+  const countPerPage = 8
+  const [currentPage, setCurrentPage] = React.useState<number>(1)
   const history = useHistory()
   const alphabet = useRef<boolean>(true)
   const [dataPools, setDataPools] = useState<Props['data']>(data)
+  const [dataShow, setDataShow] = useState<Props['data']>([])
+
+  const typePage = window.localStorage.getItem('typePoolPage')
+
+  const [activeTab, setActiveTab] = useState<string>(ListTabs.ALL)
+
+  console.log(typePage)
 
   const handleRedirectPoolDetails = (address: string, typePoolPage: string) => {
     window.localStorage.setItem('address', address)
     window.localStorage.setItem('typePoolPage', typePoolPage)
     history.push({ pathname: `pool` })
   }
-
-  const handleButtonClaim = (item: IPoolsData) => {
-    if (!item.roles.includes('STAKEHOLDER')) {
-      return
-    }
-    if (item.statusClaim === 1) {
-      return (
-        <ButtonClaim active={true} onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.CLAIM)}>
-          Claim
-        </ButtonClaim>
-      )
-    }
-    return <ButtonClaim active={false}>Claim</ButtonClaim>
-  }
-
-  useEffect(() => {
-    handleSortPools(data)
-  }, [data])
 
   const handleSortPools = (pools: Array<any> | null) => {
     if (!pools) {
@@ -89,80 +98,259 @@ const TableActivePool = (props: Props) => {
     setDataPools(dataSort)
   }
 
+  const handleOnChange = (page: number) => {
+    setCurrentPage(page)
+    setDataShow(data)
+  }
+
+  useEffect(() => {
+    handleSortPools(data)
+  }, [data])
+
+  useEffect(() => {
+    handleSortPools(data)
+  }, [data])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!account || !dataPools) {
+        return
+      }
+
+      const dataSlice = dataPools.slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
+      setDataShow(dataSlice)
+
+      const dataShowCheckStakeHolder = await Promise.all(
+        dataSlice.map(async (data) => {
+          const urlAddressGetStakeholder = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${data.address}/stakeholders`
+          const stakeholders: any[] = await Api.get(urlAddressGetStakeholder)
+          const isStakeholder = stakeholders.some((item) => {
+            return item.address === account
+          })
+
+          if (isStakeholder) {
+            return {
+              ...data,
+              roles: [...data.roles, RolePoolAddress.STAKEHOLDER],
+            }
+          } else {
+            return data
+          }
+        })
+      )
+
+      setDataShow(dataShowCheckStakeHolder)
+    })()
+  }, [account, currentPage, dataPools])
+
+  const handleFilter = (item: string) => {
+    setActiveTab(item)
+  }
+
   return (
-    <TableActivePoolWrapper>
-      <Heading>Active Pools</Heading>
-      <DivTableBox>
-        <Table>
-          <thead>
-            <tr>
-              {columns.map((item, index) => {
-                return index === 0 ? (
-                  <TableTh key={item.key} data-head={item.key}>
-                    <DivTableThFirst>
-                      {item.name}
-                      <DivIconSort reverse={alphabet.current} onClick={() => handleSortPools(data)}>
-                        <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
-                      </DivIconSort>
-                    </DivTableThFirst>
-                  </TableTh>
-                ) : (
-                  <TableTh key={item.key} data-head={item.key}>
-                    {item.name}
-                  </TableTh>
-                )
-              })}
-            </tr>
-          </thead>
-          {dataPools && !!dataPools?.length && (
-            <tbody>
-              {dataPools?.map((item: any, index: number) => {
-                return (
-                  <tr key={index}>
-                    <td>
-                      <DivNameBox>
-                        <IconOxy
-                          SrcImageIcon={item.srcImage !== undefined ? item.srcImage : IconTableDefault}
-                          widthIcon={'14px'}
-                          heightIcon={'14px'}
-                        />
-                        <NamePool>{item.name}</NamePool>
-                        <AddressWallet>( {shortenAddress(item.address)} )</AddressWallet>
-                      </DivNameBox>
-                    </td>
-                    <td>
-                      <span>{parseFloat(item.claimed).toFixed(3)}</span>
-                    </td>
-                    <td>
-                      <span>{parseFloat(item.remain).toFixed(3)}</span>
-                    </td>
-                    <td>
-                      <span>{moment(item.start).format('MMM DD, YYYY')}</span>
-                    </td>
-                    <td>
-                      <span>{moment(item.end).format('MMM DD, YYYY')}</span>
-                    </td>
-                    <td>
-                      <DivAct>
-                        {handleButtonClaim(item)}
-                        {(item.roles.includes('OPERATOR') || item.roles.includes('ADMIN')) && (
-                          <DivIcon onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.EDIT)}>
-                            <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
-                          </DivIcon>
-                        )}
-                      </DivAct>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
+    <>
+      {typePage === typesPoolPage.LIST_POOL && (
+        <DivTabFilters>
+          {Object.values(ListTabs).map((item, index) => (
+            <TabFilter active={item === activeTab} onClick={() => handleFilter(item)} key={index}>
+              {item}
+            </TabFilter>
+          ))}
+        </DivTabFilters>
+      )}
+      <BlockTable isListPool={typePage === typesPoolPage.LIST_POOL}>
+        <TableActivePoolWrapper>
+          <Heading>{heading}</Heading>
+
+          <DivTableBox>
+            <Table>
+              <thead>
+                <tr>
+                  {columns.map((item, index) => {
+                    return index === 0 ? (
+                      <TableTh key={item.key} data-head={item.key}>
+                        <DivTableThFirst>
+                          {item.name}
+                          <DivIconSort reverse={alphabet.current} onClick={() => handleSortPools(data)}>
+                            <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
+                          </DivIconSort>
+                        </DivTableThFirst>
+                      </TableTh>
+                    ) : (
+                      <TableTh key={item.key} data-head={item.key}>
+                        {item.name}
+                      </TableTh>
+                    )
+                  })}
+                </tr>
+              </thead>
+              {dataShow && !!dataShow?.length && (
+                <tbody>
+                  {dataShow?.map((item: any, index: number) => {
+                    return (
+                      <tr key={index}>
+                        <td>
+                          <DivNameBox>
+                            <IconOxy
+                              SrcImageIcon={item.srcImage !== undefined ? item.srcImage : IconTableDefault}
+                              widthIcon={'14px'}
+                              heightIcon={'14px'}
+                            />
+                            <NamePool>{item.name}</NamePool>
+                            <AddressWallet>( {shortenAddress(item.address)} )</AddressWallet>
+                          </DivNameBox>
+                        </td>
+                        <td>
+                          <span>{parseFloat(item.claimed).toFixed(3)}</span>
+                        </td>
+                        <td>
+                          <span>{parseFloat(item.remain).toFixed(3)}</span>
+                        </td>
+                        <td>
+                          <span>{moment(item.start).format('MMM DD, YYYY')}</span>
+                        </td>
+                        <td>
+                          <span>{moment(item.end).format('MMM DD, YYYY')}</span>
+                        </td>
+                        <td>
+                          <DivAct>
+                            {item.roles.includes(RolePoolAddress.STAKEHOLDER) && (
+                              <ButtonClaim
+                                active={true}
+                                onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.CLAIM)}
+                              >
+                                Claim
+                              </ButtonClaim>
+                            )}
+                            {(item.roles.includes(RolePoolAddress.OPERATOR) ||
+                              item.roles.includes(RolePoolAddress.ADMIN)) && (
+                              <DivIcon onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.EDIT)}>
+                                <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                              </DivIcon>
+                            )}
+                          </DivAct>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              )}
+            </Table>
+          </DivTableBox>
+          {data && !data.length ? (
+            <Notification>No data to show !</Notification>
+          ) : (
+            <Bottom>
+              <Pagination
+                simple
+                onChange={handleOnChange}
+                pageSize={countPerPage}
+                current={currentPage}
+                total={data ? data.length : 0}
+              />
+            </Bottom>
           )}
-        </Table>
-      </DivTableBox>
-      {data && !data.length && <Notification>No data to show !</Notification>}
-    </TableActivePoolWrapper>
+        </TableActivePoolWrapper>
+      </BlockTable>
+    </>
   )
 }
+
+const BlockTable = styled.div<{ isListPool?: boolean }>`
+  border-radius: 16px;
+
+  ${({ isListPool }) =>
+    isListPool &&
+    css`
+      background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
+      padding: 24px 32px 20px;
+    `}
+`
+
+const DivTabFilters = styled.div`
+  display: flex;
+  margin: 30px 30px 0 30px;
+  color: ${({ theme }) => theme.white};
+`
+
+const TabFilter = styled.div<{ active: boolean }>`
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 30px;
+  gap: 10px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  margin-right: 10px;
+  background: ${({ active, theme }) => (active ? theme.blue4 : theme.bgPrimary)};
+  text-transform: ${({ active }) => (active ? 'uppercase' : 'capitalize')};
+  color: ${({ active, theme }) => (active ? theme.white : theme.text11)};
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+`
+
+const Bottom = styled.div`
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+
+  & button {
+    background: none !important;
+    border: none !important;
+    &:after {
+      margin-top: -5px;
+      display: inline-flex;
+      font-size: 25px !important;
+      color: ${({ theme }) => theme.white};
+    }
+
+    &[disabled] {
+      &:after {
+        color: ${({ theme }) => theme.text2} !important;
+      }
+    }
+  }
+
+  & .rc-pagination-item {
+    background: none !important;
+    border: none;
+
+    & a {
+      color: ${({ theme }) => theme.white};
+    }
+
+    &-active {
+      & a {
+        color: ${({ theme }) => theme.yellow1};
+      }
+    }
+  }
+  & .rc-pagination-simple-pager {
+    color: ${({ theme }) => theme.white};
+
+    input,
+    span {
+      background: none;
+      color: ${({ theme }) => theme.white};
+      border: none;
+      font-size: 14px !important;
+    }
+
+    input {
+      padding: 0;
+      margin-right: -5px;
+      font-size: 15px !important;
+    }
+  }
+
+  & .rc-pagination-prev {
+    margin-right: 0;
+  }
+`
+
 const TableActivePoolWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -170,7 +358,7 @@ const TableActivePoolWrapper = styled.div`
   box-sizing: border-box;
 `
 const Heading = styled.h3`
-  color: ${({ theme }) => theme.white};
+  color: ${({ theme }) => theme.yellow3};
   font-size: 20px;
   line-height: 1.2;
   font-family: 'Montserrat', sans-serif;
