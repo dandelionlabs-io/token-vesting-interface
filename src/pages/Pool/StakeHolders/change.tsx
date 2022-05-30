@@ -8,7 +8,6 @@ import styled from 'styled-components/macro'
 import Vesting from '../../../abis/Vesting'
 import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
-import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import {
   useCloseModal,
   useConfirmModalToggle,
@@ -19,8 +18,8 @@ import { ApplicationModal } from '../../../state/application/reducer'
 import { typesPoolPage } from '../index'
 
 const StakeholderUpdateAddress = () => {
-  const { account } = useActiveWeb3React()
   const addressWallet = window.localStorage.getItem('addressWallet')
+  const poolAddress = window.localStorage.getItem('address')
   const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
   const handleChange = (e: any) => {
@@ -38,23 +37,22 @@ const StakeholderUpdateAddress = () => {
   }
 
   const handleChangeStakeholder = async (prevAddr: any, newAddr: any) => {
+    console.log(prevAddr, newAddr)
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
-    const vestingInstance = new ethers.Contract(account || '', Vesting, web3Provider.getSigner())
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
 
     const tx = await vestingInstance
       .changeInvestor(prevAddr, newAddr)
       .then(() => {
         toggleSuccessModal()
-      })
-      .catch((e: any) => {
-        console.log(e)
-      })
-      .finally(() => {
         setTimeout(function () {
           closeModal()
         }, 3000)
+      })
+      .catch((e: any) => {
+        console.log(e)
       })
 
     tx?.wait().then(() => window.location.reload())

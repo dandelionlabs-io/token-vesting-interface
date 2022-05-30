@@ -114,8 +114,13 @@ const PoolDetails = () => {
       return
     }
 
-    let dataSort = [...data]
+    const dataStakeholder = data.filter((item) => !!item.amountlocked)
 
+    let dataSort = [...dataStakeholder].map((item, index) => ({
+      address: item.newOwner ? item.newOwner : item.address,
+      amountClaimed: item.amountClaimed,
+      amountlocked: item.amountlocked,
+    }))
     dataSort = dataSort.sort((prev: any, next: any) => {
       const prevName = prev.address.toLowerCase()
       const nextName = next.address.toLowerCase()
