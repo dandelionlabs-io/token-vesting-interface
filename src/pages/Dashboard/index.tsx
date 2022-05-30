@@ -49,8 +49,6 @@ const Dashboard = () => {
 
   const [dataActive, setDataActive] = useState<IPoolsData[]>([])
 
-  console.log(poolData)
-
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
     amount: userEthBalance?.toSignificant(4),
@@ -61,7 +59,7 @@ const Dashboard = () => {
 
   const dataCDRED: TypeItemInfo = {
     heading: 'CDRED Balance',
-    amount: userCDREDBalance,
+    amount: userCDREDBalance.toFixed(3),
     widthIcon: '39px',
     heightIcon: '29px',
     SrcImageIcon: IconCDRED,

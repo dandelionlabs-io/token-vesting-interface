@@ -43,8 +43,6 @@ export enum ListTabs {
   BANNED = 'banned',
 }
 
-console.log(Object.values(ListTabs))
-
 const TableActivePool = ({ data, heading }: Props) => {
   const { account } = useActiveWeb3React()
   const countPerPage = 8
@@ -57,8 +55,6 @@ const TableActivePool = ({ data, heading }: Props) => {
   const typePage = window.localStorage.getItem('typePoolPage')
 
   const [activeTab, setActiveTab] = useState<string>(ListTabs.ALL)
-
-  console.log(typePage)
 
   const handleRedirectPoolDetails = (address: string, typePoolPage: string) => {
     window.localStorage.setItem('address', address)
