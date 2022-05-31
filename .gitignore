@@ -31,7 +31,6 @@ notes.txt
 
 .vscode/
 
-package-lock.json
 
 /.env
 /yarn.lock
