@@ -55,10 +55,15 @@ const StakeHolder = () => {
     Array.from(fileUploaded).forEach(async (file: any) => {
       const content = await file.text()
       const result = parse(content, { header: true })
-      const arrAddress: { address: any }[] = []
-      const arrAmount: { amnt: any }[] = []
+      const arrAddress: { address: string }[] = []
+      const arrAmount: { amount: string }[] = []
 
-      const dataFiles = result.data.filter((item: any) => !blacklist.includes(item?.address))
+      const dataFiles = result.data.map((item: any) => ({
+        ...item,
+        isBlackList: blacklist.includes(item?.address),
+      }))
+
+      setList(dataFiles)
       dispatch(updateListStateHolder(dataFiles))
 
       dataFiles.forEach((item: any, index: any) => {
@@ -68,26 +73,22 @@ const StakeHolder = () => {
 
         if (item.address && item.amount) {
           arrAddress.push(item.address)
-          const amounts: any = utils.parseEther(item.amount)
-          arrAmount.push(amounts)
+          if (!item.isBlackList) {
+            const amounts: any = utils.parseEther(item.amount)
+            arrAmount.push(amounts)
+            setAmount((existing: number) => existing + parseInt(item.amount))
+          }
 
-          setAmount((existing: any) => existing + parseInt(item.amount))
           setAddressList(arrAddress)
           setAmountList(arrAmount)
         }
       })
-
-      setList([...result.data])
     })
     const fileName = fileUploaded[0].name
 
     if (hiddenFileInput) {
       hiddenFileInput.current.innerText = fileName ? `${fileName}...` : `${fileUploaded.lenght} file selected`
     }
-  }
-
-  const blacklisted = (item: any, list: any) => {
-    return list.includes(item)
   }
 
   const handleApproval = async () => {
@@ -121,10 +122,7 @@ const StakeHolder = () => {
   const handleAdd = async () => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
-
     const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
-
-    console.log(addressList, amountList)
     const tx = await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
       console.log(e)
     })
@@ -204,19 +202,14 @@ const StakeHolder = () => {
             <HeadSpan>Amount</HeadSpan>
           </ListContainer>
           <EmptyWrapper>
-            {list.map((item: any, index: any) => {
-              const exist = blacklisted(item.address, blacklist)
-              if (index === list.length - 1) {
-                return false
-              } else {
-                return (
-                  <ListContainer key={index} justify="space-between">
-                    <ListSpan color={exist ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
-                    <ListSpan color={exist ? '#5F5F5F' : 'white'}>{item.amount}</ListSpan>
-                  </ListContainer>
-                )
-              }
-            })}
+            {list.map((item: any, index: any) => (
+              <ListContainer key={index} justify="space-between">
+                <ListSpan color={item.isBlackList ? '#5F5F5F' : 'white'}> {item.address}</ListSpan>
+                <ListSpan color={item.isBlackList ? '#5F5F5F' : 'white'}>
+                  {item.isBlackList ? '-' : item.amount}
+                </ListSpan>
+              </ListContainer>
+            ))}
           </EmptyWrapper>
           <ListContainer border={true} justify="space-between">
             <HeadSpan fontsize="16px" color="white">
@@ -252,7 +245,7 @@ const CustomButton = styled.button<{ color?: string; background?: string }>`
   color: ${(props) => props.color};
   background: ${(props) => props.background};
   margin-top: 30px;
-  padding: 8px 0px;
+  padding: 8px 0;
   width: 180px;
   height: 36px;
   border-radius: 8px;

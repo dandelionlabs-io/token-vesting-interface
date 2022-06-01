@@ -53,7 +53,7 @@ const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
     css`
       //margin-left: 320px;
       margin-top: 85px;
-      padding: 32px 60px 60px 30px;
+      padding: 32px 60px 60px 60px;
       //width: calc(100% - 320px);
       display: block;
       flex-direction: unset;
@@ -208,24 +208,26 @@ export default function App() {
       return
     }
 
-    // const currentSecond = moment().unix()
     const poolsClone = [...pools]
     let availablePools = [...poolsResult]
 
     if (availablePools.length !== 0) {
-      availablePools = availablePools.map((pool: IPoolsData) => {
-        const data = poolsClone.find((x: any) => x.address === pool.address)
-        pool = {
-          ...pool,
-          name: data?.name || '',
-          start: data.start * 1000,
-          end: data.end * 1000,
-          roles: data.roles,
-          managersAddress: data.managersAddressArray,
-        }
+      availablePools = availablePools
+        .map((pool: IPoolsData) => {
+          const data = poolsClone.find((x: any) => x.address === pool.address)
+          console.log(data)
+          pool = {
+            ...pool,
+            name: data?.name || '',
+            start: data?.start * 1000 || null,
+            end: data?.end * 1000 || null,
+            roles: data?.roles || [],
+            managersAddress: data?.managersAddressArray || [],
+          }
 
-        return pool
-      })
+          return pool
+        })
+        .filter((pool) => pool.name && pool.start && pool.end)
 
       dispatch(updatePoolsData(availablePools))
     }
