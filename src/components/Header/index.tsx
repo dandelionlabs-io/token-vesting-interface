@@ -177,10 +177,17 @@ export default function Header() {
   return (
     <>
       {location.pathname !== '/' ? (
-        <InfoAccount>
-          <AddressWallet>{account && shortenAddress(account)}</AddressWallet>
-          <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount>
-        </InfoAccount>
+        <>
+          <Title href=".">
+            <DandelionIcon>
+              <Logo width="200px" height="100%" title="logo" />
+            </DandelionIcon>
+          </Title>
+          <InfoAccount>
+            <AddressWallet>{account && shortenAddress(account)}</AddressWallet>
+            <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount>
+          </InfoAccount>
+        </>
       ) : (
         <HeaderFrame showBackground={scrollY > 45}>
           <Title href=".">

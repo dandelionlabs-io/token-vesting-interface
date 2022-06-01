@@ -4,7 +4,7 @@ import styled from 'styled-components/macro'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
-import SidebarMenu from '../../components/SidebarMenu'
+// import SidebarMenu from '../../components/SidebarMenu'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { useCDREDBalance } from '../../state/pools/hook'
@@ -66,7 +66,7 @@ const Pool = () => {
 
   return (
     <>
-      <SidebarMenu />
+      {/*<SidebarMenu />*/}
       <div>
         <BlockChartList>
           <BlockChartItem>

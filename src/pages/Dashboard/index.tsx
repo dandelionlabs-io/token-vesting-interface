@@ -8,7 +8,7 @@ import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BrowseAll from '../../assets/svg/icon/icon-eye.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
-import SidebarMenu from '../../components/SidebarMenu'
+// import SidebarMenu from '../../components/SidebarMenu'
 import TableActivePool from '../../components/TableActivePool'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
@@ -82,7 +82,7 @@ const Dashboard = () => {
   }
   return (
     <DashboardContainer>
-      <SidebarMenu />
+      {/*<SidebarMenu />*/}
       <BlockCharts>
         <BlockChartList>
           <BlockChartItem>

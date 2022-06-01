@@ -51,10 +51,10 @@ const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
   ${({ bodyDashBoard }) =>
     bodyDashBoard &&
     css`
-      margin-left: 320px;
+      //margin-left: 320px;
       margin-top: 85px;
       padding: 32px 60px 60px 30px;
-      width: calc(100% - 320px);
+      //width: calc(100% - 320px);
       display: block;
       flex-direction: unset;
       align-items: unset;
@@ -71,11 +71,11 @@ const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
   ${({ headerDashBoard }) =>
     headerDashBoard &&
     css`
-      left: 320px;
+      //left: 320px;
       display: flex;
       justify-content: flex-end;
       background-color: ${({ theme }) => theme.bgPrimary};
-      width: calc(100% - 320px);
+      //width: calc(100% - 320px);
       padding: 25px 60px;
     `}
 `
