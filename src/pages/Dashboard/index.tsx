@@ -70,7 +70,9 @@ const Dashboard = () => {
     window.localStorage.removeItem('address')
     window.localStorage.removeItem('typePoolPage')
     const currentDayTime = new Date().getTime()
-    const data = poolData.filter((data) => data.start < currentDayTime && data.end > currentDayTime)
+    const data = poolData.filter(
+      (data) => data.start && data.end && data?.start < currentDayTime && data?.end > currentDayTime
+    )
 
     setDataActive(data)
   }, [account, history, poolData])

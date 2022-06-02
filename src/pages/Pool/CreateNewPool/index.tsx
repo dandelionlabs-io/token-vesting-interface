@@ -226,7 +226,7 @@ const CreateNewPool = () => {
                   minDate={new Date()}
                   placeholderText="Select prefer date"
                   timeFormat="HH:mm"
-                  timeIntervals={15}
+                  timeIntervals={5}
                   timeCaption="time"
                   dateFormat="MMMM d, yyyy h:mm aa"
                 />

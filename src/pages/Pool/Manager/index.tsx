@@ -10,6 +10,7 @@ import IconOxy from '../../../components/Icons/IconOxy'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { IPoolsData, RolePoolAddress, setRoleForPoolAddress, updateManagers } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
+
 const Manager = () => {
   const dispatch = useAppDispatch()
   const poolAddress = window.localStorage.getItem('address')
@@ -46,8 +47,8 @@ const Manager = () => {
     vestingInstance
       .revokeRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ poolAddress, removeRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ poolAddress, itemManager, isRemove: true }))
+        dispatch(setRoleForPoolAddress({ address: poolAddress, removeRole: RolePoolAddress['OPERATOR'] }))
+        dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: true }))
         setValueAddress('')
       })
       .catch((e: string) => console.log(e))
