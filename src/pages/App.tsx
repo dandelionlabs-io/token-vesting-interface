@@ -215,7 +215,6 @@ export default function App() {
       availablePools = availablePools
         .map((pool: IPoolsData) => {
           const data = poolsClone.find((x: any) => x.address === pool.address)
-          console.log(data)
           pool = {
             ...pool,
             name: data?.name || '',

@@ -66,7 +66,7 @@ const TableActivePool = ({ data, heading }: Props) => {
   const handleRedirectPoolDetails = (item: any, typePoolPage: string) => {
     const status = handleSetStatusClaim(item)
 
-    if (status !== StatusClaimButton.ACTIVE) {
+    if (status !== StatusClaimButton.ACTIVE && typePoolPage === typesPoolPage.CLAIM) {
       return
     }
 
@@ -300,7 +300,7 @@ const TableActivePool = ({ data, heading }: Props) => {
                             )}
                             {(item.roles.includes(RolePoolAddress.OPERATOR) ||
                               item.roles.includes(RolePoolAddress.ADMIN)) && (
-                              <DivIcon onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.EDIT)}>
+                              <DivIcon onClick={() => handleRedirectPoolDetails(item, typesPoolPage.EDIT)}>
                                 <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                               </DivIcon>
                             )}
