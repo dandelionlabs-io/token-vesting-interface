@@ -1,8 +1,12 @@
+import detectEthereumProvider from '@metamask/detect-provider'
 import ModalConfirm from 'components/Modal/ModalConfirm'
 import ModalSuccess, { DataModalSuccess } from 'components/Modal/ModalSuccess'
+import { ethers, providers } from 'ethers'
 import React, { useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
+import Vesting from '../../../abis/Vesting'
 import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
 import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
@@ -11,9 +15,11 @@ import { typesPoolPage } from '../index'
 
 interface Props {
   addressWallet?: string
+  poolAddress: string
 }
 const BlockUpdateAddress = (props: Props) => {
-  const { addressWallet } = props
+  const { addressWallet, poolAddress } = props
+  const history = useHistory()
   const [valueAddress, setValueAddress] = useState<string>()
   const handleChange = (e: any) => {
     setValueAddress(e.target.value)
@@ -24,10 +30,27 @@ const BlockUpdateAddress = (props: Props) => {
   const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const dataModalSuccess: DataModalSuccess = { type: 'ownership' }
   const contentConfirm = dataConfirm.ownership
+
   const contentModalConfirm = {
     header: contentConfirm.header,
     notification: contentConfirm.notification,
   }
+
+  const handleTransferOwnership = async () => {
+    const provider: any = await detectEthereumProvider()
+    const web3Provider = new providers.Web3Provider(provider)
+    const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
+    await vestingInstance
+      .changeAdmin(valueAddress)
+      .then(() => {
+        window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+        history.push({ pathname: 'pool' })
+      })
+      .catch((e: any) => {
+        console.log(e)
+      })
+  }
+
   return (
     <>
       <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
@@ -60,7 +83,7 @@ const BlockUpdateAddress = (props: Props) => {
       <ModalConfirm
         isOpen={confirmModalOpen}
         onDimiss={toggleConfirmModal}
-        isOpenPopupSuccess={toggleSuccessModal}
+        handleTransferOwnership={handleTransferOwnership}
         content={contentModalConfirm}
       />
 

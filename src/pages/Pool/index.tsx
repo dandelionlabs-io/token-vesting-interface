@@ -79,7 +79,9 @@ const Pool = () => {
         {typePage === typesPoolPage.CREATE_POOL && <CreateNewPool />}
         {typePage === typesPoolPage.LIST_POOL && <BrowseAll />}
         {(typePage === typesPoolPage.CLAIM || typePage === typesPoolPage.EDIT) && <PoolDetails />}
-        {typePage === typesPoolPage.TRANSFER_OWNER && <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />}
+        {typePage === typesPoolPage.TRANSFER_OWNER && (
+          <BlockUpdateAddress addressWallet={account || ''} poolAddress={poolAddress || ''} />
+        )}
         {typePage === typesPoolPage.ADD_STAKEHOLDER && <StakeHolder />}
         {typePage === typesPoolPage.EDIT_STAKEHOLDER && <EditStakeHolder />}
         {typePage === typesPoolPage.ASSIGN_MANAGER && <Manager />}
