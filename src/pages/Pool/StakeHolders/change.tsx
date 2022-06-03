@@ -37,7 +37,6 @@ const StakeholderUpdateAddress = () => {
   }
 
   const handleChangeStakeholder = async (prevAddr: any, newAddr: any) => {
-    console.log(prevAddr, newAddr)
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
 
@@ -89,7 +88,7 @@ const StakeholderUpdateAddress = () => {
       <ModalConfirm
         isOpen={confirmModalOpen}
         onDimiss={toggleConfirmModal}
-        isOpenPopupSuccess={() => handleChangeStakeholder(addressWallet, valueAddress)}
+        handleTransferOwnership={() => handleChangeStakeholder(addressWallet, valueAddress)}
         content={contentModalConfirm}
       />
 

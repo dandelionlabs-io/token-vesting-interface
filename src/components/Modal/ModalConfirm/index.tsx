@@ -6,14 +6,14 @@ import Modal from '../index'
 interface Props {
   isOpen: boolean
   onDimiss: () => void
-  isOpenPopupSuccess?: () => void
+  handleTransferOwnership?: () => void
   content: {
     header: string
     notification: string
   }
 }
 const ModalConfirm = (props: Props) => {
-  const { isOpen, onDimiss, isOpenPopupSuccess, content } = props
+  const { isOpen, onDimiss, handleTransferOwnership, content } = props
 
   return (
     <>
@@ -27,7 +27,7 @@ const ModalConfirm = (props: Props) => {
                 <ButtonNo onClick={onDimiss}>No</ButtonNo>
               </DivButtonItem>
               <DivButtonItem>
-                <ButtonYes onClick={isOpenPopupSuccess}>Yes</ButtonYes>
+                <ButtonYes onClick={handleTransferOwnership}>Yes</ButtonYes>
               </DivButtonItem>
             </DivGroupButton>
           </ModalBody>
