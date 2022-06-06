@@ -2,7 +2,7 @@ import 'rc-pagination/assets/index.css'
 
 import moment from 'moment'
 import Pagination from 'rc-pagination'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -43,6 +43,14 @@ export enum ListTabs {
   BANNED = 'banned',
 }
 
+export enum StatusClaimButton {
+  ACTIVE = 'active',
+  DISABLE = 'disable',
+  BANNED = 'banned',
+  CLAIMED = 'claimed',
+  EXPIRED = 'expired',
+}
+
 const TableActivePool = ({ data, heading }: Props) => {
   const { account } = useActiveWeb3React()
   const countPerPage = 8
@@ -51,13 +59,18 @@ const TableActivePool = ({ data, heading }: Props) => {
   const alphabet = useRef<boolean>(true)
   const [dataPools, setDataPools] = useState<Props['data']>(data)
   const [dataShow, setDataShow] = useState<Props['data']>([])
-
   const typePage = window.localStorage.getItem('typePoolPage')
 
   const [activeTab, setActiveTab] = useState<string>(ListTabs.ALL)
 
-  const handleRedirectPoolDetails = (address: string, typePoolPage: string) => {
-    window.localStorage.setItem('address', address)
+  const handleRedirectPoolDetails = (item: any, typePoolPage: string) => {
+    const status = handleSetStatusClaim(item)
+
+    if (status !== StatusClaimButton.ACTIVE && typePoolPage === typesPoolPage.CLAIM) {
+      return
+    }
+
+    window.localStorage.setItem('address', item.address)
     window.localStorage.setItem('typePoolPage', typePoolPage)
     history.push({ pathname: `pool` })
   }
@@ -96,9 +109,41 @@ const TableActivePool = ({ data, heading }: Props) => {
 
   const handleOnChange = (page: number) => {
     setCurrentPage(page)
-    setDataShow(data)
+    setDataShow(dataShow)
   }
 
+  const handleSetStatusClaim = useCallback(
+    (item: IPoolsData) => {
+      const currentDayTime = new Date().getTime()
+
+      if (account && item.blackList && item.blackList.includes(account)) {
+        return StatusClaimButton.BANNED
+      }
+
+      if (item.end && currentDayTime > item.end) {
+        return StatusClaimButton.EXPIRED
+      }
+
+      if (item.claimable >= 0.1 && item.start && currentDayTime > item.start) {
+        return StatusClaimButton.ACTIVE
+      }
+
+      if (
+        (item.claimable < 0.1 && item.start && currentDayTime > item.start) ||
+        (item.start && currentDayTime < item.start)
+      ) {
+        return StatusClaimButton.DISABLE
+      }
+
+      if (item.amount > 0 && item.amount === item.claimed) {
+        return StatusClaimButton.CLAIMED
+      }
+
+      return StatusClaimButton.ACTIVE
+    },
+    [account]
+  )
+
   useEffect(() => {
     handleSortPools(data)
   }, [data])
@@ -106,6 +151,42 @@ const TableActivePool = ({ data, heading }: Props) => {
   useEffect(() => {
     handleSortPools(data)
   }, [data])
+
+  const handleShowCheckStakeholder = useCallback(async () => {
+    if (!account || !dataPools) {
+      return
+    }
+
+    const dataSlice = dataPools.slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
+
+    const data = await Promise.all(
+      dataSlice.map(async (data) => {
+        const urlAddressGetStakeholder = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${data.address}/stakeholders`
+        const urlBlackList = `${process.env.REACT_APP_BASE_URL}/${data.address}/blacklist`
+        const stakeholders: any[] = await Api.get(urlAddressGetStakeholder)
+
+        const isStakeholder = stakeholders.some((item) => {
+          return item.address === account
+        })
+        const list: any[] = await Api.get(urlBlackList)
+
+        if (isStakeholder) {
+          return {
+            ...data,
+            roles: [...data.roles, RolePoolAddress.STAKEHOLDER],
+            blackList: list.map((item) => item.address),
+          }
+        } else {
+          return {
+            ...data,
+            blackList: list.map((item) => item.address),
+          }
+        }
+      })
+    )
+
+    return data
+  }, [account, currentPage, dataPools])
 
   useEffect(() => {
     ;(async () => {
@@ -113,34 +194,33 @@ const TableActivePool = ({ data, heading }: Props) => {
         return
       }
 
-      const dataSlice = dataPools.slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
-      setDataShow(dataSlice)
-
-      const dataShowCheckStakeHolder = await Promise.all(
-        dataSlice.map(async (data) => {
-          const urlAddressGetStakeholder = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${data.address}/stakeholders`
-          const stakeholders: any[] = await Api.get(urlAddressGetStakeholder)
-          const isStakeholder = stakeholders.some((item) => {
-            return item.address === account
-          })
-
-          if (isStakeholder) {
-            return {
-              ...data,
-              roles: [...data.roles, RolePoolAddress.STAKEHOLDER],
-            }
-          } else {
-            return data
-          }
-        })
-      )
+      const dataShowCheckStakeHolder = (await handleShowCheckStakeholder()) || []
 
       setDataShow(dataShowCheckStakeHolder)
     })()
-  }, [account, currentPage, dataPools])
+  }, [account, handleShowCheckStakeholder, currentPage, dataPools])
 
-  const handleFilter = (item: string) => {
+  const handleFilter = useCallback(async (item: string) => {
     setActiveTab(item)
+  }, [])
+
+  const handleShowStatusClaim = (item: IPoolsData) => {
+    const status = handleSetStatusClaim(item)
+
+    switch (status) {
+      case StatusClaimButton.EXPIRED:
+        return StatusClaimButton.EXPIRED
+      case StatusClaimButton.BANNED:
+        return StatusClaimButton.BANNED
+      case StatusClaimButton.CLAIMED:
+        return StatusClaimButton.CLAIMED
+      default:
+        return 'Claim'
+    }
+  }
+
+  const handleShowButtonClaim = (item: IPoolsData) => {
+    return handleSetStatusClaim(item)
   }
 
   return (
@@ -212,15 +292,15 @@ const TableActivePool = ({ data, heading }: Props) => {
                           <DivAct>
                             {item.roles.includes(RolePoolAddress.STAKEHOLDER) && (
                               <ButtonClaim
-                                active={true}
-                                onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.CLAIM)}
+                                status={handleShowButtonClaim(item)}
+                                onClick={() => handleRedirectPoolDetails(item, typesPoolPage.CLAIM)}
                               >
-                                Claim
+                                {handleShowStatusClaim(item)}
                               </ButtonClaim>
                             )}
                             {(item.roles.includes(RolePoolAddress.OPERATOR) ||
                               item.roles.includes(RolePoolAddress.ADMIN)) && (
-                              <DivIcon onClick={() => handleRedirectPoolDetails(item.address, typesPoolPage.EDIT)}>
+                              <DivIcon onClick={() => handleRedirectPoolDetails(item, typesPoolPage.EDIT)}>
                                 <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
                               </DivIcon>
                             )}
@@ -461,7 +541,7 @@ const AddressWallet = styled.p`
   line-height: 17px;
   color: ${({ theme }) => theme.text8};
 `
-const ButtonClaim = styled.button<{ active?: boolean }>`
+const ButtonClaim = styled.button<{ status?: string }>`
   outline: none;
   border: none;
   font-family: 'Montserrat', sans-serif;
@@ -473,14 +553,38 @@ const ButtonClaim = styled.button<{ active?: boolean }>`
   color: rgba(109, 149, 199, 0.3);
   background-color: rgba(0, 28, 60, 0.4);
   border-radius: 12px;
+  text-transform: capitalize;
 
-  ${({ active }) =>
-    active &&
-    css`
-      color: ${({ theme }) => theme.white};
-      background-color: #18aa00;
-      cursor: pointer;
-    `}
+  ${({ status, theme }) => {
+    switch (status) {
+      case StatusClaimButton.ACTIVE:
+        return `
+					color: ${theme.white};
+					background-color: #18aa00;
+					cursor: pointer;`
+      case StatusClaimButton.DISABLE:
+        return `
+          color: rgba(109, 149, 199, 0.3);
+          background-color: rgba(0, 28, 60, 0.4);
+        `
+      case StatusClaimButton.EXPIRED:
+        return `
+ 		      color: ${theme.bgPrimary};
+          background-color: ${theme.text11};
+        `
+      case StatusClaimButton.BANNED:
+        return `
+					color: ${theme.white};
+          background-color: ${theme.red1};`
+      case StatusClaimButton.CLAIMED:
+        return `
+          color: ${theme.white};
+          background-color: ${theme.red1};
+        `
+      default:
+        return ''
+    }
+  }}
 `
 const DivAct = styled.div`
   display: flex;

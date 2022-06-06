@@ -279,7 +279,7 @@ const PoolDetails = () => {
           </ProgressDiv>
           {typePage === typesPoolPage.EDIT && (
             <DivActionUser>
-              {data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER') ? (
+              {data.roles?.includes('ADMIN') ? (
                 <div onClick={() => handleRedirectPool(typesPoolPage.TRANSFER_OWNER)}>
                   <BlockFeatureUser dataImage={IconUser} name={'Transfer Owner'} />
                 </div>
@@ -357,7 +357,7 @@ const PoolDetails = () => {
             </DivTableBox>
             {stakeholders && !stakeholders.length && <Notification>No data to show !</Notification>}
 
-            {(data.roles?.includes('ADMIN') || data.roles?.includes('MANAGER')) && (
+            {(data.roles?.includes('ADMIN') || data.roles?.includes('OPERATOR')) && (
               <div onClick={() => handleRedirectPool(typesPoolPage.ADD_STAKEHOLDER)}>
                 <BlockFeatureUser dataImage={IconAddStake} name={'Add Stakeholder(s)'} />
               </div>

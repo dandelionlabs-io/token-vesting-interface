@@ -4,7 +4,7 @@ import styled from 'styled-components/macro'
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
-import SidebarMenu from '../../components/SidebarMenu'
+// import SidebarMenu from '../../components/SidebarMenu'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { useCDREDBalance } from '../../state/pools/hook'
@@ -66,7 +66,7 @@ const Pool = () => {
 
   return (
     <>
-      <SidebarMenu />
+      {/*<SidebarMenu />*/}
       <div>
         <BlockChartList>
           <BlockChartItem>
@@ -79,7 +79,9 @@ const Pool = () => {
         {typePage === typesPoolPage.CREATE_POOL && <CreateNewPool />}
         {typePage === typesPoolPage.LIST_POOL && <BrowseAll />}
         {(typePage === typesPoolPage.CLAIM || typePage === typesPoolPage.EDIT) && <PoolDetails />}
-        {typePage === typesPoolPage.TRANSFER_OWNER && <BlockUpdateAddress addressWallet={'Ukwx9Vs4C1d9d1fF46g7F'} />}
+        {typePage === typesPoolPage.TRANSFER_OWNER && (
+          <BlockUpdateAddress addressWallet={account || ''} poolAddress={poolAddress || ''} />
+        )}
         {typePage === typesPoolPage.ADD_STAKEHOLDER && <StakeHolder />}
         {typePage === typesPoolPage.EDIT_STAKEHOLDER && <EditStakeHolder />}
         {typePage === typesPoolPage.ASSIGN_MANAGER && <Manager />}

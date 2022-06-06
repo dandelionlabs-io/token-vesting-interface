@@ -9,15 +9,6 @@ import { AppState } from '../../../state'
 import { useAppSelector } from '../../../state/hooks'
 import { typesPoolPage } from '../index'
 
-// interface TypeItemInfo {
-//   dataChart?: any
-//   heading?: string
-//   amount?: number | string
-//   widthIcon?: string
-//   heightIcon?: string
-//   SrcImageIcon?: string
-// }
-
 const IconAddStake = {
   SrcImageIcon: AddStake,
   widthIcon: '16px',

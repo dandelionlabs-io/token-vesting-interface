@@ -85,7 +85,7 @@ function colors(): Colors {
     secondary2: '#F6DDE8',
     secondary3: '#FDEAF1',
     // other
-    red1: '#DA2D2B',
+    red1: '#D73400',
     red2: '#DF1F38',
     red3: '#CC3366',
     green1: '#007D35',

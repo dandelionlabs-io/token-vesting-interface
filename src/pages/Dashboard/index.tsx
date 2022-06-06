@@ -8,7 +8,7 @@ import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BrowseAll from '../../assets/svg/icon/icon-eye.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
-import SidebarMenu from '../../components/SidebarMenu'
+// import SidebarMenu from '../../components/SidebarMenu'
 import TableActivePool from '../../components/TableActivePool'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
@@ -70,7 +70,9 @@ const Dashboard = () => {
     window.localStorage.removeItem('address')
     window.localStorage.removeItem('typePoolPage')
     const currentDayTime = new Date().getTime()
-    const data = poolData.filter((data) => data.start < currentDayTime && data.end > currentDayTime)
+    const data = poolData.filter(
+      (data) => data.start && data.end && data?.start < currentDayTime && data?.end > currentDayTime
+    )
 
     setDataActive(data)
   }, [account, history, poolData])
@@ -82,7 +84,7 @@ const Dashboard = () => {
   }
   return (
     <DashboardContainer>
-      <SidebarMenu />
+      {/*<SidebarMenu />*/}
       <BlockCharts>
         <BlockChartList>
           <BlockChartItem>

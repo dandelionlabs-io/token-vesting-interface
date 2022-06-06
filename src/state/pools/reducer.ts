@@ -12,12 +12,13 @@ export interface IPoolsData {
   claimable: number
   claimed: any
   remain: any
-  start: any
-  end: any
+  start: number | null
+  end: number | null
   statusClaim?: any
   erc20Balance: number
   roles: string[]
   managersAddress: string[]
+  blackList: string[]
 }
 
 export interface IInitialState {
@@ -78,6 +79,7 @@ const poolsSlice = createSlice({
         data[index].managersAddress.push(String(itemManager))
         dataManagerIndex = Array.from(new Set(data[index].managersAddress))
       }
+
       state.data[index].managersAddress = [...dataManagerIndex]
     },
   },
