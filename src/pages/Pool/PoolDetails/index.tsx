@@ -8,7 +8,6 @@ import styled, { css } from 'styled-components/macro'
 import IconOxy from '../../../../src/components/Icons/IconOxy'
 import Vesting from '../../../abis/Vesting'
 import Api from '../../../api'
-import { ReactComponent as Logo } from '../../../assets/svg/dandelionlabs_logo_dashboard.svg'
 import AddStake from '../../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconTableEdit from '../../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconSort from '../../../assets/svg/icon/icon-dandelion-polygon-down.svg'
@@ -69,9 +68,8 @@ const PoolDetails = () => {
 
   const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const poolsData = useAppSelector((state: AppState) => state.pools)
-
   const [data, setData] = useState<any>({})
-
+  const [namePoolAddress, setNamePoolAddress] = useState<string>('')
   const [stakeholders, setStakeholders] = useState<Array<any>>([])
   const [historyClaim, setHistoryClam] = useState<Array<any>>([])
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
@@ -205,6 +203,7 @@ const PoolDetails = () => {
     if (!obj) {
       return
     }
+    setNamePoolAddress(obj.name)
     setData(obj)
     if (obj.amount <= 0) {
       setClaimedPercent(0)
@@ -217,9 +216,7 @@ const PoolDetails = () => {
 
   return (
     <>
-      <DandelionIcon>
-        <Logo width="200px" height="100%" title="logo" />
-      </DandelionIcon>
+      <PoolAddressName>{namePoolAddress}</PoolAddressName>
       <BlockWrapper>
         <EmptyContainer>
           <Heading>Detail</Heading>
@@ -395,16 +392,13 @@ const PoolDetails = () => {
   )
 }
 
-const DandelionIcon = styled.div`
+const PoolAddressName = styled.div`
   transition: transform 0.3s ease;
   margin: 20px 0;
-
-  position: relative;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    & > svg{
-        width: 128px !important;
-    }
-  `};
+  font-weight: bold;
+  font-size: 24px;
+  text-transform: capitalize;
+  color: ${({ theme }) => theme.white};
 `
 
 const AddressWallet = styled.p`

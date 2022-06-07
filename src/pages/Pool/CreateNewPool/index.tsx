@@ -16,6 +16,15 @@ import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.
 import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
 import IconOxy from '../../../components/Icons/IconOxy'
+import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
+import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
+import {
+  useCloseModal,
+  useLoadingModalToggle,
+  useModalOpen,
+  useSuccessModalToggle,
+} from '../../../state/application/hooks'
+import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppSelector } from '../../../state/hooks'
 import { IStakeholders } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
@@ -37,6 +46,20 @@ const CreateNewPool = () => {
 
   const [isDisable, setIsDisable] = useState<boolean>(false)
 
+  const toggleSuccessModal = useSuccessModalToggle()
+  const toggleLoadingModal = useLoadingModalToggle()
+
+  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
+
+  const dataModalSuccess: DataModalSuccess = {
+    type: '',
+  }
+  const dataModalLoading: DataModalLoading = {
+    type: 'loading',
+  }
+
+  const closeModal = useCloseModal()
   const listAddStakeholders: IStakeholders[] = useAppSelector((state) => state.pools)?.listAddStakeholders
 
   const onDragEnter = (event: any) => {
@@ -109,6 +132,8 @@ const CreateNewPool = () => {
       return
     }
 
+    toggleLoadingModal()
+
     const start = parseInt(String(startDate.getTime() / 1000))
     const duration = parseInt(String((endDate.getTime() - startDate.getTime()) / 1000))
 
@@ -135,11 +160,20 @@ const CreateNewPool = () => {
 
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
+      .then(() => {
+        toggleSuccessModal()
+        setTimeout(function () {
+          closeModal()
+          setStartDate(null)
+          setEndDate(null)
+          setName('')
+        }, 3000)
+      })
       .catch((e: any) => {
         console.log(e)
       })
 
-    tx.wait().then(async (res: any) => {
+    tx?.wait().then(async (res: any) => {
       if (!res.events) {
         return
       }
@@ -161,7 +195,7 @@ const CreateNewPool = () => {
 
       const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
 
-      tx2.wait().then(async () => {
+      tx2?.wait().then(async () => {
         await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
           console.log(e)
         })
@@ -174,114 +208,123 @@ const CreateNewPool = () => {
   }, [endDate, startDate, name])
 
   return (
-    <DivNewPoolWrapper>
-      <HeadingNewPool>Create New Pool</HeadingNewPool>
-      <DivContent>
-        <DivRow>
-          <DivColumn>
-            <TitleOptionNewPool title={'Pool Name'} />
-            <OptionContent>
-              <InputControl
-                type="text"
-                placeholder={'Input name for the pool'}
-                onChange={(e) => handleGetName(e)}
-                value={name}
-              />
-            </OptionContent>
-          </DivColumn>
-          <DivColumn>
-            {(showInputFile && (
-              <>
-                <TitleOptionNewPool title={'Icon/Logo Upload'} />
-                <DivUpload onDragEnter={onDragEnter} onDragOver={onDragOver} onDrop={handleDropFile}>
-                  <InputFile type={'file'} id={'file_upload'} name={'file_upload'} onChange={handleChangeUploadImage} />
-                  <LabelInputFile htmlFor={'file_upload'}>
-                    <IconOxy SrcImageIcon={IconUploadFile} widthIcon={'15px'} heightIcon={'17px'} />
-                    <span>Drag or choose file</span>
-                  </LabelInputFile>
-                </DivUpload>
-              </>
-            )) ||
-              fileImage?.map((image: any, index: any) => {
-                return (
-                  <DivImageBox key={index} data-imgindex={index}>
-                    <DivImage>
-                      <img src={image.src} alt={image.name} />
-                    </DivImage>
-                    <DivImageIcon onClick={handleDeleteImage}>
-                      <IconOxy SrcImageIcon={IconBin} widthIcon={'16px'} heightIcon={'16px'} />
-                    </DivImageIcon>
-                  </DivImageBox>
-                )
-              })}
-          </DivColumn>
-          <DivColumn>
-            <TitleOptionNewPool title={'Initial Date (Lock Start)'} />
-            <DivDatePicker>
-              <LabelBox>
-                <DatePicker
-                  selected={startDate}
-                  onChange={handleStartDateChange}
-                  showTimeSelect
-                  minDate={new Date()}
-                  placeholderText="Select prefer date"
-                  timeFormat="HH:mm"
-                  timeIntervals={5}
-                  timeCaption="time"
-                  dateFormat="MMMM d, yyyy h:mm aa"
+    <>
+      <DivNewPoolWrapper>
+        <HeadingNewPool>Create New Pool</HeadingNewPool>
+        <DivContent>
+          <DivRow>
+            <DivColumn>
+              <TitleOptionNewPool title={'Pool Name'} />
+              <OptionContent>
+                <InputControl
+                  type="text"
+                  placeholder={'Input name for the pool'}
+                  onChange={(e) => handleGetName(e)}
+                  value={name}
                 />
-                <DivIconCalendar>
-                  <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
-                </DivIconCalendar>
-              </LabelBox>
-            </DivDatePicker>
-          </DivColumn>
-          <DivColumn>
-            <TitleOptionNewPool />
-            <DivDatePicker>
-              <LabelBox>
-                <DatePicker
-                  selected={endDate}
-                  onChange={handleEndDateChange}
-                  showTimeSelect
-                  minDate={new Date()}
-                  timeFormat="HH:mm"
-                  placeholderText="Select prefer date"
-                  timeIntervals={15}
-                  timeCaption="time"
-                  dateFormat="MMMM d, yyyy h:mm aa"
-                />
-                <DivIconCalendar>
-                  <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
-                </DivIconCalendar>
-              </LabelBox>
-            </DivDatePicker>
-          </DivColumn>
+              </OptionContent>
+            </DivColumn>
+            <DivColumn>
+              {(showInputFile && (
+                <>
+                  <TitleOptionNewPool title={'Icon/Logo Upload'} />
+                  <DivUpload onDragEnter={onDragEnter} onDragOver={onDragOver} onDrop={handleDropFile}>
+                    <InputFile
+                      type={'file'}
+                      id={'file_upload'}
+                      name={'file_upload'}
+                      onChange={handleChangeUploadImage}
+                    />
+                    <LabelInputFile htmlFor={'file_upload'}>
+                      <IconOxy SrcImageIcon={IconUploadFile} widthIcon={'15px'} heightIcon={'17px'} />
+                      <span>Drag or choose file</span>
+                    </LabelInputFile>
+                  </DivUpload>
+                </>
+              )) ||
+                fileImage?.map((image: any, index: any) => {
+                  return (
+                    <DivImageBox key={index} data-imgindex={index}>
+                      <DivImage>
+                        <img src={image.src} alt={image.name} />
+                      </DivImage>
+                      <DivImageIcon onClick={handleDeleteImage}>
+                        <IconOxy SrcImageIcon={IconBin} widthIcon={'16px'} heightIcon={'16px'} />
+                      </DivImageIcon>
+                    </DivImageBox>
+                  )
+                })}
+            </DivColumn>
+            <DivColumn>
+              <TitleOptionNewPool title={'Initial Date (Lock Start)'} />
+              <DivDatePicker>
+                <LabelBox>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={handleStartDateChange}
+                    showTimeSelect
+                    minDate={new Date()}
+                    placeholderText="Select prefer date"
+                    timeFormat="HH:mm"
+                    timeIntervals={5}
+                    timeCaption="time"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                  />
+                  <DivIconCalendar>
+                    <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
+                  </DivIconCalendar>
+                </LabelBox>
+              </DivDatePicker>
+            </DivColumn>
+            <DivColumn>
+              <TitleOptionNewPool />
+              <DivDatePicker>
+                <LabelBox>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={handleEndDateChange}
+                    showTimeSelect
+                    minDate={new Date()}
+                    timeFormat="HH:mm"
+                    placeholderText="Select prefer date"
+                    timeIntervals={15}
+                    timeCaption="time"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                  />
+                  <DivIconCalendar>
+                    <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
+                  </DivIconCalendar>
+                </LabelBox>
+              </DivDatePicker>
+            </DivColumn>
 
-          <DivColumn fullWidth={true}>
-            <TitleOptionNewPool title={'Stakeholder(s)'} />
-            {!listAddStakeholders.length ? (
-              <DivAddStakeholders onClick={handleAddStakeholders}>
-                <IconOxy SrcImageIcon={IconPlus} widthIcon={'16px'} heightIcon={'16px'} />
-                <span>Add stakeholder(s)</span>
-              </DivAddStakeholders>
-            ) : (
-              <ListStakeholder>
-                {listAddStakeholders.map((item, index) => (
-                  <ItemStakeholder key={index}>
-                    <AddressStakeholder>{item.address}</AddressStakeholder>
-                    <AmountStakeholder>{item.amount}</AmountStakeholder>
-                  </ItemStakeholder>
-                ))}
-              </ListStakeholder>
-            )}
-          </DivColumn>
-        </DivRow>
-      </DivContent>
-      <DivSubmit disabled={isDisable} onClick={handleCreatePool}>
-        Create
-      </DivSubmit>
-    </DivNewPoolWrapper>
+            <DivColumn fullWidth={true}>
+              <TitleOptionNewPool title={'Stakeholder(s)'} />
+              {!listAddStakeholders.length ? (
+                <DivAddStakeholders onClick={handleAddStakeholders}>
+                  <IconOxy SrcImageIcon={IconPlus} widthIcon={'16px'} heightIcon={'16px'} />
+                  <span>Add stakeholder(s)</span>
+                </DivAddStakeholders>
+              ) : (
+                <ListStakeholder>
+                  {listAddStakeholders.map((item, index) => (
+                    <ItemStakeholder key={index}>
+                      <AddressStakeholder>{item.address}</AddressStakeholder>
+                      <AmountStakeholder>{item.amount}</AmountStakeholder>
+                    </ItemStakeholder>
+                  ))}
+                </ListStakeholder>
+              )}
+            </DivColumn>
+          </DivRow>
+        </DivContent>
+        <DivSubmit disabled={isDisable} onClick={handleCreatePool}>
+          Create
+        </DivSubmit>
+      </DivNewPoolWrapper>
+      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+      <ModalLoading isOpen={loadingModalOpen} onDimiss={toggleLoadingModal} data={dataModalLoading}></ModalLoading>
+    </>
   )
 }
 const DivNewPoolWrapper = styled.div`

@@ -83,9 +83,10 @@ const FooterWrapper = styled.div`
   position: fixed;
   height: 40px;
   bottom: 0;
-  left: 320px;
+  //left: 320px;
   right: 0;
-  width: calc(100% - 320px);
+  //width: calc(100% - 320px);
+  width: 100%;
   z-index: 2;
   background-color: #011024;
 `
