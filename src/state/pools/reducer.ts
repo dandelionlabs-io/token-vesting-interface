@@ -52,6 +52,9 @@ const poolsSlice = createSlice({
     },
     setRoleForPoolAddress(state: IInitialState, action) {
       const index: number = state.data.findIndex((o: any) => o.address === action.payload.address)
+      if (index < 0) {
+        return
+      }
       const data: IPoolsData[] = [...state.data] || []
       let dataRoleIndex: string[] = []
 
@@ -69,6 +72,9 @@ const poolsSlice = createSlice({
     updateManagers(state: IInitialState, action) {
       const { address, itemManager, isRemove } = action.payload
       const index: number = state.data.findIndex((o: any) => o.address === address)
+      if (index < 0) {
+        return
+      }
       const data: IPoolsData[] = [...state.data] || []
       let dataManagerIndex: string[] = []
       if (isRemove) {

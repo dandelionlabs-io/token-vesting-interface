@@ -191,7 +191,7 @@ export default function App() {
 
           const item = {
             ...pool,
-            roles: poolRoles[0][1],
+            roles: poolRoles && poolRoles.length ? poolRoles[0][1] : [],
             managersAddressArray,
           }
           return [...total, item]
