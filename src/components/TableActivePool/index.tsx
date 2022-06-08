@@ -157,7 +157,9 @@ const TableActivePool = ({ data, heading }: Props) => {
       return
     }
 
-    const dataSlice = dataPools.slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
+    const dataSlice = dataPools
+      .filter((item) => item.roles.length > 0)
+      .slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
 
     const data = await Promise.all(
       dataSlice.map(async (data) => {
