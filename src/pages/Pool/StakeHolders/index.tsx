@@ -127,6 +127,8 @@ const StakeHolder = () => {
       console.log(e)
     })
 
+    toggleLoadingModal()
+
     tx?.wait().then(() => {
       toggleSuccessModal()
       setList([])

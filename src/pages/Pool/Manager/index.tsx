@@ -62,8 +62,8 @@ const Manager = () => {
     vestingInstance
       .grantRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ poolAddress, addRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ poolAddress, itemManager, isRemove: false }))
+        dispatch(setRoleForPoolAddress({ address: poolAddress, addRole: RolePoolAddress['OPERATOR'] }))
+        dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: false }))
         setValueAddress('')
       })
       .catch((e: string) => console.log(e))
