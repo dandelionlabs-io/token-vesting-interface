@@ -70,7 +70,7 @@ const Manager = () => {
   }
   return (
     <>
-      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
+      <GoBack textNameBack="Go back" pageBack="pool" typePage={typesPoolPage.EDIT} />
       <DivWrapper>
         <HeadingBlock>Manager Address</HeadingBlock>
         <ManagerList>
