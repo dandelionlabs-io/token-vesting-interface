@@ -138,10 +138,8 @@ const StakeHolder = () => {
       setTimeout(() => {
         closeModal()
 
-        if (!poolAddress) {
-          window.localStorage.setItem('typePoolPage', typesPoolPage.CREATE_POOL)
-          history.push({ pathname: `pool` })
-        }
+        window.localStorage.setItem('typePoolPage', !poolAddress ? typesPoolPage.CREATE_POOL : typesPoolPage.EDIT)
+        history.push({ pathname: `pool` })
       }, 2000)
     })
   }
