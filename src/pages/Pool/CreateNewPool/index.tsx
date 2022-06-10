@@ -50,7 +50,7 @@ const CreateNewPool = () => {
   const toggleSuccessModal = useSuccessModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
 
-  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
 
   const dataModalSuccess: DataModalSuccess = {
@@ -161,15 +161,6 @@ const CreateNewPool = () => {
 
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
-      .then(() => {
-        toggleSuccessModal()
-        setTimeout(function () {
-          closeModal()
-          setStartDate(null)
-          setEndDate(null)
-          setName('')
-        }, 3000)
-      })
       .catch((e: any) => {
         console.log(e)
       })
@@ -179,9 +170,18 @@ const CreateNewPool = () => {
         return
       }
 
-      const address: string = res.events[0]?.address
+      toggleSuccessModal()
 
+      setTimeout(function () {
+        closeModal()
+      }, 2000)
+
+      const address: string = res.events[0]?.address
       if (!address || !listAddStakeholders || !listAddStakeholders.length) {
+        setTimeout(function () {
+          window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+          history.push({ pathname: `pool` })
+        }, 3000)
         return
       }
 
@@ -190,16 +190,34 @@ const CreateNewPool = () => {
         ERC20,
         web3Provider.getSigner()
       )
-      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString())).catch((e: any) => {
-        console.log(e)
-      })
+      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString()))
+        .catch((e: any) => {
+          console.log(e)
+        })
+        .finally(() => toggleLoadingModal())
 
       const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
 
       tx2?.wait().then(async () => {
-        await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
-          console.log(e)
-        })
+        toggleSuccessModal()
+
+        setTimeout(function () {
+          closeModal()
+        }, 2000)
+        await vestingInstance
+          .addTokenGrants(addressList, amountList)
+          .then(() => {
+            toggleSuccessModal()
+
+            setTimeout(function () {
+              closeModal()
+              window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+              history.push({ pathname: `pool` })
+            }, 2000)
+          })
+          .catch((e: any) => {
+            console.log(e)
+          })
       })
     })
   }
@@ -324,7 +342,7 @@ const CreateNewPool = () => {
           Create
         </DivSubmit>
       </DivNewPoolWrapper>
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+      <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
       <ModalLoading isOpen={loadingModalOpen} onDimiss={toggleLoadingModal} data={dataModalLoading}></ModalLoading>
     </>
   )

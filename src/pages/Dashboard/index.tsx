@@ -13,8 +13,9 @@ import TableActivePool from '../../components/TableActivePool'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
-import { useAppSelector } from '../../state/hooks'
+import { useAppDispatch, useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
+import { updateListStateHolder } from '../../state/pools/reducer'
 import { IPoolsData } from '../../state/pools/reducer'
 import { typesPoolPage } from '../Pool'
 
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const userCDREDBalance = useCDREDBalance()
 
+  const dispatch = useAppDispatch()
   const [dataActive, setDataActive] = useState<IPoolsData[]>([])
 
   const dataETH: TypeItemInfo = {
@@ -80,6 +82,8 @@ const Dashboard = () => {
   const handleRedirectPool = (typePoolPage: string) => {
     window.localStorage.setItem('typePoolPage', typePoolPage)
     window.localStorage.removeItem('address')
+
+    dispatch(updateListStateHolder([]))
     history.push({ pathname: `pool` })
   }
   return (
