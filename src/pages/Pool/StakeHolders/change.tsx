@@ -11,6 +11,7 @@ import dataConfirm from '../../../data/dataModalConfirm.json'
 import {
   useCloseModal,
   useConfirmModalToggle,
+  useLoadingModalToggle,
   useModalOpen,
   useSuccessModalToggle,
 } from '../../../state/application/hooks'
@@ -20,7 +21,6 @@ import { typesPoolPage } from '../index'
 const StakeholderUpdateAddress = () => {
   const addressWallet = window.localStorage.getItem('addressWallet')
   const poolAddress = window.localStorage.getItem('address')
-  const closeModal = useCloseModal()
   const [valueAddress, setValueAddress] = useState<string>()
   const handleChange = (e: any) => {
     setValueAddress(e.target.value)
@@ -28,7 +28,10 @@ const StakeholderUpdateAddress = () => {
   const toggleConfirmModal = useConfirmModalToggle()
   const confirmModalOpen = useModalOpen(ApplicationModal.POPUP_CONFIRM)
   const toggleSuccessModal = useSuccessModalToggle()
-  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const loadingModal = useLoadingModalToggle()
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const closeModal = useCloseModal()
+
   const dataModalSuccess: DataModalSuccess = { type: 'stakeholder' }
   const contentConfirm = dataConfirm.stakeholder
   const contentModalConfirm = {
@@ -41,7 +44,7 @@ const StakeholderUpdateAddress = () => {
     const web3Provider = new providers.Web3Provider(provider)
 
     const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
-
+    loadingModal()
     const tx = await vestingInstance
       .changeInvestor(prevAddr, newAddr)
       .then(() => {
@@ -92,7 +95,7 @@ const StakeholderUpdateAddress = () => {
         content={contentModalConfirm}
       />
 
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess} />
+      <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess} />
     </>
   )
 }
