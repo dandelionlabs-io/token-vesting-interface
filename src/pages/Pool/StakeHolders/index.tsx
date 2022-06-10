@@ -1,12 +1,13 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers, utils } from 'ethers'
 import { parse } from 'papaparse'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import ERC20 from '../../../abis/Erc20'
 import Vesting from '../../../abis/Vesting'
+import Api from '../../../api'
 import GoBack from '../../../components/GoBack'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
@@ -25,6 +26,8 @@ const StakeHolder = () => {
   const hiddenFileInput = useRef<any>(null)
   const [list, setList] = useState<any>([])
   const [successButton, setSuccessButton] = useState<any>(false)
+  const [blackList, setBlackList] = useState<string[]>([])
+
   const [amount, setAmount] = useState<any>(0)
   const [addressList, setAddressList] = useState<any>([])
   const [amountList, setAmountList] = useState<any>([])
@@ -32,7 +35,7 @@ const StakeHolder = () => {
   const toggleSuccessModal = useSuccessModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
   const closeModal = useCloseModal()
-  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
 
   const dispatch = useAppDispatch()
@@ -46,9 +49,7 @@ const StakeHolder = () => {
     type: 'loading',
   }
 
-  const blacklist = ['943sAx0x7589E9d1fF1Bcb7Fce92BFVs4CC']
-
-  const handleChange = (e: any, drop: any) => {
+  const handleChange = (e: any) => {
     let fileUploaded
     setAmount(0)
     e.type === 'drop' ? (fileUploaded = e.dataTransfer.files) : (fileUploaded = e.target.files)
@@ -60,7 +61,7 @@ const StakeHolder = () => {
 
       const dataFiles = result.data.map((item: any) => ({
         ...item,
-        isBlackList: blacklist.includes(item?.address),
+        isBlackList: blackList.includes(item?.address),
       }))
 
       setList(dataFiles)
@@ -137,18 +138,24 @@ const StakeHolder = () => {
       setTimeout(() => {
         closeModal()
 
-        if (!poolAddress) {
-          window.localStorage.setItem('typePoolPage', typesPoolPage.CREATE_POOL)
-          history.push({ pathname: `pool` })
-        }
+        window.localStorage.setItem('typePoolPage', !poolAddress ? typesPoolPage.CREATE_POOL : typesPoolPage.EDIT)
+        history.push({ pathname: `pool` })
       }, 2000)
     })
   }
 
+  useEffect(() => {
+    const urlBlackList = `${process.env.REACT_APP_BASE_URL}/${poolAddress}/blacklist`
+    ;(async () => {
+      const list: string[] = await Api.get(urlBlackList)
+      setBlackList(list)
+    })()
+  }, [poolAddress])
+
   return (
     <>
       <GoBack
-        textNameBack={`Go back to ${poolAddress ? 'DandelionLabs' : 'Create New Pool'}`}
+        textNameBack={`Go back`}
         pageBack="pool"
         typePage={poolAddress ? typesPoolPage.EDIT : typesPoolPage.CREATE_POOL}
       />
@@ -167,7 +174,7 @@ const StakeHolder = () => {
                 id="file"
                 ref={hiddenFileInput}
                 onChange={(e) => {
-                  handleChange(e, false)
+                  handleChange(e)
                 }}
                 accept=".csv"
                 required
@@ -187,7 +194,7 @@ const StakeHolder = () => {
                 }}
                 onDrop={(e) => {
                   e.preventDefault()
-                  handleChange(e, true)
+                  handleChange(e)
                 }}
               >
                 Drag or choose file
@@ -231,7 +238,11 @@ const StakeHolder = () => {
                 Approve
               </CustomButton>
             )}
-            <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+            <ModalSuccess
+              isOpen={successModalOpen}
+              onDimiss={toggleSuccessModal}
+              data={dataModalSuccess}
+            ></ModalSuccess>
             <ModalLoading
               isOpen={loadingModalOpen}
               onDimiss={toggleLoadingModal}
