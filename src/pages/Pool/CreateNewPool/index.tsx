@@ -15,6 +15,7 @@ import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'
 import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
+import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
@@ -209,6 +210,7 @@ const CreateNewPool = () => {
 
   return (
     <>
+      <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
       <DivNewPoolWrapper>
         <HeadingNewPool>Create New Pool</HeadingNewPool>
         <DivContent>

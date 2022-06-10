@@ -58,7 +58,7 @@ const StakeholderUpdateAddress = () => {
   }
   return (
     <>
-      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
+      <GoBack textNameBack="Go back" pageBack="pool" typePage={typesPoolPage.EDIT} />
       <BlockWrapper>
         <Heading3>{contentConfirm.header}</Heading3>
         <DivFlex>
