@@ -4,6 +4,7 @@ import styled from 'styled-components/macro'
 
 import AddStake from '../../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import BlockFeatureUser from '../../../components/BlockFeatureUser'
+import GoBack from '../../../components/GoBack'
 import TableActivePool from '../../../components/TableActivePool'
 import { AppState } from '../../../state'
 import { useAppSelector } from '../../../state/hooks'
@@ -16,7 +17,6 @@ const IconAddStake = {
 }
 
 const BrowseAll = () => {
-  // const { account } = useActiveWeb3React()
   const history = useHistory()
   const poolData = useAppSelector((state: AppState) => state.pools).data
 
@@ -28,6 +28,7 @@ const BrowseAll = () => {
 
   return (
     <>
+      <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
       <TableActivePool data={poolData} heading={'Pool List'} />
       <TableBottom>
         <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
