@@ -25,8 +25,8 @@ import {
   useSuccessModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-import { useAppSelector } from '../../../state/hooks'
-import { IStakeholders } from '../../../state/pools/reducer'
+import { useAppDispatch, useAppSelector } from '../../../state/hooks'
+import { addPoolsData, IStakeholders } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
 import TitleOptionNewPool from '../TitleOptionNewPool'
 
@@ -36,8 +36,10 @@ interface fileImage {
   size: number
   src: any
 }
+
 const CreateNewPool = () => {
   const history = useHistory()
+  const dispatch = useAppDispatch()
   const [name, setName] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
@@ -139,6 +141,7 @@ const CreateNewPool = () => {
 
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
+    const tokenAddress = process.env.REACT_APP_TOKEN_ADDRESS
 
     const amount = listAddStakeholders.reduce((prev, next) => prev + parseInt(next.amount), 0)
     const amountList: string[] = []
@@ -158,15 +161,29 @@ const CreateNewPool = () => {
       web3Provider.getSigner()
     )
 
+    const _newPool = {
+      statusClaim: 1,
+      address: tokenAddress,
+      amount: 0,
+      claimed: 0,
+      claimable: 0,
+      remain: 0,
+      name,
+      start,
+      end: duration,
+    }
+
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .then(() => {
         toggleSuccessModal()
         setTimeout(function () {
+          dispatch(addPoolsData(_newPool))
           closeModal()
           setStartDate(null)
           setEndDate(null)
           setName('')
+          history.goBack()
         }, 3000)
       })
       .catch((e: any) => {

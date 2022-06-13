@@ -41,6 +41,9 @@ const poolsSlice = createSlice({
   name: 'pools',
   initialState,
   reducers: {
+    addPoolsData(state: IInitialState, action) {
+      state.data.push(action.payload)
+    },
     updatePoolsData(state: IInitialState, action) {
       state.data = [...action.payload]
     },
@@ -91,6 +94,12 @@ const poolsSlice = createSlice({
   },
 })
 
-export const { updatePoolsData, updateErc20Balance, setRoleForPoolAddress, updateManagers, updateListStateHolder } =
-  poolsSlice.actions
+export const {
+  updatePoolsData,
+  updateErc20Balance,
+  setRoleForPoolAddress,
+  updateManagers,
+  updateListStateHolder,
+  addPoolsData,
+} = poolsSlice.actions
 export default poolsSlice.reducer
