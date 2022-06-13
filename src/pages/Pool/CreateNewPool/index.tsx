@@ -15,6 +15,7 @@ import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'
 import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
+import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
@@ -51,7 +52,7 @@ const CreateNewPool = () => {
   const toggleSuccessModal = useSuccessModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
 
-  const succesModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
 
   const dataModalSuccess: DataModalSuccess = {
@@ -170,14 +171,15 @@ const CreateNewPool = () => {
       remain: 0,
       name,
       start,
-      end: duration,
+      end: start + duration,
     }
 
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
-      .then(() => {
+      .then((res: any) => {
         toggleSuccessModal()
         setTimeout(function () {
+          console.log('response', res)
           dispatch(addPoolsData(_newPool))
           closeModal()
           setStartDate(null)
@@ -187,6 +189,7 @@ const CreateNewPool = () => {
         }, 3000)
       })
       .catch((e: any) => {
+        closeModal()
         console.log(e)
       })
 
@@ -195,9 +198,18 @@ const CreateNewPool = () => {
         return
       }
 
-      const address: string = res.events[0]?.address
+      toggleSuccessModal()
 
+      setTimeout(function () {
+        closeModal()
+      }, 2000)
+
+      const address: string = res.events[0]?.address
       if (!address || !listAddStakeholders || !listAddStakeholders.length) {
+        setTimeout(function () {
+          window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+          history.push({ pathname: `pool` })
+        }, 3000)
         return
       }
 
@@ -206,16 +218,34 @@ const CreateNewPool = () => {
         ERC20,
         web3Provider.getSigner()
       )
-      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString())).catch((e: any) => {
-        console.log(e)
-      })
+      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString()))
+        .catch((e: any) => {
+          console.log(e)
+        })
+        .finally(() => toggleLoadingModal())
 
       const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
 
       tx2?.wait().then(async () => {
-        await vestingInstance.addTokenGrants(addressList, amountList).catch((e: any) => {
-          console.log(e)
-        })
+        toggleSuccessModal()
+
+        setTimeout(function () {
+          closeModal()
+        }, 2000)
+        await vestingInstance
+          .addTokenGrants(addressList, amountList)
+          .then(() => {
+            toggleSuccessModal()
+
+            setTimeout(function () {
+              closeModal()
+              window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+              history.push({ pathname: `pool` })
+            }, 2000)
+          })
+          .catch((e: any) => {
+            console.log(e)
+          })
       })
     })
   }
@@ -226,6 +256,7 @@ const CreateNewPool = () => {
 
   return (
     <>
+      <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
       <DivNewPoolWrapper>
         <HeadingNewPool>Create New Pool</HeadingNewPool>
         <DivContent>
@@ -339,7 +370,7 @@ const CreateNewPool = () => {
           Create
         </DivSubmit>
       </DivNewPoolWrapper>
-      <ModalSuccess isOpen={succesModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+      <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
       <ModalLoading isOpen={loadingModalOpen} onDimiss={toggleLoadingModal} data={dataModalLoading}></ModalLoading>
     </>
   )

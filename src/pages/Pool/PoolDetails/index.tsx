@@ -14,6 +14,7 @@ import IconSort from '../../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import SwapManage from '../../../assets/svg/icon/icon-dandelion-swap.svg'
 import User from '../../../assets/svg/icon/icon-user-profile.svg'
 import BlockFeatureUser from '../../../components/BlockFeatureUser'
+import GoBack from '../../../components/GoBack'
 import ModalSuccess from '../../../components/Modal/ModalSuccess'
 import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import { AppState } from '../../../state'
@@ -216,7 +217,10 @@ const PoolDetails = () => {
 
   return (
     <>
-      <PoolAddressName>{namePoolAddress}</PoolAddressName>
+      <PoolDetailHead>
+        <PoolAddressName>{namePoolAddress}</PoolAddressName>
+        <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
+      </PoolDetailHead>
       <BlockWrapper>
         <EmptyContainer>
           <Heading>Detail</Heading>
@@ -394,7 +398,7 @@ const PoolDetails = () => {
 
 const PoolAddressName = styled.div`
   transition: transform 0.3s ease;
-  margin: 20px 0;
+  margin: 20px auto 20px 60px;
   font-weight: bold;
   font-size: 24px;
   text-transform: capitalize;
@@ -621,5 +625,10 @@ const DivIconSort = styled.div<{ reverse?: boolean }>`
   margin-left: 10px;
   cursor: pointer;
   display: inline-block;
+`
+
+const PoolDetailHead = styled.div`
+  display: flex;
+  padding-right: 60px;
 `
 export default PoolDetails

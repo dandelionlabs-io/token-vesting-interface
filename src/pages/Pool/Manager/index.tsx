@@ -7,6 +7,15 @@ import Vesting from '../../../abis/Vesting'
 import Delete from '../../../assets/svg/icon/icon-dandelion-delete.svg'
 import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
+import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
+import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
+import {
+  useCloseModal,
+  useLoadingModalToggle,
+  useModalOpen,
+  useSuccessModalToggle,
+} from '../../../state/application/hooks'
+import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppDispatch, useAppSelector } from '../../../state/hooks'
 import { IPoolsData, RolePoolAddress, setRoleForPoolAddress, updateManagers } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
@@ -18,6 +27,20 @@ const Manager = () => {
   const [checkValue, setCheckValue] = useState<boolean>(false)
   const statePools: IPoolsData[] | null = useAppSelector((state) => state.pools).data
   const [listManagers, setListManagers] = useState<string[]>([])
+
+  const toggleSuccessModal = useSuccessModalToggle()
+  const toggleLoadingModal = useLoadingModalToggle()
+  const closeModal = useCloseModal()
+
+  const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
+  const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
+
+  const dataModalSuccess: DataModalSuccess = {
+    type: '',
+  }
+  const dataModalLoading: DataModalLoading = {
+    type: 'loading',
+  }
 
   useEffect(() => {
     if (!poolAddress || !statePools) {
@@ -39,38 +62,48 @@ const Manager = () => {
     }
     setValueAddress(e.target.value)
   }
+
   const handleRemoveManager = async (itemManager: string) => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
+    toggleLoadingModal()
 
     const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
     vestingInstance
       .revokeRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ address: poolAddress, removeRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: true }))
-        setValueAddress('')
+        toggleSuccessModal()
+        setTimeout(function () {
+          dispatch(setRoleForPoolAddress({ address: poolAddress, removeRole: RolePoolAddress['OPERATOR'] }))
+          dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: true }))
+          setValueAddress('')
+          closeModal()
+        }, 3000)
       })
       .catch((e: string) => console.log(e))
   }
   const handleAddManager = async (itemManager: string | null) => {
     const provider: any = await detectEthereumProvider()
     const web3Provider = new providers.Web3Provider(provider)
+    toggleLoadingModal()
 
     const vestingInstance = new ethers.Contract(poolAddress || '', Vesting, web3Provider.getSigner())
 
     vestingInstance
       .grantRole(process.env.REACT_APP_ROLE_STATIC_ADDRESS, itemManager)
       .then(() => {
-        dispatch(setRoleForPoolAddress({ address: poolAddress, addRole: RolePoolAddress['OPERATOR'] }))
-        dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: false }))
-        setValueAddress('')
+        setTimeout(function () {
+          dispatch(setRoleForPoolAddress({ address: poolAddress, addRole: RolePoolAddress['OPERATOR'] }))
+          dispatch(updateManagers({ address: poolAddress, itemManager, isRemove: false }))
+          setValueAddress('')
+          closeModal()
+        }, 3000)
       })
       .catch((e: string) => console.log(e))
   }
   return (
     <>
-      <GoBack textNameBack="Go back to DandelionLabs" pageBack="pool" typePage={typesPoolPage.EDIT} />
+      <GoBack textNameBack="Go back" pageBack="pool" typePage={typesPoolPage.EDIT} />
       <DivWrapper>
         <HeadingBlock>Manager Address</HeadingBlock>
         <ManagerList>
@@ -103,6 +136,8 @@ const Manager = () => {
           </ButtonAdd>
         </DivAddManager>
       </DivWrapper>
+      <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess} />
+      <ModalLoading isOpen={loadingModalOpen} onDimiss={toggleLoadingModal} data={dataModalLoading} />
     </>
   )
 }
