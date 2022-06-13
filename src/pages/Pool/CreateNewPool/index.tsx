@@ -176,10 +176,9 @@ const CreateNewPool = () => {
 
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
-      .then((res: any) => {
+      .then(() => {
         toggleSuccessModal()
         setTimeout(function () {
-          console.log('response', res)
           dispatch(addPoolsData(_newPool))
           closeModal()
           setStartDate(null)
