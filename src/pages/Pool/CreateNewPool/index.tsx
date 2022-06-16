@@ -180,7 +180,7 @@ const CreateNewPool = () => {
       if (!address || !listAddStakeholders || !listAddStakeholders.length) {
         setTimeout(function () {
           window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
-          history.push({ pathname: `pool` })
+          history.push({ pathname: `dashboard` })
         }, 3000)
         return
       }
@@ -212,7 +212,7 @@ const CreateNewPool = () => {
             setTimeout(function () {
               closeModal()
               window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
-              history.push({ pathname: `pool` })
+              history.push({ pathname: `dashboard` })
             }, 2000)
           })
           .catch((e: any) => {
