@@ -130,7 +130,7 @@ const poolsSlice = createSlice({
         }
 
         if (key === 'size') {
-          state.page = action.payload.size
+          state.size = action.payload.size
         }
 
         if (key === 'page') {
