@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
 import Erc20 from '../abis/Erc20'
-import Factory from '../abis/Factory'
 import Vesting from '../abis/Vesting'
 import Api from '../api'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -13,10 +12,11 @@ import Header from '../components/Header'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
-import { useAppDispatch } from '../state/hooks'
-import { IPoolsData, updateErc20Balance, updatePoolsData } from '../state/pools/reducer'
+import { useAppDispatch, useAppSelector } from '../state/hooks'
+import { IPoolsData, IState, updateErc20Balance, updateFiltersStatePool, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
 import RouterPage from './router'
+
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
@@ -104,6 +104,24 @@ const FooterContent = styled.p`
     font-weight: 700;
   }
 `
+
+interface IPoolItem {
+  name: string
+  address: string
+  start: number
+  end: number
+  stakeholders: Array<string>
+  blackList: Array<string>
+}
+
+interface IPoolResponse {
+  data: IPoolItem[]
+  managers: Array<any>
+  page: number
+  size: number
+  totalPools: number
+}
+
 export default function App() {
   const { account } = useActiveWeb3React()
   const [pools, setPools] = useState<any>([])
@@ -112,6 +130,9 @@ export default function App() {
   const dispatch = useAppDispatch()
   const location = useLocation()
   const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
+
+  const state: IState | null = useAppSelector((state) => state.pools)
+  const { page, size, typePool, sort } = state
 
   const checkAndGetPool = useCallback(
     async (pool: string) => {
@@ -156,56 +177,55 @@ export default function App() {
       return
     }
 
+    const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/${account}/${typePool}/pools`
+
     ;(async () => {
       try {
-        const provider: any = await detectEthereumProvider()
-        const web3Provider = new providers.Web3Provider(provider)
+        const poolsRes: IPoolResponse = await Api.get(url, { params: { page, size, sort } })
+        const pools: any[] = poolsRes.data
 
-        const factoryInstance = new ethers.Contract(
-          process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
-          Factory,
-          web3Provider
-        )
-        const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS}/pools`
-        const poolsAddresses = await factoryInstance.getPools()
         const poolResult = await Promise.all(
-          poolsAddresses.map(async (address: string) => {
-            return await checkAndGetPool(address)
+          pools.map(async (item) => {
+            return await checkAndGetPool(item.address)
           })
         )
-        const pools: any[] = await Api.get(url)
+        const poolsNew = !pools.length
+          ? []
+          : pools.reduce((total, pool) => {
+              const poolRoles = pool.managers.filter((manager: any) => {
+                return manager[0] === account
+              })
 
-        const poolsNew = pools.reduce((total, pool, index) => {
-          const poolRoles = pool.managers.filter((manager: any) => {
-            return manager[0] === account
-          })
+              const managersAddressArray = pool.managers
+                .filter((manager: any) => {
+                  return manager[1].includes('OPERATOR')
+                })
+                .reduce((total: string[], item: any) => {
+                  total.push(item[0])
+                  return total
+                }, [])
 
-          const managersAddressArray = pool.managers
-            .filter((manager: any) => {
-              return manager[1].includes('OPERATOR')
-            })
-            .reduce((total: string[], item: any) => {
-              total.push(item[0])
-              return total
+              const item = {
+                ...pool,
+                roles: poolRoles && poolRoles.length ? poolRoles[0][1] : [],
+                managersAddressArray,
+              }
+              return [...total, item]
             }, [])
 
-          const item = {
-            ...pool,
-            roles: poolRoles && poolRoles.length ? poolRoles[0][1] : [],
-            managersAddressArray,
-          }
-          return [...total, item]
-        }, [])
+        dispatch(updateFiltersStatePool({ totalPool: poolsRes.totalPools }))
+
         setPools(poolsNew)
         setPoolsResult(poolResult)
       } catch (e) {
         console.log(e)
       }
     })()
-  }, [account, checkAndGetPool])
+  }, [account, checkAndGetPool, page, size, sort, typePool, dispatch])
 
   useEffect(() => {
     if (!poolsResult.length || !pools.length) {
+      dispatch(updatePoolsData([]))
       return
     }
 
@@ -222,6 +242,7 @@ export default function App() {
             start: data?.start * 1000 || null,
             end: data?.end * 1000 || null,
             roles: data?.roles || [],
+            blackList: data?.blackList || [],
             managersAddress: data?.managersAddressArray || [],
           }
 

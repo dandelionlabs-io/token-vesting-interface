@@ -21,14 +21,32 @@ export interface IPoolsData {
   blackList: string[]
 }
 
-export interface IInitialState {
+export interface IState {
   data: IPoolsData[]
+  page?: number
+  size?: number
+  sort?: string
+  typePool?: string
+  totalPool?: number
   erc20Balance: number
   listAddStakeholders: IStakeholders[]
 }
 
-const initialState: IInitialState = {
+export interface IFiltersStatePool {
+  page?: number
+  size?: number
+  sort?: string
+  typePool?: string
+  totalPool?: number
+}
+
+const initialState: IState = {
   data: [],
+  page: 1,
+  size: 8,
+  sort: 'ASC',
+  typePool: 'all',
+  totalPool: 1,
   erc20Balance: 0,
   listAddStakeholders: [],
 }
@@ -41,16 +59,16 @@ const poolsSlice = createSlice({
   name: 'pools',
   initialState,
   reducers: {
-    updatePoolsData(state: IInitialState, action) {
+    updatePoolsData(state: IState, action) {
       state.data = [...action.payload]
     },
-    updateListStateHolder(state: IInitialState, action) {
+    updateListStateHolder(state: IState, action) {
       state.listAddStakeholders = [...action.payload]
     },
-    updateErc20Balance(state: IInitialState, action) {
+    updateErc20Balance(state: IState, action) {
       state.erc20Balance = action.payload
     },
-    setRoleForPoolAddress(state: IInitialState, action) {
+    setRoleForPoolAddress(state: IState, action) {
       const index: number = state.data.findIndex((o: any) => o.address === action.payload.address)
       if (index < 0) {
         return
@@ -69,7 +87,7 @@ const poolsSlice = createSlice({
 
       state.data[index].roles = [...dataRoleIndex]
     },
-    updateManagers(state: IInitialState, action) {
+    updateManagers(state: IState, action) {
       const { address, itemManager, isRemove } = action.payload
       const index: number = state.data.findIndex((o: any) => o.address === address)
       if (index < 0) {
@@ -88,9 +106,39 @@ const poolsSlice = createSlice({
 
       state.data[index].managersAddress = [...dataManagerIndex]
     },
+
+    updateFiltersStatePool(state: IState, action) {
+      for (const key of Object.keys(action.payload)) {
+        if (key === 'typePool') {
+          state.typePool = action.payload.typePool
+        }
+
+        if (key === 'size') {
+          state.page = action.payload.size
+        }
+
+        if (key === 'page') {
+          state.page = action.payload.page
+        }
+
+        if (key === 'sort') {
+          state.sort = action.payload.sort
+        }
+
+        if (key === 'totalPool') {
+          state.totalPool = action.payload.totalPool
+        }
+      }
+    },
   },
 })
 
-export const { updatePoolsData, updateErc20Balance, setRoleForPoolAddress, updateManagers, updateListStateHolder } =
-  poolsSlice.actions
+export const {
+  updatePoolsData,
+  updateErc20Balance,
+  setRoleForPoolAddress,
+  updateManagers,
+  updateListStateHolder,
+  updateFiltersStatePool,
+} = poolsSlice.actions
 export default poolsSlice.reducer

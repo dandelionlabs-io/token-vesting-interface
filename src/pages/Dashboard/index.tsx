@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
@@ -12,11 +12,9 @@ import BlockFeatureUser from '../../components/BlockFeatureUser'
 import TableActivePool from '../../components/TableActivePool'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
-import { AppState } from '../../state'
-import { useAppDispatch, useAppSelector } from '../../state/hooks'
+import { useAppDispatch } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { updateListStateHolder } from '../../state/pools/reducer'
-import { IPoolsData } from '../../state/pools/reducer'
 import { typesPoolPage } from '../Pool'
 
 interface TypeItemInfo {
@@ -43,13 +41,10 @@ const IconBrowseAll = {
 const Dashboard = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
-  const poolData = useAppSelector((state: AppState) => state.pools).data
-
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
   const userCDREDBalance = useCDREDBalance()
 
   const dispatch = useAppDispatch()
-  const [dataActive, setDataActive] = useState<IPoolsData[]>([])
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
@@ -71,13 +66,7 @@ const Dashboard = () => {
     !account && history.push({ pathname: `/` })
     window.localStorage.removeItem('address')
     window.localStorage.removeItem('typePoolPage')
-    const currentDayTime = new Date().getTime()
-    const data = poolData.filter(
-      (data) => data.start && data.end && data?.start < currentDayTime && data?.end > currentDayTime
-    )
-
-    setDataActive(data)
-  }, [account, history, poolData])
+  }, [account, history])
 
   const handleRedirectPool = (typePoolPage: string) => {
     window.localStorage.setItem('typePoolPage', typePoolPage)
@@ -99,7 +88,7 @@ const Dashboard = () => {
           </BlockChartItem>
         </BlockChartList>
         <BlockTable>
-          <TableActivePool data={dataActive} heading={'Active Pools'} />
+          <TableActivePool heading={'Active Pools'} />
           <TableBottom>
             <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
               <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
