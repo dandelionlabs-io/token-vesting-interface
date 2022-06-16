@@ -1,6 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers } from 'ethers'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -9,9 +9,12 @@ import Vesting from '../abis/Vesting'
 import Api from '../api'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'
+import ModalSpinLoading from '../components/Modal/ModalSpinLoading'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import useActiveWeb3React from '../hooks/useActiveWeb3React'
+import { useCloseModal, useModalOpen, useSpinLoadingModalToggle } from '../state/application/hooks'
+import { ApplicationModal } from '../state/application/reducer'
 import { useAppDispatch, useAppSelector } from '../state/hooks'
 import { IPoolsData, IState, updateErc20Balance, updateFiltersStatePool, updatePoolsData } from '../state/pools/reducer'
 import { ethBalance } from '../utils'
@@ -129,6 +132,11 @@ export default function App() {
 
   const dispatch = useAppDispatch()
   const location = useLocation()
+
+  const spinLoadingModalOpen = useModalOpen(ApplicationModal.POPUP_SPIN_LOADING)
+  const closeModal = useCloseModal()
+  const toggleSpinLoadingModal = useSpinLoadingModalToggle()
+
   const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
 
   const state: IState | null = useAppSelector((state) => state.pools)
@@ -181,6 +189,7 @@ export default function App() {
 
     ;(async () => {
       try {
+        toggleSpinLoadingModal()
         const poolsRes: IPoolResponse = await Api.get(url, { params: { page, size, sort } })
         const pools: any[] = poolsRes.data
 
@@ -219,6 +228,8 @@ export default function App() {
         setPoolsResult(poolResult)
       } catch (e) {
         console.log(e)
+      } finally {
+        closeModal()
       }
     })()
   }, [account, checkAndGetPool, page, size, sort, typePool, dispatch])
@@ -243,6 +254,7 @@ export default function App() {
             end: data?.end * 1000 || null,
             roles: data?.roles || [],
             blackList: data?.blackList || [],
+            stakeholders: data?.stakeholders || [],
             managersAddress: data?.managersAddressArray || [],
           }
 
@@ -291,6 +303,7 @@ export default function App() {
               </FooterContent>
             </FooterWrapper>
           )}
+          <ModalSpinLoading isOpen={spinLoadingModalOpen} onDimiss={toggleSpinLoadingModal} />
         </AppWrapper>
       </Web3ReactManager>
     </ErrorBoundary>

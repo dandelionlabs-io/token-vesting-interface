@@ -183,12 +183,6 @@ const PoolDetails = () => {
 
           handleSortHistoryClaim(dataHisClone)
         }
-
-        if (typePage === typesPoolPage.EDIT) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/stakeholders`
-          const dataStakeholders: Array<any> = await Api.get(url)
-          handleSortStakeholders(dataStakeholders)
-        }
       } catch (e) {
         console.log(e)
       }
@@ -320,9 +314,9 @@ const PoolDetails = () => {
                     })}
                   </tr>
                 </thead>
-                {stakeholders && !!stakeholders.length && (
+                {data.stakeholders && !!data.stakeholders.length && (
                   <tbody>
-                    {stakeholders?.map((item: any, index: number) => {
+                    {data.stakeholders.map((item: any, index: number) => {
                       return (
                         <tr key={index}>
                           <td>
@@ -356,7 +350,7 @@ const PoolDetails = () => {
                 )}
               </Table>
             </DivTableBox>
-            {stakeholders && !stakeholders.length && <Notification>No data to show !</Notification>}
+            {data.stakeholders && !data.stakeholders.length && <Notification>No data to show !</Notification>}
 
             {(data.roles?.includes('ADMIN') || data.roles?.includes('OPERATOR')) && (
               <div onClick={() => handleRedirectPool(typesPoolPage.ADD_STAKEHOLDER)}>

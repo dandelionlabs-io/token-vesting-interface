@@ -16,12 +16,11 @@ export type PopupContent =
 export enum ApplicationModal {
   WALLET,
   SETTINGS,
-  MENU,
   NETWORK_SELECTOR,
-  PRIVACY_POLICY,
   POPUP_SUCCESS,
   POPUP_CONFIRM,
   POPUP_LOADING,
+  POPUP_SPIN_LOADING,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>

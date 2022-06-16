@@ -42,6 +42,9 @@ export function useSuccessModalToggle(): () => void {
 export function useLoadingModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POPUP_LOADING)
 }
+export function useSpinLoadingModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.POPUP_SPIN_LOADING)
+}
 export function useConfirmModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POPUP_CONFIRM)
 }
