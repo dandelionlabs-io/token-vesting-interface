@@ -17,6 +17,7 @@ export interface IPoolsData {
   statusClaim?: any
   erc20Balance: number
   roles: string[]
+  stakeholders: string[]
   managersAddress: string[]
   blackList: string[]
 }
@@ -30,14 +31,6 @@ export interface IState {
   totalPool?: number
   erc20Balance: number
   listAddStakeholders: IStakeholders[]
-}
-
-export interface IFiltersStatePool {
-  page?: number
-  size?: number
-  sort?: string
-  typePool?: string
-  totalPool?: number
 }
 
 const initialState: IState = {
@@ -106,7 +99,30 @@ const poolsSlice = createSlice({
 
       state.data[index].managersAddress = [...dataManagerIndex]
     },
+    updateStakeholderPool(state: IState, action) {
+      const { address, stakeholders } = action.payload
 
+      const data: IPoolsData[] = [...state.data] || []
+      const index: number = data.findIndex((o: any) => o.address === address)
+      if (index < 0) {
+        return
+      }
+
+      const dataStakeholdersIndex: string[] = Array.from(
+        new Set(
+          data[index].stakeholders.concat(
+            stakeholders.map((item: any) => ({
+              address: item.address,
+              amountlocked: item.amount,
+              amountClaimed: null,
+              newOwner: null,
+            }))
+          )
+        )
+      )
+
+      state.data[index].stakeholders = [...dataStakeholdersIndex]
+    },
     updateFiltersStatePool(state: IState, action) {
       for (const key of Object.keys(action.payload)) {
         if (key === 'typePool') {
@@ -140,5 +156,6 @@ export const {
   updateManagers,
   updateListStateHolder,
   updateFiltersStatePool,
+  updateStakeholderPool,
 } = poolsSlice.actions
 export default poolsSlice.reducer

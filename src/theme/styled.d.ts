@@ -72,6 +72,9 @@ export interface Colors {
   error: Color
   success: Color
   warning: Color
+
+  spin1: Color
+  spin2: Color
 }
 
 declare module 'styled-components/macro' {

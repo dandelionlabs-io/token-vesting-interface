@@ -103,6 +103,9 @@ function colors(): Colors {
     blue6: '#012553',
     blue7: '#00316f',
     // blue5: '#153d6f70' : '#EBF4FF',
+
+    spin1: '#868B90',
+    spin2: '#ffb85c',
   }
 }
 
@@ -217,5 +220,11 @@ a {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+@keyframes loadingspin {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 `
