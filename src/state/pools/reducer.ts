@@ -5,6 +5,12 @@ export interface IStakeholders {
   amount: string
 }
 
+export interface IHistoryOfClaims {
+  date: string
+  amount: number
+  remaining: number
+}
+
 export interface IPoolsData {
   name: string
   address: string
@@ -31,6 +37,7 @@ export interface IState {
   totalPool?: number
   erc20Balance: number
   listAddStakeholders: IStakeholders[]
+  historyOfClaims: IHistoryOfClaims[]
 }
 
 const initialState: IState = {
@@ -42,6 +49,7 @@ const initialState: IState = {
   totalPool: 1,
   erc20Balance: 0,
   listAddStakeholders: [],
+  historyOfClaims: [],
 }
 export enum RolePoolAddress {
   ADMIN = 'ADMIN',
@@ -57,6 +65,9 @@ const poolsSlice = createSlice({
     },
     updateListStateHolder(state: IState, action) {
       state.listAddStakeholders = [...action.payload]
+    },
+    updateHistoryOfClaims(state: IState, action) {
+      state.historyOfClaims = [...action.payload]
     },
     updateErc20Balance(state: IState, action) {
       state.erc20Balance = action.payload
