@@ -120,12 +120,12 @@ const TableActivePool = ({ heading }: Props) => {
       typePool = activeTab
     }
 
-    dispatch(updateFiltersStatePool({ typePool }))
+    dispatch(updateFiltersStatePool({ typePool, page: 1, size: 8, sort: 'ASC' }))
   }, [activeTab, dispatch, typePage, totalPool])
 
   const handleFilter = useCallback(
     async (item: string) => {
-      dispatch(updateFiltersStatePool({ typePool: item }))
+      alphabet.current = true
       setActiveTab(item)
     },
     [dispatch]
