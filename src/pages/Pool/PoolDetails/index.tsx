@@ -20,8 +20,8 @@ import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import { AppState } from '../../../state'
 import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-import { useAppSelector } from '../../../state/hooks'
-import { IPoolsData } from '../../../state/pools/reducer'
+import { useAppDispatch, useAppSelector } from '../../../state/hooks'
+import { IPoolsData, updateListStateHolder } from '../../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../../utils'
 import { typesPoolPage } from '../index'
 
@@ -66,15 +66,68 @@ const PoolDetails = () => {
 
   const toggleSuccessModal = useSuccessModalToggle()
   const closeModal = useCloseModal()
+  const dispatch = useAppDispatch()
 
   const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const poolsData = useAppSelector((state: AppState) => state.pools)
+  const stakeholdersData = useAppSelector((state: AppState) => state.pools.listAddStakeholders)
   const [data, setData] = useState<any>({})
   const [namePoolAddress, setNamePoolAddress] = useState<string>('')
   const [stakeholders, setStakeholders] = useState<Array<any>>([])
   const [historyClaim, setHistoryClam] = useState<Array<any>>([])
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
   const [claimablePercent, setClaimablePercent] = useState<number>(0)
+
+  const handleSortHistoryClaim = useCallback((data: Array<any>) => {
+    if (!data || !data.length) {
+      return
+    }
+    const dataSort: Array<any> = [...data]
+    if (increaseDate.current) {
+      dataSort.sort((firstItem, secondItem) => firstItem.timestamp - secondItem.timestamp)
+    } else {
+      dataSort.sort((firstItem, secondItem) => secondItem.timestamp - firstItem.timestamp)
+    }
+
+    increaseDate.current = !increaseDate.current
+
+    setHistoryClam(dataSort)
+  }, [])
+  useEffect(() => {
+    if (!account || !typePage) {
+      return
+    }
+    ;(async () => {
+      try {
+        if (typePage === typesPoolPage.CLAIM) {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/claims/${account}`
+          const dataHis: any = await Api.get(url)
+          const dataHisClone: Array<any> = [...dataHis]
+
+          let amounts = data.amount
+
+          for (let i = dataHisClone.length - 1; i > -1; i--) {
+            amounts = amounts - ethBalance(dataHisClone[i].amountClaimed)
+            dataHisClone[i].remain = amounts
+          }
+
+          handleSortHistoryClaim(dataHisClone)
+        }
+
+        if (typePage === typesPoolPage.EDIT && stakeholdersData.length < 1) {
+          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/stakeholders`
+          const dataStakeholders: Array<any> = await Api.get(url)
+          dispatch(updateListStateHolder([...dataStakeholders]))
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    })()
+  }, [data, account, typePage, poolAddress, stakeholdersData, handleSortHistoryClaim, dispatch])
+
+  useEffect(() => {
+    setStakeholders(stakeholdersData)
+  }, [stakeholdersData])
 
   const increaseDate = useRef<boolean>(false)
   const alphabet = useRef<boolean>(false)
@@ -146,54 +199,6 @@ const PoolDetails = () => {
     alphabet.current = !alphabet.current
     setStakeholders(dataSort)
   }, [])
-
-  const handleSortHistoryClaim = useCallback((data: Array<any>) => {
-    if (!data || !data.length) {
-      return
-    }
-    const dataSort: Array<any> = [...data]
-    if (increaseDate.current) {
-      dataSort.sort((firstItem, secondItem) => firstItem.timestamp - secondItem.timestamp)
-    } else {
-      dataSort.sort((firstItem, secondItem) => secondItem.timestamp - firstItem.timestamp)
-    }
-
-    increaseDate.current = !increaseDate.current
-
-    setHistoryClam(dataSort)
-  }, [])
-
-  useEffect(() => {
-    if (!account || !typePage) {
-      return
-    }
-    ;(async () => {
-      try {
-        if (typePage === typesPoolPage.CLAIM) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/claims/${account}`
-          const dataHis: any = await Api.get(url)
-          const dataHisClone: Array<any> = [...dataHis]
-
-          let amounts = data.amount
-
-          for (let i = dataHisClone.length - 1; i > -1; i--) {
-            amounts = amounts - ethBalance(dataHisClone[i].amountClaimed)
-            dataHisClone[i].remain = amounts
-          }
-
-          handleSortHistoryClaim(dataHisClone)
-        }
-
-        if (typePage === typesPoolPage.EDIT) {
-          const url = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${poolAddress}/stakeholders`
-          const dataStakeholders: Array<any> = await Api.get(url)
-          handleSortStakeholders(dataStakeholders)
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    })()
-  }, [data, account, typePage, poolAddress, handleSortStakeholders, handleSortHistoryClaim])
 
   useEffect(() => {
     if (!poolsData.data?.length || !poolAddress) {
@@ -324,32 +329,37 @@ const PoolDetails = () => {
                   <tbody>
                     {stakeholders?.map((item: any, index: number) => {
                       return (
-                        <tr key={index}>
-                          <td>
-                            <DivNameBox>
-                              <AddressWallet>{shortenAddress(item.address)} </AddressWallet>
-                            </DivNameBox>
-                          </td>
+                        item &&
+                        item.address !== '' && (
+                          <tr key={index}>
+                            <td>
+                              <DivNameBox>
+                                <AddressWallet>{shortenAddress(item.address)} </AddressWallet>
+                              </DivNameBox>
+                            </td>
 
-                          <td>
-                            <span>{item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}</span>
-                          </td>
-                          <td>
-                            <span>{item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}</span>
-                          </td>
+                            <td>
+                              <span>{item?.amountlocked ? (parseFloat(item.amountlocked) / 1e18).toFixed(3) : 0}</span>
+                            </td>
+                            <td>
+                              <span>
+                                {item?.amountClaimed ? (parseFloat(item.amountClaimed) / 1e18).toFixed(3) : 0}
+                              </span>
+                            </td>
 
-                          <td>
-                            <DivAct>
-                              {data.roles && (data.roles.includes('OPERATOR') || data.roles.includes('ADMIN')) && (
-                                <DivIcon
-                                  onClick={() => handleRedirectPool(typesPoolPage.EDIT_STAKEHOLDER, item.address)}
-                                >
-                                  <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
-                                </DivIcon>
-                              )}
-                            </DivAct>
-                          </td>
-                        </tr>
+                            <td>
+                              <DivAct>
+                                {data.roles && (data.roles.includes('OPERATOR') || data.roles.includes('ADMIN')) && (
+                                  <DivIcon
+                                    onClick={() => handleRedirectPool(typesPoolPage.EDIT_STAKEHOLDER, item.address)}
+                                  >
+                                    <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                                  </DivIcon>
+                                )}
+                              </DivAct>
+                            </td>
+                          </tr>
+                        )
                       )
                     })}
                   </tbody>

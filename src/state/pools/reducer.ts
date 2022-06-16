@@ -45,7 +45,8 @@ const poolsSlice = createSlice({
       state.data = [...action.payload]
     },
     updateListStateHolder(state: IInitialState, action) {
-      state.listAddStakeholders = [...action.payload]
+      const listOfStakeholders = [...state.listAddStakeholders]
+      state.listAddStakeholders = [...listOfStakeholders, ...action.payload]
     },
     updateErc20Balance(state: IInitialState, action) {
       state.erc20Balance = action.payload
