@@ -65,7 +65,6 @@ const StakeHolder = () => {
       }))
 
       setList(dataFiles)
-      dispatch(updateListStateHolder(dataFiles))
 
       dataFiles.forEach((item: any, index: any) => {
         if (index === result.data.length - 1) {
@@ -132,6 +131,7 @@ const StakeHolder = () => {
 
     tx?.wait().then(() => {
       toggleSuccessModal()
+      dispatch(updateListStateHolder(list))
       setList([])
       setAmount(0)
 
