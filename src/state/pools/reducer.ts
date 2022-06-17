@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import { createSlice } from '@reduxjs/toolkit'
 
 export interface IStakeholders {
@@ -6,9 +7,9 @@ export interface IStakeholders {
 }
 
 export interface IHistoryOfClaims {
-  date: string
-  amount: number
-  remaining: number
+  amountClaimed: string
+  remain: number
+  timestamp: number
 }
 
 export interface IPoolsData {
@@ -60,6 +61,9 @@ const poolsSlice = createSlice({
   name: 'pools',
   initialState,
   reducers: {
+    fetchHistoryOfClaims(state: IState, action) {
+      state.historyOfClaims = [...action.payload]
+    },
     updatePoolsData(state: IState, action) {
       state.data = [...action.payload]
     },
@@ -67,7 +71,9 @@ const poolsSlice = createSlice({
       state.listAddStakeholders = [...action.payload]
     },
     updateHistoryOfClaims(state: IState, action) {
-      state.historyOfClaims = [...action.payload]
+      const _claims = [...state.historyOfClaims]
+      state.historyOfClaims = [..._claims, action.payload]
+      console.log(state.historyOfClaims)
     },
     updateErc20Balance(state: IState, action) {
       state.erc20Balance = action.payload
@@ -161,6 +167,7 @@ const poolsSlice = createSlice({
 })
 
 export const {
+  fetchHistoryOfClaims,
   updatePoolsData,
   updateErc20Balance,
   setRoleForPoolAddress,
@@ -168,5 +175,6 @@ export const {
   updateListStateHolder,
   updateFiltersStatePool,
   updateStakeholderPool,
+  updateHistoryOfClaims,
 } = poolsSlice.actions
 export default poolsSlice.reducer

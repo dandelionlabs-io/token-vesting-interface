@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers } from 'ethers'
 import moment from 'moment'
@@ -20,8 +21,8 @@ import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import { AppState } from '../../../state'
 import { useCloseModal, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
-import { useAppSelector } from '../../../state/hooks'
-import { IPoolsData } from '../../../state/pools/reducer'
+import { useAppSelector, useAppDispatch } from '../../../state/hooks'
+import { IPoolsData, fetchHistoryOfClaims, updateHistoryOfClaims } from '../../../state/pools/reducer'
 import { ethBalance, shortenAddress } from '../../../utils'
 import { typesPoolPage } from '../index'
 
@@ -54,6 +55,7 @@ const IconSwapManage = {
 const PoolDetails = () => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
+  const dispatch = useAppDispatch()
   const poolAddress = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('typePoolPage')
 
@@ -69,15 +71,23 @@ const PoolDetails = () => {
 
   const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const poolsData = useAppSelector((state: AppState) => state.pools)
+  const claims = useAppSelector((state: AppState) => state.pools.historyOfClaims)
   const [data, setData] = useState<any>({})
   const [namePoolAddress, setNamePoolAddress] = useState<string>('')
   const [stakeholders, setStakeholders] = useState<Array<any>>([])
-  const [historyClaim, setHistoryClam] = useState<Array<any>>([])
+  const [historyClaim, setHistoryClam] = useState<Array<any>>(claims)
   const [claimedPercent, setClaimedPercent] = useState<number>(0)
   const [claimablePercent, setClaimablePercent] = useState<number>(0)
 
   const increaseDate = useRef<boolean>(false)
   const alphabet = useRef<boolean>(false)
+
+  useEffect(() => {
+    if (!poolAddress) {
+      history.push({ pathname: `dashboard` })
+      return
+    }
+  }, [history, poolAddress])
 
   const handleClaim = async () => {
     const provider: any = await detectEthereumProvider()
@@ -88,6 +98,13 @@ const PoolDetails = () => {
     const tx = await vestingInstance
       .claimVestedTokens()
       .then(() => {
+        dispatch(
+          updateHistoryOfClaims({
+            amountClaimed: data.claimable,
+            remain: data.amount - (data.claimed + data.claimable),
+            timestamp: Date.now(),
+          })
+        )
         toggleSuccessModal()
       })
       .catch((e: any) => {
@@ -181,13 +198,15 @@ const PoolDetails = () => {
             dataHisClone[i].remain = amounts
           }
 
-          handleSortHistoryClaim(dataHisClone)
+          dispatch(fetchHistoryOfClaims(dataHisClone))
+
+          // handleSortHistoryClaim(dataHisClone)
         }
       } catch (e) {
         console.log(e)
       }
     })()
-  }, [data, account, typePage, poolAddress, handleSortStakeholders, handleSortHistoryClaim])
+  }, [data, account, dispatch, typePage, poolAddress, handleSortStakeholders, handleSortHistoryClaim])
 
   useEffect(() => {
     if (!poolsData.data?.length || !poolAddress) {
@@ -373,9 +392,9 @@ const PoolDetails = () => {
               <HeadSpan>Remaining</HeadSpan>
             </ListContainer>
 
-            {historyClaim &&
-              !!historyClaim.length &&
-              historyClaim.map((item: any, i: number) => (
+            {claims &&
+              !!claims.length &&
+              claims.map((item: any, i: number) => (
                 <ListContainer key={i}>
                   <HeadSpan fontsize="16px">{moment(item.timestamp * 1000).format('MMM DD YYYY HH:MM')}</HeadSpan>
                   <HeadSpan fontsize="16px">{(parseFloat(item.amountClaimed) / 1e18).toFixed(3)}</HeadSpan>
