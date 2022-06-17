@@ -46,6 +46,9 @@ const applicationSlice = createSlice({
       state.chainId = chainId
     },
     setOpenModal(state, action) {
+      if (state.openModal === action.payload) {
+        return
+      }
       state.openModal = action.payload
     },
     addPopup(state, { payload: { content, key, removeAfterMs = DEFAULT_TXN_DISMISS_MS } }) {
