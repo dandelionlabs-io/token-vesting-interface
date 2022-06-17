@@ -123,13 +123,10 @@ const TableActivePool = ({ heading }: Props) => {
     dispatch(updateFiltersStatePool({ typePool, page: 1, size: 8, sort: 'ASC' }))
   }, [activeTab, dispatch, typePage, totalPool])
 
-  const handleFilter = useCallback(
-    async (item: string) => {
-      alphabet.current = true
-      setActiveTab(item)
-    },
-    [dispatch]
-  )
+  const handleFilter = useCallback(async (item: string) => {
+    alphabet.current = true
+    setActiveTab(item)
+  }, [])
 
   const handleShowStatusClaim = (item: IPoolsData) => {
     const status = handleSetStatusClaim(item)

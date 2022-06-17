@@ -1,6 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { ethers, providers } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
@@ -137,6 +137,9 @@ export default function App() {
   const closeModal = useCloseModal()
   const toggleSpinLoadingModal = useSpinLoadingModalToggle()
 
+  const toggleSpinLoadingModalRef = useRef<any>(toggleSpinLoadingModal)
+  const closeModalRef = useRef<any>(closeModal)
+
   const [isNotLandingPage, setIsNotLandingPage] = useState<boolean>(true)
 
   const state: IState | null = useAppSelector((state) => state.pools)
@@ -189,7 +192,7 @@ export default function App() {
 
     ;(async () => {
       try {
-        toggleSpinLoadingModal()
+        toggleSpinLoadingModalRef.current()
         const poolsRes: IPoolResponse = await Api.get(url, { params: { page, size, sort } })
         const pools: any[] = poolsRes.data
 
@@ -229,7 +232,7 @@ export default function App() {
       } catch (e) {
         console.log(e)
       } finally {
-        closeModal()
+        closeModalRef.current()
       }
     })()
   }, [account, checkAndGetPool, page, size, sort, typePool, dispatch])
