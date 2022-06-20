@@ -48,6 +48,9 @@ export function useSpinLoadingModalToggle(): () => void {
 export function useConfirmModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POPUP_CONFIRM)
 }
+export function useErrorModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.POPUP_ERROR)
+}
 
 export function useCloseModal(): () => void {
   return useToggleModal(null)
