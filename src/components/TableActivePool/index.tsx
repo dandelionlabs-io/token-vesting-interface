@@ -1,3 +1,4 @@
+// eslint-disable-next-line simple-import-sort/imports
 import 'rc-pagination/assets/index.css'
 
 import moment from 'moment'
@@ -15,6 +16,8 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks'
 import { IPoolsData, IState, RolePoolAddress, updateFiltersStatePool } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
+import { useModalOpen } from '../../state/application/hooks'
+import { ApplicationModal } from '../../state/application/reducer'
 
 interface Props {
   heading: string
@@ -53,8 +56,10 @@ export enum StatusClaimButton {
 const TableActivePool = ({ heading }: Props) => {
   const { account } = useActiveWeb3React()
   const history = useHistory()
+  const spinLoadingModalOpen = useModalOpen(ApplicationModal.POPUP_SPIN_LOADING)
   const alphabet = useRef<boolean>(true)
   const typePage = window.localStorage.getItem('typePoolPage')
+
   const [activeTab, setActiveTab] = useState<string>(ListTabs.ALL)
 
   const state: IState | null = useAppSelector((state) => state.pools)
@@ -114,7 +119,7 @@ const TableActivePool = ({ heading }: Props) => {
 
   useEffect(() => {
     let typePool = ''
-    if (!typePage) {
+    if (!typePage || null) {
       typePool = 'activePool'
     } else {
       typePool = activeTab
@@ -184,7 +189,7 @@ const TableActivePool = ({ heading }: Props) => {
                   })}
                 </tr>
               </thead>
-              {data && !!data?.length && (
+              {data && !!data?.length && !spinLoadingModalOpen && (
                 <tbody>
                   {data?.map((item: any, index: number) => {
                     return (
@@ -237,13 +242,14 @@ const TableActivePool = ({ heading }: Props) => {
               )}
             </Table>
           </DivTableBox>
-          {data && !data.length ? (
-            <Notification>No data to show !</Notification>
-          ) : (
-            <Bottom>
-              <Pagination simple onChange={handleOnChange} pageSize={size} current={page} total={totalPool} />
-            </Bottom>
-          )}
+          {!spinLoadingModalOpen &&
+            (data && !data.length ? (
+              <Notification>No data to show !</Notification>
+            ) : (
+              <Bottom>
+                <Pagination simple onChange={handleOnChange} pageSize={size} current={page} total={totalPool} />
+              </Bottom>
+            ))}
         </TableActivePoolWrapper>
       </BlockTable>
     </>
