@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components/macro'
 
 import Erc20 from '../abis/Erc20'
 import Factory from '../abis/Factory'
-import Vesting from '../abis/Vesting'
+import Vesting from '../abis/vesting.json'
 import Api from '../api'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Header from '../components/Header'

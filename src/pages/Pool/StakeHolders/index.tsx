@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import ERC20 from '../../../abis/Erc20'
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import Api from '../../../api'
 import GoBack from '../../../components/GoBack'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'

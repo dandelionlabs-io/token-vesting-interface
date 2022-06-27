@@ -5,7 +5,7 @@ import { ethers, providers } from 'ethers'
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
 import {

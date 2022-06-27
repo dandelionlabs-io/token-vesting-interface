@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
 import IconOxy from '../../../../src/components/Icons/IconOxy'
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import Api from '../../../api'
 import AddStake from '../../../assets/svg/icon/icon-dandelion-add-circle.svg'
 import IconTableEdit from '../../../assets/svg/icon/icon-dandelion-edit.svg'

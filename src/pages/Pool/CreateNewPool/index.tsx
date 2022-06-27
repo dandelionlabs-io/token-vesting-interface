@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components/macro'
 
 import ERC20 from '../../../abis/Erc20'
 import Factory from '../../../abis/Factory'
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import IconBin from '../../../assets/svg/icon/icon-dandelion-bin.svg'
 import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'

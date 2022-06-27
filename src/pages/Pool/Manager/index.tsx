@@ -3,7 +3,7 @@ import { ethers, providers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components/macro'
 
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import Delete from '../../../assets/svg/icon/icon-dandelion-delete.svg'
 import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'

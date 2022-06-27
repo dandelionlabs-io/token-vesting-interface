@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
-import Vesting from '../../../abis/Vesting'
+import Vesting from '../../../abis/vesting.json'
 import GoBack from '../../../components/GoBack'
 import dataConfirm from '../../../data/dataModalConfirm.json'
 import { useConfirmModalToggle, useModalOpen, useSuccessModalToggle } from '../../../state/application/hooks'
