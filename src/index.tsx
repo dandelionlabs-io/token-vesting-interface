@@ -14,7 +14,6 @@ import { BlockUpdater } from './hooks/useBlockNumber'
 import App from './pages/App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import store from './state'
-import { MulticallUpdater } from './state/multicall'
 import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
 
@@ -28,7 +27,6 @@ function Updaters() {
   return (
     <>
       <BlockUpdater />
-      <MulticallUpdater />
     </>
   )
 }

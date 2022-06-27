@@ -1,44 +1,32 @@
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
+import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import JSBI from 'jsbi'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
-import { nativeOnChain } from '../constants/tokens'
-import { isAddress } from '../utils'
-import { useSingleContractMultipleData } from './multicall'
-import useActiveWeb3React from './useActiveWeb3React'
-import { useMulticall } from './useContract'
+import useIsWindowVisible from './useIsWindowVisible'
 
-/**
- * Returns a map of the given addresses to their eventually consistent ETH balances.
- */
-export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefined)[]): {
-  [address: string]: CurrencyAmount<Currency> | undefined
-} {
-  const { chainId } = useActiveWeb3React()
-  const multicallContract = useMulticall()
+export function useBalance() {
+  const { active, account, chainId, library } = useActiveWeb3React()
+  const windowVisible = useIsWindowVisible()
+  const [balance, setBalance] = useState<JSBI>()
 
-  const validAddressInputs: [string][] = useMemo(
-    () =>
-      uncheckedAddresses
-        ? uncheckedAddresses
-            .map(isAddress)
-            .filter((a): a is string => a !== false)
-            .sort()
-            .map((addr) => [addr])
-        : [],
-    [uncheckedAddresses]
-  )
+  const updateBalance = () => {
+    if (account && library && chainId && windowVisible) {
+      library
+        .getBalance(account)
+        .then((result) => {
+          setBalance(JSBI.BigInt(result))
+        })
+        .catch((error: any) => {
+          console.error(`Failed to get balance`, error)
+        })
+    } else {
+      setBalance(undefined)
+    }
+  }
 
-  const results = useSingleContractMultipleData(multicallContract, 'getEthBalance', validAddressInputs)
+  useEffect(() => {
+    updateBalance()
+  }, [active, chainId, library, account, windowVisible])
 
-  return useMemo(
-    () =>
-      validAddressInputs.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, [address], i) => {
-        const value = results?.[i]?.result?.[0]
-        if (value && chainId)
-          memo[address] = CurrencyAmount.fromRawAmount(nativeOnChain(chainId), JSBI.BigInt(value.toString()))
-        return memo
-      }, {}),
-    [validAddressInputs, chainId, results]
-  )
+  return { balance, updateBalance }
 }

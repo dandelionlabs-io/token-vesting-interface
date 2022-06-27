@@ -1,3 +1,4 @@
+import { CurrencyAmount } from '@uniswap/sdk-core'
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
@@ -8,10 +9,10 @@ import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BrowseAll from '../../assets/svg/icon/icon-eye.svg'
 import BlockChart from '../../components/BlockChart'
 import BlockFeatureUser from '../../components/BlockFeatureUser'
-// import SidebarMenu from '../../components/SidebarMenu'
 import TableActivePool from '../../components/TableActivePool'
+import { nativeOnChain } from '../../constants/tokens'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
-import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
+import { useBalance } from '../../hooks/useCurrencyBalance'
 import { AppState } from '../../state'
 import { useAppDispatch, useAppSelector } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
@@ -41,11 +42,11 @@ const IconBrowseAll = {
 }
 
 const Dashboard = () => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const history = useHistory()
   const poolData = useAppSelector((state: AppState) => state.pools).data
 
-  const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
+  const { balance } = useBalance()
   const userCDREDBalance = useCDREDBalance()
 
   const dispatch = useAppDispatch()
@@ -53,7 +54,8 @@ const Dashboard = () => {
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
-    amount: userEthBalance?.toSignificant(4),
+    amount:
+      balance && chainId ? CurrencyAmount.fromRawAmount(nativeOnChain(chainId), balance).toSignificant(4) : undefined,
     widthIcon: '28px',
     heightIcon: '39px',
     SrcImageIcon: IconETH,

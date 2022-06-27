@@ -4,7 +4,6 @@ import { load, save } from 'redux-localstorage-simple'
 
 import application from './application/reducer'
 import { updateVersion } from './global/actions'
-import multicall from './multicall'
 import pools from './pools/reducer'
 import user from './user/reducer'
 
@@ -15,7 +14,6 @@ const store = configureStore({
     application,
     pools,
     user,
-    multicall: multicall.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true, serializableCheck: false }).concat(

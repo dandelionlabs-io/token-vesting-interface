@@ -1,12 +1,13 @@
+import { CurrencyAmount } from '@uniswap/sdk-core'
 import React, { useEffect } from 'react'
 import styled from 'styled-components/macro'
 
 import IconCDRED from '../../assets/svg/icon/icon-dandelion-cdred.svg'
 import IconETH from '../../assets/svg/icon/icon-dandelion-eth.svg'
 import BlockChart from '../../components/BlockChart'
-// import SidebarMenu from '../../components/SidebarMenu'
+import { nativeOnChain } from '../../constants/tokens'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
-import { useNativeCurrencyBalances } from '../../hooks/useCurrencyBalance'
+import { useBalance } from '../../hooks/useCurrencyBalance'
 import { useCDREDBalance } from '../../state/pools/hook'
 import BlockUpdateAddress from './BlockUpdateAddress'
 import BrowseAll from './BrowseAll'
@@ -37,10 +38,10 @@ export enum typesPoolPage {
 }
 
 const Pool = () => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const poolAddress = window.localStorage.getItem('address')
   const typePage = window.localStorage.getItem('typePoolPage') || ''
-  const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
+  const { balance } = useBalance()
   const userCDREDBalance = useCDREDBalance()
 
   useEffect(() => {
@@ -51,7 +52,8 @@ const Pool = () => {
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
-    amount: userEthBalance?.toSignificant(4),
+    amount:
+      balance && chainId ? CurrencyAmount.fromRawAmount(nativeOnChain(chainId), balance).toSignificant(4) : undefined,
     widthIcon: '28px',
     heightIcon: '39px',
     SrcImageIcon: IconETH,

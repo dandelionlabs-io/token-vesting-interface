@@ -131,7 +131,6 @@
     "@types/ms.macro": "^2.0.0",
     "@types/react-toastify": "^4.1.0",
     "@types/ua-parser-js": "^0.7.36",
-    "@uniswap/redux-multicall": "^1.1.1",
     "@uniswap/router-sdk": "^1.0.3",
     "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/smart-order-router": "^2.5.26",

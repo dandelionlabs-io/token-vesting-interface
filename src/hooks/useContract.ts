@@ -1,16 +1,12 @@
 import { Contract } from '@ethersproject/contracts'
-import UniswapInterfaceMulticallJson from '@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json'
 import { useMemo } from 'react'
 
 import ERC20_ABI from '../abis/erc20.json'
 import ERC721_ABI from '../abis/erc721.json'
 import ERC1155_ABI from '../abis/erc1155.json'
-import { MULTICALL_ADDRESS } from '../constants/addresses'
-import { Erc20, Erc721, Erc1155, InterfaceMulticall } from '../types'
+import { Erc20, Erc721, Erc1155 } from '../types'
 import { getContract } from '../utils'
 import useActiveWeb3React from './useActiveWeb3React'
-
-const { abi: MulticallABI } = UniswapInterfaceMulticallJson
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
@@ -45,8 +41,4 @@ export function useERC721Contract(nftAddress?: string) {
 
 export function useERC1155Contract(nftAddress?: string) {
   return useContract<Erc1155>(nftAddress, ERC1155_ABI, false)
-}
-
-export function useMulticall() {
-  return useContract<InterfaceMulticall>(MULTICALL_ADDRESS, MulticallABI, false) as InterfaceMulticall
 }
