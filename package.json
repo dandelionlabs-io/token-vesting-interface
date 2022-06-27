@@ -1,8 +1,10 @@
 {
-  "name": "Dandelionlabs",
-  "version": "0.0.31-beta",
-  "description": "Dandelionlabs project",
-  "homepage": ".",
+  "name": "token-vesting-interface",
+  "version": "0.1.0-beta",
+  "description": "Token Vesting user interface to interact with Dandelion Labs token linear vesting smart contracts.",
+  "homepage": "https://dandelionlabs.io/",
+  "author": "leon@dandelionlabs.io",
+  "license": "GPL-3.0-or-later",
   "files": [
     "dist"
   ],
@@ -102,7 +104,6 @@
     "react-error-overlay": "6.0.9"
   },
   "scripts": {
-    "prepublishOnly": "yarn widgets:build",
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
@@ -118,7 +119,6 @@
       "last 1 safari version"
     ]
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@fontsource/ibm-plex-mono": "^4.5.1",
