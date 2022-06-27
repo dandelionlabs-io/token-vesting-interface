@@ -1,639 +1,1025 @@
-const Vesting = [
-  {
-    inputs: [
-      {
-        internalType: 'address[]',
-        name: '_recipients',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '_amounts',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'addTokenGrants',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_newAdmin',
-        type: 'address',
-      },
-    ],
-    name: 'changeAdmin',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_oldAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_newAddress',
-        type: 'address',
-      },
-    ],
-    name: 'changeInvestor',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: '_name',
-        type: 'string',
-      },
-      {
-        internalType: 'address',
-        name: '_token',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_vestingDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '_admin',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'oldOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'ChangeInvestor',
-    type: 'event',
-  },
-  {
-    inputs: [],
-    name: 'claimVestedTokens',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_address',
-        type: 'address',
-      },
-    ],
-    name: 'deleteInvestor',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'DeleteInvestor',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'recipient',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'GrantAdded',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'grantRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'recipient',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'amountClaimed',
-        type: 'uint256',
-      },
-    ],
-    name: 'GrantTokensClaimed',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'renounceRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'revokeRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'previousAdminRole',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'newAdminRole',
-        type: 'bytes32',
-      },
-    ],
-    name: 'RoleAdminChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-    ],
-    name: 'RoleGranted',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'sender',
-        type: 'address',
-      },
-    ],
-    name: 'RoleRevoked',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'blacklist',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'calculateGrantClaim',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'claimedBalance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'DEFAULT_ADMIN_ROLE',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-    ],
-    name: 'getRoleAdmin',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'getTokenGrant',
-    outputs: [
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'totalClaimed',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'perSecond',
-            type: 'uint256',
-          },
-        ],
-        internalType: 'struct VestingBase.Grant',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'role',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'hasRole',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'OPERATORS',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'OPERATORS_ADMIN',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'pool',
-    outputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'endTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'vestingDuration',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalClaimed',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'grants',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'interfaceId',
-        type: 'bytes4',
-      },
-    ],
-    name: 'supportsInterface',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'token',
-    outputs: [
-      {
-        internalType: 'contract IERC20',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'tokenGrants',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalClaimed',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'perSecond',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'tokensVestedPerDay',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'tokensVestedPerDay',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-    ],
-    name: 'vestedBalance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-]
+/* Autogenerated file. Do not edit manually. */
+/* tslint:disable */
+/* eslint-disable */
 
-export default Vesting
+import {
+  ethers,
+  EventFilter,
+  Signer,
+  BigNumber,
+  BigNumberish,
+  PopulatedTransaction,
+  BaseContract,
+  ContractTransaction,
+  Overrides,
+  CallOverrides,
+} from "ethers";
+import { BytesLike } from "@ethersproject/bytes";
+import { Listener, Provider } from "@ethersproject/providers";
+import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./types/common";
+
+interface VestingInterface extends ethers.utils.Interface {
+  functions: {
+    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "OPERATORS()": FunctionFragment;
+    "OPERATORS_ADMIN()": FunctionFragment;
+    "addTokenGrants(address[],uint256[])": FunctionFragment;
+    "blacklist(address)": FunctionFragment;
+    "calculateGrantClaim(address)": FunctionFragment;
+    "changeAdmin(address)": FunctionFragment;
+    "changeInvestor(address,address)": FunctionFragment;
+    "claimVestedTokens()": FunctionFragment;
+    "claimedBalance(address)": FunctionFragment;
+    "deleteInvestor(address)": FunctionFragment;
+    "getRoleAdmin(bytes32)": FunctionFragment;
+    "getTokenGrant(address)": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
+    "pool()": FunctionFragment;
+    "renounceRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
+    "token()": FunctionFragment;
+    "tokenGrants(address)": FunctionFragment;
+    "tokensVestedPerDay(address)": FunctionFragment;
+    "vestedBalance(address)": FunctionFragment;
+  };
+
+  encodeFunctionData(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "OPERATORS", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "OPERATORS_ADMIN",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addTokenGrants",
+    values: [string[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(functionFragment: "blacklist", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "calculateGrantClaim",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "changeAdmin", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "changeInvestor",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimVestedTokens",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimedBalance",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deleteInvestor",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenGrant",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(functionFragment: "pool", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tokenGrants", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "tokensVestedPerDay",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "vestedBalance",
+    values: [string]
+  ): string;
+
+  decodeFunctionResult(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "OPERATORS", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "OPERATORS_ADMIN",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addTokenGrants",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "blacklist", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateGrantClaim",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "changeAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "changeInvestor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimVestedTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimedBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "deleteInvestor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTokenGrant",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenGrants",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokensVestedPerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "vestedBalance",
+    data: BytesLike
+  ): Result;
+
+  events: {
+    "ChangeInvestor(address,address)": EventFragment;
+    "DeleteInvestor(address)": EventFragment;
+    "GrantAdded(address,uint256)": EventFragment;
+    "GrantTokensClaimed(address,uint256)": EventFragment;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "ChangeInvestor"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DeleteInvestor"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GrantAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GrantTokensClaimed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+}
+
+export type ChangeInvestorEvent = TypedEvent<
+  [string, string] & { oldOwner: string; newOwner: string }
+>;
+
+export type DeleteInvestorEvent = TypedEvent<[string] & { arg0: string }>;
+
+export type GrantAddedEvent = TypedEvent<
+  [string, BigNumber] & { recipient: string; amount: BigNumber }
+>;
+
+export type GrantTokensClaimedEvent = TypedEvent<
+  [string, BigNumber] & { recipient: string; amountClaimed: BigNumber }
+>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string, string] & {
+    role: string;
+    previousAdminRole: string;
+    newAdminRole: string;
+  }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export class Vesting extends BaseContract {
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
+
+  listeners<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter?: TypedEventFilter<EventArgsArray, EventArgsObject>
+  ): Array<TypedListener<EventArgsArray, EventArgsObject>>;
+  off<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>
+  ): this;
+  on<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>
+  ): this;
+  once<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>
+  ): this;
+  removeListener<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    listener: TypedListener<EventArgsArray, EventArgsObject>
+  ): this;
+  removeAllListeners<EventArgsArray extends Array<any>, EventArgsObject>(
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>
+  ): this;
+
+  listeners(eventName?: string): Array<Listener>;
+  off(eventName: string, listener: Listener): this;
+  on(eventName: string, listener: Listener): this;
+  once(eventName: string, listener: Listener): this;
+  removeListener(eventName: string, listener: Listener): this;
+  removeAllListeners(eventName?: string): this;
+
+  queryFilter<EventArgsArray extends Array<any>, EventArgsObject>(
+    event: TypedEventFilter<EventArgsArray, EventArgsObject>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
+
+  interface: VestingInterface;
+
+  functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    OPERATORS(overrides?: CallOverrides): Promise<[string]>;
+
+    OPERATORS_ADMIN(overrides?: CallOverrides): Promise<[string]>;
+
+    addTokenGrants(
+      _recipients: string[],
+      _amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    blacklist(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
+    calculateGrantClaim(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    changeAdmin(
+      _newAdmin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    changeInvestor(
+      _oldAddress: string,
+      _newAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    claimVestedTokens(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    claimedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    deleteInvestor(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    getTokenGrant(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, BigNumber, BigNumber] & {
+          amount: BigNumber;
+          totalClaimed: BigNumber;
+          perSecond: BigNumber;
+        }
+      ]
+    >;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    pool(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ] & {
+        name: string;
+        startTime: BigNumber;
+        endTime: BigNumber;
+        vestingDuration: BigNumber;
+        amount: BigNumber;
+        totalClaimed: BigNumber;
+        grants: BigNumber;
+      }
+    >;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    token(overrides?: CallOverrides): Promise<[string]>;
+
+    tokenGrants(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        amount: BigNumber;
+        totalClaimed: BigNumber;
+        perSecond: BigNumber;
+      }
+    >;
+
+    "tokensVestedPerDay(address)"(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "tokensVestedPerDay(uint256)"(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    vestedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+  };
+
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  OPERATORS(overrides?: CallOverrides): Promise<string>;
+
+  OPERATORS_ADMIN(overrides?: CallOverrides): Promise<string>;
+
+  addTokenGrants(
+    _recipients: string[],
+    _amounts: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  blacklist(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+  calculateGrantClaim(
+    _recipient: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  changeAdmin(
+    _newAdmin: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  changeInvestor(
+    _oldAddress: string,
+    _newAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  claimVestedTokens(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  claimedBalance(
+    _recipient: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  deleteInvestor(
+    _address: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  getTokenGrant(
+    _recipient: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber] & {
+      amount: BigNumber;
+      totalClaimed: BigNumber;
+      perSecond: BigNumber;
+    }
+  >;
+
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  pool(
+    overrides?: CallOverrides
+  ): Promise<
+    [
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      name: string;
+      startTime: BigNumber;
+      endTime: BigNumber;
+      vestingDuration: BigNumber;
+      amount: BigNumber;
+      totalClaimed: BigNumber;
+      grants: BigNumber;
+    }
+  >;
+
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  supportsInterface(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  token(overrides?: CallOverrides): Promise<string>;
+
+  tokenGrants(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber] & {
+      amount: BigNumber;
+      totalClaimed: BigNumber;
+      perSecond: BigNumber;
+    }
+  >;
+
+  "tokensVestedPerDay(address)"(
+    _recipient: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "tokensVestedPerDay(uint256)"(
+    _amount: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  vestedBalance(
+    _recipient: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    OPERATORS(overrides?: CallOverrides): Promise<string>;
+
+    OPERATORS_ADMIN(overrides?: CallOverrides): Promise<string>;
+
+    addTokenGrants(
+      _recipients: string[],
+      _amounts: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    blacklist(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+    calculateGrantClaim(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    changeAdmin(_newAdmin: string, overrides?: CallOverrides): Promise<void>;
+
+    changeInvestor(
+      _oldAddress: string,
+      _newAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimVestedTokens(overrides?: CallOverrides): Promise<void>;
+
+    claimedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    deleteInvestor(_address: string, overrides?: CallOverrides): Promise<void>;
+
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    getTokenGrant(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        amount: BigNumber;
+        totalClaimed: BigNumber;
+        perSecond: BigNumber;
+      }
+    >;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    pool(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ] & {
+        name: string;
+        startTime: BigNumber;
+        endTime: BigNumber;
+        vestingDuration: BigNumber;
+        amount: BigNumber;
+        totalClaimed: BigNumber;
+        grants: BigNumber;
+      }
+    >;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    token(overrides?: CallOverrides): Promise<string>;
+
+    tokenGrants(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        amount: BigNumber;
+        totalClaimed: BigNumber;
+        perSecond: BigNumber;
+      }
+    >;
+
+    "tokensVestedPerDay(address)"(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "tokensVestedPerDay(uint256)"(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    vestedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+  };
+
+  filters: {
+    "ChangeInvestor(address,address)"(
+      oldOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { oldOwner: string; newOwner: string }
+    >;
+
+    ChangeInvestor(
+      oldOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { oldOwner: string; newOwner: string }
+    >;
+
+    "DeleteInvestor(address)"(
+      undefined?: string | null
+    ): TypedEventFilter<[string], { arg0: string }>;
+
+    DeleteInvestor(
+      undefined?: string | null
+    ): TypedEventFilter<[string], { arg0: string }>;
+
+    "GrantAdded(address,uint256)"(
+      recipient?: string | null,
+      amount?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { recipient: string; amount: BigNumber }
+    >;
+
+    GrantAdded(
+      recipient?: string | null,
+      amount?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { recipient: string; amount: BigNumber }
+    >;
+
+    "GrantTokensClaimed(address,uint256)"(
+      recipient?: string | null,
+      amountClaimed?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { recipient: string; amountClaimed: BigNumber }
+    >;
+
+    GrantTokensClaimed(
+      recipient?: string | null,
+      amountClaimed?: BigNumberish | null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { recipient: string; amountClaimed: BigNumber }
+    >;
+
+    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
+      role?: BytesLike | null,
+      previousAdminRole?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    RoleAdminChanged(
+      role?: BytesLike | null,
+      previousAdminRole?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    "RoleGranted(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleRevoked(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+  };
+
+  estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    OPERATORS(overrides?: CallOverrides): Promise<BigNumber>;
+
+    OPERATORS_ADMIN(overrides?: CallOverrides): Promise<BigNumber>;
+
+    addTokenGrants(
+      _recipients: string[],
+      _amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    blacklist(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    calculateGrantClaim(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    changeAdmin(
+      _newAdmin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    changeInvestor(
+      _oldAddress: string,
+      _newAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    claimVestedTokens(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    claimedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    deleteInvestor(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getTokenGrant(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    pool(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    token(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokenGrants(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "tokensVestedPerDay(address)"(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "tokensVestedPerDay(uint256)"(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    vestedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    DEFAULT_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    OPERATORS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    OPERATORS_ADMIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    addTokenGrants(
+      _recipients: string[],
+      _amounts: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    blacklist(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    calculateGrantClaim(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    changeAdmin(
+      _newAdmin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    changeInvestor(
+      _oldAddress: string,
+      _newAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimVestedTokens(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    deleteInvestor(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTokenGrant(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    pool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokenGrants(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "tokensVestedPerDay(address)"(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "tokensVestedPerDay(uint256)"(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    vestedBalance(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+  };
+}

@@ -2,9 +2,9 @@ import { Contract } from '@ethersproject/contracts'
 import { useMemo } from 'react'
 
 import ERC20_ABI from '../abis/erc20.json'
-import ERC721_ABI from '../abis/erc721.json'
-import ERC1155_ABI from '../abis/erc1155.json'
-import { Erc20, Erc721, Erc1155 } from '../types'
+import VESTING_ABI from '../abis/vesting.json'
+import { Vesting } from '../abis/Vesting'
+import { Erc20 } from '../types'
 import { getContract } from '../utils'
 import useActiveWeb3React from './useActiveWeb3React'
 
@@ -35,10 +35,6 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
-export function useERC721Contract(nftAddress?: string) {
-  return useContract<Erc721>(nftAddress, ERC721_ABI, false)
-}
-
-export function useERC1155Contract(nftAddress?: string) {
-  return useContract<Erc1155>(nftAddress, ERC1155_ABI, false)
+export function useVestingContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
+  return useContract<Vesting>(tokenAddress, VESTING_ABI, withSignerIfPossible)
 }
