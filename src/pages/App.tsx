@@ -74,7 +74,7 @@ const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
       //left: 320px;
       display: flex;
       justify-content: flex-end;
-      background-color: ${({ theme }) => theme.bgPrimary};
+      // background-color: ${({ theme }) => theme.bgPrimary};
       //width: calc(100% - 320px);
       padding: 25px 60px;
     `}

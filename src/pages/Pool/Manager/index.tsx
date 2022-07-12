@@ -142,7 +142,7 @@ const Manager = () => {
   )
 }
 const DivWrapper = styled.div`
-  background-color: #00142d;
+  background-color: rgba(0, 20, 45, 0.2);
   border: solid 1px #002d64;
   backdrop-filter: blur(2px);
   box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
