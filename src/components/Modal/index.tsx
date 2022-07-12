@@ -28,12 +28,12 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, mobile, isOpen, maxW
   'aria-label': 'dialog',
 })`
   border-radius: 70px;
-  background: ${({ theme }) => theme.modalBG};
 
   &[data-reach-dialog-content] {
-    border: none;
-    background: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 20, 45, 0.6);
+    border: solid 1px #002d64;
+    backdrop-filter: blur(2px);
+    box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
     border-radius: 20px;
     padding: 40px 32px;
     width: 100%;

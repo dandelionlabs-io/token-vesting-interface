@@ -135,9 +135,9 @@ const BlockChartItem = styled.div`
   padding-right: 8px;
 `
 const BlockTable = styled.div`
-  margin-top: 16px;
+  margin-top: 32px;
   border-radius: 16px;
-  background-color: rgba(0, 20, 45, 0.2);
+  background-color: rgba(0, 20, 45, 0.6);
   border: solid 1px #002d64;
   backdrop-filter: blur(2px);
   box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
