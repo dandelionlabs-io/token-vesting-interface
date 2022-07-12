@@ -51,14 +51,12 @@ const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
   ${({ bodyDashBoard }) =>
     bodyDashBoard &&
     css`
-      //margin-left: 320px;
       margin-top: 85px;
       padding: 32px 60px 60px 60px;
-      //width: calc(100% - 320px);
       display: block;
       flex-direction: unset;
       align-items: unset;
-      background-image: linear-gradient(180deg, #01152d 31.72%, #011024 100%);
+      background-color: #00142d;
     `}
 `
 const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
@@ -71,35 +69,30 @@ const HeaderWrapper = styled.div<{ headerDashBoard?: boolean }>`
   ${({ headerDashBoard }) =>
     headerDashBoard &&
     css`
-      //left: 320px;
       display: flex;
       justify-content: flex-end;
-      // background-color: ${({ theme }) => theme.bgPrimary};
-      //width: calc(100% - 320px);
       padding: 25px 60px;
     `}
 `
 const FooterWrapper = styled.div`
   position: fixed;
-  height: 40px;
+  height: 50px;
   bottom: 0;
-  //left: 320px;
   right: 0;
-  //width: calc(100% - 320px);
   width: 100%;
   z-index: 2;
-  background-color: #011024;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `
 const FooterContent = styled.p`
-  margin-bottom: 0;
   font-family: 'Montserrat', sans-serif;
   font-style: normal;
   font-size: 12px;
   line-height: 15px;
   color: ${({ theme }) => theme.white};
   text-align: right;
-  margin-right: 60px;
-  margin-top: 10px;
+  margin: 20px 40px 40px 30px;
   & > span {
     font-weight: 700;
   }
@@ -265,6 +258,7 @@ export default function App() {
           </BodyWrapper>
           {isNotLandingPage && (
             <FooterWrapper>
+              <FooterContent>Copyright ©2022 Dandelion Labs JSC.</FooterContent>
               <FooterContent>
                 <span>Blockchain:</span> Ethereum Testnet Rinkeby
               </FooterContent>
