@@ -21,8 +21,6 @@ You will need node.js (12.* or later) and npm installed to run it locally. We ar
 2. Run `yarn install`.
 3. Copy the file `.env.example` to `.env`, and:
     - Replace `REACT_APP_INFURA_KEY` with an INFURA or ALCHEMY url.
-    - Replace `REACT_APP_PORTIS_ID` with a Portid ID of the DApp.
-    - Replace `REACT_APP_FORTMATIC_KEY` with a formtmatic apiKey
 4. Run `yarn start`.
 
 ## Troubleshooting

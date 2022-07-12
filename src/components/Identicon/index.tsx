@@ -1,4 +1,3 @@
-import jazzicon from '@metamask/jazzicon'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components/macro'
 
@@ -15,20 +14,20 @@ const StyledIdenticon = styled.div`
 export default function Identicon() {
   const { account } = useActiveWeb3React()
 
-  const icon = useMemo(() => account && jazzicon(16, parseInt(account.slice(2, 10), 16)), [account])
+  const icon = useMemo(() => account, [account])
   const iconRef = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
-    const current = iconRef.current
-    if (icon) {
-      current?.appendChild(icon)
-      return () => {
-        try {
-          current?.removeChild(icon)
-        } catch (e) {
-          console.error('Avatar icon not found')
-        }
-      }
-    }
+    // const current = iconRef.current
+    // if (icon) {
+    //   current?.appendChild(icon)
+    //   return () => {
+    //     try {
+    //       current?.removeChild(icon)
+    //     } catch (e) {
+    //       console.error('Avatar icon not found')
+    //     }
+    //   }
+    // }
     return
   }, [icon, iconRef])
 

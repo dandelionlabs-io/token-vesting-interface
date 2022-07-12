@@ -601,7 +601,10 @@ const Heading = styled.h3`
 `
 const EmptyContainer = styled.div`
   border-radius: 16px;
-  background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
+  background-color: #00142d;
+  border: solid 1px #002d64;
+  backdrop-filter: blur(2px);
+  box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
   padding: 24px 32px 20px;
   display: flex;
   flex-direction: column;

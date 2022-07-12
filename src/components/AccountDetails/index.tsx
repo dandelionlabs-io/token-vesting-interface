@@ -3,7 +3,7 @@ import { ExternalLink as LinkIcon } from 'react-feather'
 import styled from 'styled-components/macro'
 import { AbstractConnector } from 'web3-react-abstract-connector'
 
-import { injected, portis, walletlink } from '../../connectors'
+import { injected } from '../../connectors'
 import { SUPPORTED_WALLETS } from '../../constants/wallet'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { ExternalLink } from '../../theme'
@@ -142,15 +142,6 @@ function WrappedStatusIcon({ connector }: { connector: AbstractConnector | Conne
   return (
     <IconWrapper size={16}>
       <StatusIcon connector={connector} />
-      {connector === portis && (
-        <MainWalletAction
-          onClick={() => {
-            portis.portis.showPortis()
-          }}
-        >
-          Show Portis
-        </MainWalletAction>
-      )}
     </IconWrapper>
   )
 }
@@ -167,10 +158,6 @@ const WalletAction = styled(ButtonSecondary)`
     text-decoration: underline;
     border-color: ${({ theme }) => theme.borderCard};
   }
-`
-
-const MainWalletAction = styled(WalletAction)`
-  color: ${({ theme }) => theme.primary1};
 `
 
 interface AccountDetailsProps {
@@ -203,7 +190,7 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
               <AccountGroupingRow>
                 {formatConnectorName()}
                 <div>
-                  {connector !== injected && connector !== walletlink && (
+                  {connector !== injected && (
                     <WalletAction
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {

@@ -1,8 +1,8 @@
+import IconPrev from 'assets/svg/icon/icon-dandelionlabs-prev.svg'
 import React from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
-import IconPrev from '../../assets/svg/icon/icon-dandelionlabs-prev.svg'
 import IconOxy from '../Icons/IconOxy'
 interface Props {
   textNameBack: string
