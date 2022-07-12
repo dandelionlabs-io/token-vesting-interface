@@ -20,7 +20,7 @@ import RouterPage from './router'
 const AppWrapper = styled.div<{ bgImage?: string }>`
   display: flex;
   flex-flow: column;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
   min-height: 100vh;
   background-repeat: no-repeat;
@@ -44,6 +44,7 @@ const BodyWrapper = styled.div<{ bodyDashBoard?: boolean }>`
   align-items: center;
   flex: 1;
   z-index: 1;
+  max-width: 1300px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 56px 16px 8px 16px;
