@@ -2,12 +2,12 @@ import { Contract } from '@ethersproject/contracts'
 import { useMemo } from 'react'
 
 import ERC20_ABI from '../abis/erc20.json'
+import Factory from '../abis/Factory'
 import { Vesting } from '../abis/Vesting'
 import VESTING_ABI from '../abis/vesting.json'
 import { Erc20 } from '../types'
 import { getContract } from '../utils'
 import useActiveWeb3React from './useActiveWeb3React'
-import Factory from '../abis/Factory'
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
