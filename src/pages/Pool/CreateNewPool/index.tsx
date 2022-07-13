@@ -1,16 +1,12 @@
-/* eslint-disable simple-import-sort/imports */
 import 'react-datepicker/dist/react-datepicker.css'
 
-import detectEthereumProvider from '@metamask/detect-provider'
-import { ethers, providers, utils } from 'ethers'
+import { utils } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
-import ERC20 from '../../../abis/Erc20'
-import Factory from '../../../abis/Factory'
-import Vesting from '../../../abis/vesting.json'
+import VESTING_ABI from '../../../abis/vesting.json'
 import IconBin from '../../../assets/svg/icon/icon-dandelion-bin.svg'
 import IconCalendar from '../../../assets/svg/icon/icon-dandelion-calender.svg'
 import IconUploadFile from '../../../assets/svg/icon/icon-dandelion-upload-file.svg'
@@ -18,19 +14,22 @@ import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
 import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
+import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
-import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
+import { useFactoryContract, useTokenContract } from '../../../hooks/useContract'
 import {
   useCloseModal,
+  useErrorModalToggle,
   useLoadingModalToggle,
   useModalOpen,
   useSuccessModalToggle,
-  useErrorModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppSelector } from '../../../state/hooks'
 import { IStakeholders } from '../../../state/pools/reducer'
+import { getContract } from '../../../utils'
 import { typesPoolPage } from '../index'
 import TitleOptionNewPool from '../TitleOptionNewPool'
 
@@ -41,7 +40,10 @@ interface fileImage {
   src: any
 }
 const CreateNewPool = () => {
+  const { account, library } = useActiveWeb3React()
   const history = useHistory()
+  const factoryContract = useFactoryContract(true)
+  const tokenContract = useTokenContract(process.env.REACT_APP_TOKEN_ADDRESS, true)
   const [name, setName] = useState<string>('')
   const [errorMsg, setErrorMsg] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | null>(null)
@@ -138,7 +140,7 @@ const CreateNewPool = () => {
   }
 
   const handleCreatePool = async () => {
-    if (!startDate || !endDate || !name) {
+    if (!startDate || !endDate || !name || !factoryContract || !tokenContract || !library || !account) {
       return
     }
 
@@ -146,9 +148,6 @@ const CreateNewPool = () => {
 
     const start = parseInt(String(startDate.getTime() / 1000))
     const duration = parseInt(String((endDate.getTime() - startDate.getTime()) / 1000))
-
-    const provider: any = await detectEthereumProvider()
-    const web3Provider = new providers.Web3Provider(provider)
 
     const amount = listAddStakeholders.reduce((prev, next) => prev + parseInt(next.amount), 0)
     const amountList: string[] = []
@@ -162,13 +161,7 @@ const CreateNewPool = () => {
       }
     })
 
-    const contract = new ethers.Contract(
-      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
-      Factory,
-      web3Provider.getSigner()
-    )
-
-    const tx = await contract
+    const tx = await factoryContract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .catch((e: any) => {
         console.log('error code:', e.code)
@@ -197,39 +190,43 @@ const CreateNewPool = () => {
         return
       }
 
-      const ERC20Instance = new ethers.Contract(
-        process.env.REACT_APP_TOKEN_ADDRESS || '',
-        ERC20,
-        web3Provider.getSigner()
-      )
-      const tx2 = await ERC20Instance.approve(address, utils.parseEther(amount.toString()))
+      const tx2 = await tokenContract
+        .approve(address, utils.parseEther(amount.toString()))
         .catch((e: any) => {
           console.log(e)
         })
         .finally(() => toggleLoadingModal())
 
-      const vestingInstance = new ethers.Contract(address || '', Vesting, web3Provider.getSigner())
-
       tx2?.wait().then(async () => {
         toggleSuccessModal()
-
         setTimeout(function () {
           closeModal()
         }, 2000)
-        await vestingInstance
-          .addTokenGrants(addressList, amountList)
-          .then(() => {
-            toggleSuccessModal()
 
-            setTimeout(function () {
-              closeModal()
-              window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
-              history.push({ pathname: `dashboard` })
-            }, 2000)
-          })
-          .catch((e: any) => {
-            console.log('error', e)
-          })
+        let vestingInstance
+        try {
+          vestingInstance = getContract(address, VESTING_ABI, library, account)
+        } catch (error) {
+          console.error('Failed to get contract', error)
+        }
+        if (vestingInstance) {
+          await vestingInstance
+            .addTokenGrants(addressList, amountList)
+            .then(() => {
+              toggleSuccessModal()
+
+              setTimeout(function () {
+                closeModal()
+                window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
+                history.push({ pathname: `dashboard` })
+              }, 2000)
+            })
+            .catch((e: any) => {
+              console.log('error', e)
+            })
+        } else {
+          alert('I am an error creating the vesting insance')
+        }
       })
     })
   }
