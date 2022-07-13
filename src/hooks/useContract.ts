@@ -7,6 +7,7 @@ import VESTING_ABI from '../abis/vesting.json'
 import { Erc20 } from '../types'
 import { getContract } from '../utils'
 import useActiveWeb3React from './useActiveWeb3React'
+import Factory from '../abis/Factory'
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
@@ -37,4 +38,8 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
 
 export function useVestingContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
   return useContract<Vesting>(tokenAddress, VESTING_ABI, withSignerIfPossible)
+}
+
+export function useFactoryContract(withSignerIfPossible?: boolean) {
+  return useContract(process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '', Factory, withSignerIfPossible)
 }
