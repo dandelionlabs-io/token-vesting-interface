@@ -5,12 +5,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
-import ERC20 from '../../../abis/Erc20'
 import Vesting from '../../../abis/vesting.json'
 import Api from '../../../api'
 import GoBack from '../../../components/GoBack'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
+import { useTokenContract } from '../../../hooks/useContract'
 import {
   useCloseModal,
   useLoadingModalToggle,
@@ -27,6 +27,7 @@ const StakeHolder = () => {
   const [list, setList] = useState<any>([])
   const [successButton, setSuccessButton] = useState<any>(false)
   const [blackList, setBlackList] = useState<string[]>([])
+  const tokenContract = useTokenContract(process.env.REACT_APP_TOKEN_ADDRESS || '', true)
 
   const [amount, setAmount] = useState<any>(0)
   const [addressList, setAddressList] = useState<any>([])
@@ -98,18 +99,19 @@ const StakeHolder = () => {
       return
     }
 
+    if (!tokenContract) {
+      alert('error, token is null')
+      return
+    }
+
     toggleLoadingModal()
 
-    const provider: any = await detectEthereumProvider()
-    const web3Provider = new providers.Web3Provider(provider)
-
-    const ERC20Instance = new ethers.Contract(
-      process.env.REACT_APP_TOKEN_ADDRESS || '',
-      ERC20,
-      web3Provider.getSigner()
-    )
-
-    const tx = await ERC20Instance.approve(poolAddress, utils.parseEther(amount.toString())).catch((e: any) => {
+    const tx = await tokenContract.approve(poolAddress, utils.parseEther(amount.toString())).catch((e: any) => {
+      if (e.code === -32603) {
+        if (e.message === 'execution reverted: Ownable: caller is not the owner') {
+          console.log('Ownable: caller is not the owner ')
+        }
+      }
       console.log(e)
     })
 
