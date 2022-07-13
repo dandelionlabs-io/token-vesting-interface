@@ -1,3 +1,4 @@
+// eslint-disable-next-line simple-import-sort/imports
 import 'rc-pagination/assets/index.css'
 
 import moment from 'moment'
@@ -6,18 +7,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components/macro'
 
-import Api from '../../api'
 import IconTableEdit from '../../assets/svg/icon/icon-dandelion-edit.svg'
 import IconSort from '../../assets/svg/icon/icon-dandelion-polygon-down.svg'
 import IconTableDefault from '../../assets/svg/icon/icon-table-default.svg'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { typesPoolPage } from '../../pages/Pool'
-import { IPoolsData, RolePoolAddress } from '../../state/pools/reducer'
+import { useAppDispatch, useAppSelector } from '../../state/hooks'
+import { IPoolsData, IState, RolePoolAddress, updateFiltersStatePool } from '../../state/pools/reducer'
 import { shortenAddress } from '../../utils'
 import IconOxy from '../Icons/IconOxy'
+import { useModalOpen } from '../../state/application/hooks'
+import { ApplicationModal } from '../../state/application/reducer'
 
 interface Props {
-  data: IPoolsData[] | null
   heading: string
 }
 
@@ -38,8 +40,8 @@ const columns: TypeColumns[] = [
 export enum ListTabs {
   ALL = 'all',
   CLAIMABLE = 'claimable',
-  NEW = 'new',
-  EXPIRED = 'expired',
+  UPCOMING = 'upcoming',
+  CLAIMED = 'claimed',
   BANNED = 'banned',
 }
 
@@ -51,21 +53,20 @@ export enum StatusClaimButton {
   EXPIRED = 'expired',
 }
 
-const TableActivePool = ({ data, heading }: Props) => {
+const TableActivePool = ({ heading }: Props) => {
   const { account } = useActiveWeb3React()
-  const countPerPage = 8
-  const [currentPage, setCurrentPage] = React.useState<number>(1)
   const history = useHistory()
+  const spinLoadingModalOpen = useModalOpen(ApplicationModal.POPUP_SPIN_LOADING)
   const alphabet = useRef<boolean>(true)
-  const [dataPools, setDataPools] = useState<Props['data']>(data)
-  const [dataShow, setDataShow] = useState<Props['data']>([])
   const typePage = window.localStorage.getItem('typePoolPage')
 
   const [activeTab, setActiveTab] = useState<string>(ListTabs.ALL)
 
+  const state: IState | null = useAppSelector((state) => state.pools)
+  const { page, size, totalPool, data } = state
+  const dispatch = useAppDispatch()
   const handleRedirectPoolDetails = (item: any, typePoolPage: string) => {
     const status = handleSetStatusClaim(item)
-
     if (status !== StatusClaimButton.ACTIVE && typePoolPage === typesPoolPage.CLAIM) {
       return
     }
@@ -75,48 +76,20 @@ const TableActivePool = ({ data, heading }: Props) => {
     history.push({ pathname: `pool` })
   }
 
-  const handleSortPools = (pools: Array<any> | null) => {
-    if (!pools) {
-      return
-    }
-
-    const dataSort = [...pools].sort((prev: IPoolsData, next: IPoolsData) => {
-      const prevName = prev.name.toLowerCase()
-      const nextName = next.name.toLowerCase()
-
-      if (alphabet.current) {
-        if (prevName < nextName) {
-          return 1
-        }
-        if (prevName > nextName) {
-          return -1
-        }
-      } else {
-        if (prevName < nextName) {
-          return -1
-        }
-        if (prevName > nextName) {
-          return 1
-        }
-      }
-
-      return 0
-    })
-
+  const handleSortPools = () => {
     alphabet.current = !alphabet.current
-    setDataPools(dataSort)
+    dispatch(updateFiltersStatePool({ sort: alphabet.current ? 'ASC' : 'DESC' }))
   }
 
   const handleOnChange = (page: number) => {
-    setCurrentPage(page)
-    setDataShow(dataShow)
+    dispatch(updateFiltersStatePool({ page }))
   }
 
   const handleSetStatusClaim = useCallback(
     (item: IPoolsData) => {
       const currentDayTime = new Date().getTime()
 
-      if (account && item.blackList && item.blackList.includes(account)) {
+      if (account && !!item.blackList.length && item.blackList.includes(account)) {
         return StatusClaimButton.BANNED
       }
 
@@ -145,64 +118,18 @@ const TableActivePool = ({ data, heading }: Props) => {
   )
 
   useEffect(() => {
-    handleSortPools(data)
-  }, [data])
-
-  useEffect(() => {
-    handleSortPools(data)
-  }, [data])
-
-  const handleShowCheckStakeholder = useCallback(async () => {
-    if (!account || !dataPools) {
-      return
+    let typePool = ''
+    if (!typePage || null) {
+      typePool = 'activePool'
+    } else {
+      typePool = activeTab
     }
 
-    const dataSlice = dataPools
-      .filter((item) => item.roles.length > 0)
-      .slice(countPerPage * (currentPage - 1), currentPage * countPerPage)
-
-    const data = await Promise.all(
-      dataSlice.map(async (data) => {
-        const urlAddressGetStakeholder = `${process.env.REACT_APP_BASE_URL}/${process.env.REACT_APP_NETWORK}/${data.address}/stakeholders`
-        const urlBlackList = `${process.env.REACT_APP_BASE_URL}/${data.address}/blacklist`
-        const stakeholders: any[] = await Api.get(urlAddressGetStakeholder)
-
-        const isStakeholder = stakeholders.some((item) => {
-          return item.address === account
-        })
-        const list: any[] = await Api.get(urlBlackList)
-
-        if (isStakeholder) {
-          return {
-            ...data,
-            roles: [...data.roles, RolePoolAddress.STAKEHOLDER],
-            blackList: list.map((item) => item.address),
-          }
-        } else {
-          return {
-            ...data,
-            blackList: list.map((item) => item.address),
-          }
-        }
-      })
-    )
-
-    return data
-  }, [account, currentPage, dataPools])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!account || !dataPools) {
-        return
-      }
-
-      const dataShowCheckStakeHolder = (await handleShowCheckStakeholder()) || []
-
-      setDataShow(dataShowCheckStakeHolder)
-    })()
-  }, [account, handleShowCheckStakeholder, currentPage, dataPools])
+    dispatch(updateFiltersStatePool({ typePool, page: 1, size: 8, sort: 'ASC' }))
+  }, [activeTab, dispatch, typePage, totalPool])
 
   const handleFilter = useCallback(async (item: string) => {
+    alphabet.current = true
     setActiveTab(item)
   }, [])
 
@@ -249,7 +176,7 @@ const TableActivePool = ({ data, heading }: Props) => {
                       <TableTh key={item.key} data-head={item.key}>
                         <DivTableThFirst>
                           {item.name}
-                          <DivIconSort reverse={alphabet.current} onClick={() => handleSortPools(data)}>
+                          <DivIconSort reverse={alphabet.current} onClick={handleSortPools}>
                             <IconOxy SrcImageIcon={IconSort} widthIcon={'12px'} heightIcon={'12px'} />
                           </DivIconSort>
                         </DivTableThFirst>
@@ -262,9 +189,9 @@ const TableActivePool = ({ data, heading }: Props) => {
                   })}
                 </tr>
               </thead>
-              {dataShow && !!dataShow?.length && (
+              {data && !!data?.length && !spinLoadingModalOpen && (
                 <tbody>
-                  {dataShow?.map((item: any, index: number) => {
+                  {data?.map((item: any, index: number) => {
                     return (
                       <tr key={index}>
                         <td>
@@ -292,20 +219,20 @@ const TableActivePool = ({ data, heading }: Props) => {
                         </td>
                         <td>
                           <DivAct>
-                            {item.roles.includes(RolePoolAddress.STAKEHOLDER) && (
-                              <ButtonClaim
-                                status={handleShowButtonClaim(item)}
-                                onClick={() => handleRedirectPoolDetails(item, typesPoolPage.CLAIM)}
-                              >
-                                {handleShowStatusClaim(item)}
-                              </ButtonClaim>
-                            )}
+                            <ButtonClaim
+                              status={handleShowButtonClaim(item)}
+                              onClick={() => handleRedirectPoolDetails(item, typesPoolPage.CLAIM)}
+                            >
+                              {handleShowStatusClaim(item)}
+                            </ButtonClaim>
                             {(item.roles.includes(RolePoolAddress.OPERATOR) ||
-                              item.roles.includes(RolePoolAddress.ADMIN)) && (
-                              <DivIcon onClick={() => handleRedirectPoolDetails(item, typesPoolPage.EDIT)}>
-                                <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
-                              </DivIcon>
-                            )}
+                              item.roles.includes(RolePoolAddress.ADMIN)) &&
+                              handleShowStatusClaim(item) !== StatusClaimButton.BANNED &&
+                              handleShowStatusClaim(item) !== StatusClaimButton.EXPIRED && (
+                                <DivIcon onClick={() => handleRedirectPoolDetails(item, typesPoolPage.EDIT)}>
+                                  <IconOxy SrcImageIcon={IconTableEdit} widthIcon={'20px'} heightIcon={'20px'} />
+                                </DivIcon>
+                              )}
                           </DivAct>
                         </td>
                       </tr>
@@ -315,19 +242,14 @@ const TableActivePool = ({ data, heading }: Props) => {
               )}
             </Table>
           </DivTableBox>
-          {data && !data.length ? (
-            <Notification>No data to show !</Notification>
-          ) : (
-            <Bottom>
-              <Pagination
-                simple
-                onChange={handleOnChange}
-                pageSize={countPerPage}
-                current={currentPage}
-                total={data ? data.length : 0}
-              />
-            </Bottom>
-          )}
+          {!spinLoadingModalOpen &&
+            (data && !data.length ? (
+              <Notification>No data to show !</Notification>
+            ) : (
+              <Bottom>
+                <Pagination simple onChange={handleOnChange} pageSize={size} current={page} total={totalPool} />
+              </Bottom>
+            ))}
         </TableActivePoolWrapper>
       </BlockTable>
     </>

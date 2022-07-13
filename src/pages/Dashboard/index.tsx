@@ -1,5 +1,5 @@
 import { CurrencyAmount } from '@uniswap/sdk-core'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
@@ -13,11 +13,9 @@ import TableActivePool from '../../components/TableActivePool'
 import { nativeOnChain } from '../../constants/tokens'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useBalance } from '../../hooks/useCurrencyBalance'
-import { AppState } from '../../state'
-import { useAppDispatch, useAppSelector } from '../../state/hooks'
+import { useAppDispatch } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { updateListStateHolder } from '../../state/pools/reducer'
-import { IPoolsData } from '../../state/pools/reducer'
 import { typesPoolPage } from '../Pool'
 
 interface TypeItemInfo {
@@ -44,13 +42,10 @@ const IconBrowseAll = {
 const Dashboard = () => {
   const { account, chainId } = useActiveWeb3React()
   const history = useHistory()
-  const poolData = useAppSelector((state: AppState) => state.pools).data
-
   const { balance } = useBalance()
   const userCDREDBalance = useCDREDBalance()
 
   const dispatch = useAppDispatch()
-  const [dataActive, setDataActive] = useState<IPoolsData[]>([])
 
   const dataETH: TypeItemInfo = {
     heading: 'ETH Balance',
@@ -73,13 +68,7 @@ const Dashboard = () => {
     !account && history.push({ pathname: `/` })
     window.localStorage.removeItem('address')
     window.localStorage.removeItem('typePoolPage')
-    const currentDayTime = new Date().getTime()
-    const data = poolData.filter(
-      (data) => data.start && data.end && data?.start < currentDayTime && data?.end > currentDayTime
-    )
-
-    setDataActive(data)
-  }, [account, history, poolData])
+  }, [account, history])
 
   const handleRedirectPool = (typePoolPage: string) => {
     window.localStorage.setItem('typePoolPage', typePoolPage)
@@ -101,7 +90,7 @@ const Dashboard = () => {
           </BlockChartItem>
         </BlockChartList>
         <BlockTable>
-          <TableActivePool data={dataActive} heading={'Active Pools'} />
+          <TableActivePool heading={'Active Pools'} />
           <TableBottom>
             <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
               <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
@@ -135,12 +124,9 @@ const BlockChartItem = styled.div`
   padding-right: 8px;
 `
 const BlockTable = styled.div`
-  margin-top: 32px;
+  margin-top: 16px;
   border-radius: 16px;
-  background-color: rgba(0, 20, 45, 0.6);
-  border: solid 1px #002d64;
-  backdrop-filter: blur(2px);
-  box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
+  background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
   padding: 24px 32px 20px;
 `
 const DivTableBottom = styled.div`

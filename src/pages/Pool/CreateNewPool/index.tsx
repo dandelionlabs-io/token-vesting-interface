@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import 'react-datepicker/dist/react-datepicker.css'
 
 import detectEthereumProvider from '@metamask/detect-provider'
@@ -19,11 +20,13 @@ import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
+import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
 import {
   useCloseModal,
   useLoadingModalToggle,
   useModalOpen,
   useSuccessModalToggle,
+  useErrorModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppSelector } from '../../../state/hooks'
@@ -40,6 +43,7 @@ interface fileImage {
 const CreateNewPool = () => {
   const history = useHistory()
   const [name, setName] = useState<string>('')
+  const [errorMsg, setErrorMsg] = useState<string>('')
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [fileImage, setFileImage] = useState<fileImage[]>([])
@@ -48,16 +52,21 @@ const CreateNewPool = () => {
   const [isDisable, setIsDisable] = useState<boolean>(false)
 
   const toggleSuccessModal = useSuccessModalToggle()
+  const toggleErrorModal = useErrorModalToggle()
   const toggleLoadingModal = useLoadingModalToggle()
 
   const successModalOpen = useModalOpen(ApplicationModal.POPUP_SUCCESS)
   const loadingModalOpen = useModalOpen(ApplicationModal.POPUP_LOADING)
+  const errorModalOpen = useModalOpen(ApplicationModal.POPUP_ERROR)
 
   const dataModalSuccess: DataModalSuccess = {
     type: '',
   }
   const dataModalLoading: DataModalLoading = {
     type: 'loading',
+  }
+  const dataModalError: DataModalError = {
+    type: '',
   }
 
   const closeModal = useCloseModal()
@@ -162,7 +171,10 @@ const CreateNewPool = () => {
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .catch((e: any) => {
-        console.log(e)
+        console.log('error code:', e.code)
+        setErrorMsg(e.code)
+        toggleLoadingModal()
+        toggleErrorModal()
       })
 
     tx?.wait().then(async (res: any) => {
@@ -180,7 +192,7 @@ const CreateNewPool = () => {
       if (!address || !listAddStakeholders || !listAddStakeholders.length) {
         setTimeout(function () {
           window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
-          history.push({ pathname: `pool` })
+          history.push({ pathname: `dashboard` })
         }, 3000)
         return
       }
@@ -212,11 +224,11 @@ const CreateNewPool = () => {
             setTimeout(function () {
               closeModal()
               window.localStorage.setItem('typePoolPage', typesPoolPage.LIST_POOL)
-              history.push({ pathname: `pool` })
+              history.push({ pathname: `dashboard` })
             }, 2000)
           })
           .catch((e: any) => {
-            console.log(e)
+            console.log('error', e)
           })
       })
     })
@@ -343,6 +355,12 @@ const CreateNewPool = () => {
         </DivSubmit>
       </DivNewPoolWrapper>
       <ModalSuccess isOpen={successModalOpen} onDimiss={toggleSuccessModal} data={dataModalSuccess}></ModalSuccess>
+      <ModalError
+        isOpen={errorModalOpen}
+        onDimiss={toggleErrorModal}
+        data={dataModalError}
+        message={errorMsg}
+      ></ModalError>
       <ModalLoading isOpen={loadingModalOpen} onDimiss={toggleLoadingModal} data={dataModalLoading}></ModalLoading>
     </>
   )

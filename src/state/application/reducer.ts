@@ -16,12 +16,12 @@ export type PopupContent =
 export enum ApplicationModal {
   WALLET,
   SETTINGS,
-  MENU,
   NETWORK_SELECTOR,
-  PRIVACY_POLICY,
   POPUP_SUCCESS,
+  POPUP_ERROR,
   POPUP_CONFIRM,
   POPUP_LOADING,
+  POPUP_SPIN_LOADING,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>
@@ -47,6 +47,9 @@ const applicationSlice = createSlice({
       state.chainId = chainId
     },
     setOpenModal(state, action) {
+      if (state.openModal === action.payload) {
+        return
+      }
       state.openModal = action.payload
     },
     addPopup(state, { payload: { content, key, removeAfterMs = DEFAULT_TXN_DISMISS_MS } }) {

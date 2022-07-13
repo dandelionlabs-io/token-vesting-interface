@@ -19,7 +19,7 @@ import {
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppDispatch } from '../../../state/hooks'
-import { updateListStateHolder } from '../../../state/pools/reducer'
+import { updateListStateHolder, updateStakeholderPool } from '../../../state/pools/reducer'
 import { typesPoolPage } from '../index'
 
 const StakeHolder = () => {
@@ -68,7 +68,7 @@ const StakeHolder = () => {
       setList(dataFiles)
 
       dataFiles.forEach((item: any, index: any) => {
-        if (index === result.data.length - 1) {
+        if (index === result.data.length) {
           return
         }
 
@@ -141,6 +141,7 @@ const StakeHolder = () => {
         closeModal()
 
         window.localStorage.setItem('typePoolPage', !poolAddress ? typesPoolPage.CREATE_POOL : typesPoolPage.EDIT)
+        dispatch(updateStakeholderPool({ address: poolAddress, stakeholders: list }))
         history.push({ pathname: `pool` })
       }, 2000)
     })
@@ -163,7 +164,7 @@ const StakeHolder = () => {
       />
       <BlockWrapper>
         <EmptyContainer width="100%">
-          <Heading>Add Stakeholders(s)</Heading>
+          <Heading>Add Stakeholder</Heading>
 
           <ListContainer justify="space-between">
             <HeadSpan fontsize="16px" fontweight="bold">
