@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/imports */
 import 'react-datepicker/dist/react-datepicker.css'
 
 import detectEthereumProvider from '@metamask/detect-provider'
@@ -18,19 +17,21 @@ import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
 import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
+import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
-import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import {
   useCloseModal,
+  useErrorModalToggle,
   useLoadingModalToggle,
   useModalOpen,
   useSuccessModalToggle,
-  useErrorModalToggle,
 } from '../../../state/application/hooks'
 import { ApplicationModal } from '../../../state/application/reducer'
 import { useAppSelector } from '../../../state/hooks'
 import { IStakeholders } from '../../../state/pools/reducer'
+import { getContract } from '../../../utils'
 import { typesPoolPage } from '../index'
 import TitleOptionNewPool from '../TitleOptionNewPool'
 
@@ -41,6 +42,7 @@ interface fileImage {
   src: any
 }
 const CreateNewPool = () => {
+  const { account, library } = useActiveWeb3React()
   const history = useHistory()
   const [name, setName] = useState<string>('')
   const [errorMsg, setErrorMsg] = useState<string>('')
@@ -138,7 +140,7 @@ const CreateNewPool = () => {
   }
 
   const handleCreatePool = async () => {
-    if (!startDate || !endDate || !name) {
+    if (!startDate || !endDate || !name || !account || !library) {
       return
     }
 
@@ -162,16 +164,12 @@ const CreateNewPool = () => {
       }
     })
 
-    const contract = new ethers.Contract(
-      process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '',
-      Factory,
-      web3Provider.getSigner()
-    )
+    const contract = getContract(process.env.REACT_APP_FACTORY_CONTRACT_ADDRESS || '', Factory, library, account)
 
     const tx = await contract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .catch((e: any) => {
-        console.log('error code:', e.code)
+        console.log('e all =====>', e)
         setErrorMsg(e.code)
         toggleLoadingModal()
         toggleErrorModal()
@@ -238,6 +236,13 @@ const CreateNewPool = () => {
     setIsDisable(!endDate || !startDate || !name || !(endDate.getTime() - startDate.getTime() > 0))
   }, [endDate, startDate, name])
 
+  const filterPassedTime = (time: any) => {
+    const currentDate = new Date()
+    const selectedDate = new Date(time)
+
+    return currentDate.getTime() < selectedDate.getTime()
+  }
+
   return (
     <>
       <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
@@ -301,6 +306,7 @@ const CreateNewPool = () => {
                     timeIntervals={5}
                     timeCaption="time"
                     dateFormat="MMMM d, yyyy h:mm aa"
+                    filterTime={filterPassedTime}
                   />
                   <DivIconCalendar>
                     <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
