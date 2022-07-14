@@ -165,6 +165,7 @@ const CreateNewPool = () => {
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .catch((e: any) => {
         console.log('error code:', e.code)
+        console.log('error code:', e.message)
         setErrorMsg(e.code)
         toggleLoadingModal()
         toggleErrorModal()
