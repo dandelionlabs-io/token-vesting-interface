@@ -3,8 +3,6 @@ import { useMemo } from 'react'
 
 import ERC20_ABI from '../abis/erc20.json'
 import Factory from '../abis/Factory'
-import { Vesting } from '../abis/Vesting'
-import VESTING_ABI from '../abis/vesting.json'
 import { Erc20 } from '../types'
 import { getContract } from '../utils'
 import useActiveWeb3React from './useActiveWeb3React'
@@ -34,10 +32,6 @@ export function useContract<T extends Contract = Contract>(
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
-}
-
-export function useVestingContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
-  return useContract<Vesting>(tokenAddress, VESTING_ABI, withSignerIfPossible)
 }
 
 export function useFactoryContract(withSignerIfPossible?: boolean) {
