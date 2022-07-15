@@ -14,6 +14,7 @@ import IconPlus from '../../../assets/svg/icon/icon-plus.svg'
 import { BaseButton } from '../../../components/Button'
 import GoBack from '../../../components/GoBack'
 import IconOxy from '../../../components/Icons/IconOxy'
+import { ERRORS } from '../../../components/Messages'
 import ModalError, { DataModalError } from '../../../components/Modal/ModalError'
 import ModalLoading, { DataModalLoading } from '../../../components/Modal/ModalLoading'
 import ModalSuccess, { DataModalSuccess } from '../../../components/Modal/ModalSuccess'
@@ -81,6 +82,11 @@ const CreateNewPool = () => {
   const onDragOver = (event: any) => {
     event.preventDefault()
     event.stopPropagation()
+  }
+
+  const getErrorMessage = (err: string) => {
+    const message = err.includes('Starting time shalll be in a future time') ? ERRORS.PAST_DATE : 'An error occured'
+    return message
   }
 
   const handleStartDateChange = (date: any) => setStartDate(date)
@@ -164,9 +170,7 @@ const CreateNewPool = () => {
     const tx = await factoryContract
       .createFullPool(name, process.env.REACT_APP_TOKEN_ADDRESS, start, duration)
       .catch((e: any) => {
-        console.log('error code:', e.code)
-        console.log('error code:', e.message)
-        setErrorMsg(e.code)
+        setErrorMsg(getErrorMessage(e.reason))
         toggleLoadingModal()
         toggleErrorModal()
       })
@@ -236,6 +240,13 @@ const CreateNewPool = () => {
     setIsDisable(!endDate || !startDate || !name || !(endDate.getTime() - startDate.getTime() > 0))
   }, [endDate, startDate, name])
 
+  const filterPassedTime = (time: any) => {
+    const currentDate = new Date()
+    const selectedDate = new Date(time)
+
+    return currentDate.getTime() < selectedDate.getTime()
+  }
+
   return (
     <>
       <GoBack textNameBack={`Go back`} pageBack="dashboard" typePage="" />
@@ -299,6 +310,7 @@ const CreateNewPool = () => {
                     timeIntervals={5}
                     timeCaption="time"
                     dateFormat="MMMM d, yyyy h:mm aa"
+                    filterTime={filterPassedTime}
                   />
                   <DivIconCalendar>
                     <IconOxy SrcImageIcon={IconCalendar} heightIcon={'20px'} widthIcon={'20px'} />
