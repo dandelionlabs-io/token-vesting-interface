@@ -22,11 +22,7 @@ const ModalError = (props: Props) => {
           {/* <BlockIcon>
             <IconOxy SrcImageIcon={IconSuccess} widthIcon={'80px'} heightIcon={'80px'} />
           </BlockIcon> */}
-          <NotificationSuccess>
-            {message && message === 'UNPREDICTABLE_GAS_LIMIT'
-              ? 'Initial date cannot be in the past'
-              : 'An error has occured'}
-          </NotificationSuccess>
+          <NotificationSuccess>{message}</NotificationSuccess>
         </ModalBody>
       </ModalContent>
     </Modal>

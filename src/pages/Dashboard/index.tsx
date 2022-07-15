@@ -13,6 +13,7 @@ import TableActivePool from '../../components/TableActivePool'
 import { nativeOnChain } from '../../constants/tokens'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useBalance } from '../../hooks/useCurrencyBalance'
+import { useFactoryOwner } from '../../hooks/useFactoryOwner'
 import { useAppDispatch } from '../../state/hooks'
 import { useCDREDBalance } from '../../state/pools/hook'
 import { updateListStateHolder } from '../../state/pools/reducer'
@@ -44,6 +45,7 @@ const Dashboard = () => {
   const history = useHistory()
   const { balance } = useBalance()
   const userCDREDBalance = useCDREDBalance()
+  const factory = useFactoryOwner()
 
   const dispatch = useAppDispatch()
 
@@ -92,9 +94,12 @@ const Dashboard = () => {
         <BlockTable>
           <TableActivePool heading={'Active Pools'} />
           <TableBottom>
-            <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
-              <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
-            </DivTableBottom>
+            {factory.isFactoryOwner && (
+              <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.CREATE_POOL)}>
+                <BlockFeatureUser dataImage={IconAddStake} name={'Create New Pool'} />
+              </DivTableBottom>
+            )}
+
             <DivTableBottom onClick={() => handleRedirectPool(typesPoolPage.LIST_POOL)}>
               <BlockFeatureUser dataImage={IconBrowseAll} name={'Browse all'} />
             </DivTableBottom>
@@ -126,8 +131,12 @@ const BlockChartItem = styled.div`
 const BlockTable = styled.div`
   margin-top: 16px;
   border-radius: 16px;
-  background-image: linear-gradient(180deg, #000d1e 31.72%, #002859 100%);
+  background-color: rgba(0, 20, 45, 0.6);
+  border: solid 1px #002d64;
+  backdrop-filter: blur(2px);
   padding: 24px 32px 20px;
+  box-shadow: 0px -6px 22px 5px rgba(0, 0, 0, 0.25), 0px 32px 40px -12px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
 `
 const DivTableBottom = styled.div`
   margin-top: 30px;
