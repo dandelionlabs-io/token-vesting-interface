@@ -1,6 +1,8 @@
 import { Connector } from '@web3-react/types'
 import { darken } from 'polished'
+import { useState } from 'react'
 import { Activity } from 'react-feather'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { AbstractConnector } from 'web3-react-abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from 'web3-react-core'
@@ -82,6 +84,50 @@ const NetworkIcon = styled(Activity)`
   height: 16px;
 `
 
+const DropDownDiv = styled.div<{ active: boolean }>`
+  position: absolute;
+  display: ${({ active }) => (!active ? 'none' : 'flex')};
+  flex-direction: column;
+  width: 100%;
+  border-radius: 16px;
+  background: #00142d;
+  padding: 15px 10px;
+  top: 60px;
+  border-radius: 10px;
+  box-shadow: 0px -6px 22px 5px rgb(0 0 0 / 25%), 0px 32px 40px -12px rgb(0 0 0 / 65%);
+`
+const TextParagraph = styled.p`
+  margin-bottom: 0;
+  color: ${({ theme }) => theme.white};
+  font-size: 13px;
+  line-height: 1.215;
+  padding: 0 10px;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.05);
+  }
+`
+const IconDIv = styled.img`
+  display: block;
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+`
+const DivRow = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 1px;
+`
+const HR = styled.hr`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 0.5px;
+  border: 0;
+  border-radius: 50%;
+  background-color: #44556a;
+`
+
 function WrappedStatusIcon({ connector }: { connector: AbstractConnector | Connector }) {
   return (
     <IconWrapper size={16}>
@@ -97,7 +143,7 @@ function Web3StatusInner() {
 
   if (account) {
     return (
-      <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal}>
+      <Web3StatusConnected id="web3-status-connected">
         <Text>{shortenAddress(account)}</Text>
         {connector && <WrappedStatusIcon connector={connector} />}
       </Web3StatusConnected>
@@ -117,11 +163,30 @@ function Web3StatusInner() {
 export default function Web3Status() {
   const { active } = useWeb3React()
   const contextNetwork = useWeb3React(NetworkContextName)
+  const [dropDown, setDropDown] = useState(false)
+  const toggleWalletModal = useWalletModalToggle()
 
   return (
-    <>
+    <div onClick={() => setDropDown(!dropDown)}>
       <Web3StatusInner />
+      <DropDownDiv active={dropDown}>
+        <DivRow>
+          {/* <IconDIv src={Logo_account} alt={'Logo_account'}></IconDIv> */}
+          <TextParagraph onClick={toggleWalletModal}>Change wallet</TextParagraph>
+        </DivRow>
+        <DivRow>
+          {/* <IconDIv src={Logo_account} alt={'Logo_account'}></IconDIv> */}
+
+          <Link style={{ textDecoration: 'none' }} to={'support'}>
+            <TextParagraph>Contact support</TextParagraph>
+          </Link>
+        </DivRow>
+        <HR></HR>
+        <DivRow style={{ marginTop: '10px' }}>
+          <TextParagraph style={{ color: '#e92f50' }}>Disconnect</TextParagraph>
+        </DivRow>
+      </DropDownDiv>
       {(contextNetwork.active || active) && <WalletModal />}
-    </>
+    </div>
   )
 }

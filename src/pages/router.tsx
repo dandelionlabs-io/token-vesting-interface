@@ -5,6 +5,7 @@ import Dashboard from './Dashboard'
 import LandingPage from './LandingPage'
 import NotFound from './NotFound'
 import Pool from './Pool'
+import SupportPage from './SupportPage/index'
 
 const RouterPage = () => {
   return (
@@ -20,6 +21,9 @@ const RouterPage = () => {
       </Route>
       <Route exact path="/contact">
         <LandingPage />
+      </Route>
+      <Route exact path="/support">
+        <SupportPage />
       </Route>
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/pool" component={Pool} />

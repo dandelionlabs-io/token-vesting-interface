@@ -1,13 +1,12 @@
 import useScrollPosition from '@react-hook/window-scroll'
 // import useTheme from 'hooks/useTheme'
-import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import { ReactComponent as Logo } from '../../assets/svg/dandelionlabs_logo_dashboard.svg'
-import Logo_account from '../../assets/svg/logo_account.svg'
+// import Logo_account from '../../assets/svg/logo_account.svg'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
-import { shortenAddress } from '../../utils'
+// import { shortenAddress } from '../../utils'
 import Web3Status from '../Web3Status'
 
 const HeaderFrame = styled.div<{ showBackground: boolean }>`
@@ -153,16 +152,49 @@ const HeaderElement = styled.div`
   `};
 `
 const InfoAccount = styled.div`
+  position: relative;
   margin-left: auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  padding: 5px;
+  cursor: pointer;
+  &:hover {
+    // border: 1px solid black;
+    border-radius: 20px;
+  }
 `
+
+const DropDownDiv = styled.div<{ active: boolean }>`
+  position: absolute;
+  display: ${({ active }) => (!active ? 'none' : 'flex')};
+  flex-direction: column;
+  width: 120%;
+  border-radius: 16px;
+  background: #00142d;
+  padding: 15px 10px;
+  top: 50px;
+  border-radius: 10px;
+  box-shadow: 0px -6px 22px 5px rgb(0 0 0 / 25%), 0px 32px 40px -12px rgb(0 0 0 / 65%);
+`
+
 const AddressWallet = styled.p`
   margin-bottom: 0;
   color: ${({ theme }) => theme.white};
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.215;
   margin-right: 12px;
+`
+const TextParagraph = styled.p`
+  margin-bottom: 0;
+  color: ${({ theme }) => theme.white};
+  font-size: 13px;
+  line-height: 1.215;
+  padding: 0 10px;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.05);
+  }
 `
 const LogoAccount = styled.img`
   display: block;
@@ -170,10 +202,36 @@ const LogoAccount = styled.img`
   height: 35px;
   vertical-align: middle;
 `
+const IconDIv = styled.img`
+  display: block;
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+`
+const DivSegment = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px;
+`
+const DivRow = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 1px;
+`
+const HR = styled.hr`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 0.5px;
+  border: 0;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.bgPrimary};
+`
 export default function Header() {
   const { account } = useActiveWeb3React()
   const scrollY = useScrollPosition()
   const location = useLocation()
+
   return (
     <>
       {location.pathname !== '/' ? (
@@ -184,8 +242,13 @@ export default function Header() {
             </DandelionIcon>
           </Title>
           <InfoAccount>
-            <AddressWallet>{account && shortenAddress(account)}</AddressWallet>
-            <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount>
+            <DivSegment>
+              {/* <AddressWallet>{account && shortenAddress(account)}</AddressWallet>
+              <LogoAccount src={Logo_account} alt={'Logo_account'}></LogoAccount> */}
+              <AccountElement active={!!account}>
+                <Web3Status />
+              </AccountElement>
+            </DivSegment>
           </InfoAccount>
         </>
       ) : (
